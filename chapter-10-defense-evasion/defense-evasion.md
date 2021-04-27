@@ -106,7 +106,7 @@ An added advantage of Shikata Ga Nai encoding is that it can be used to avoid by
 
 Unfortunately, if the results of this are uploaded to VirusTotal, 52 of 70 of the AVs detect it as malware \(Figure 9-1\). Increasing the number of iterations of the encoding doesn't improve the situation with 53 of the AVs detecting it as malware. Microsoft Defender even correctly identifies it as a Metasploit executable.
 
-![Output from VirusTotal for the reverse shell encoded with Shikata Ga Nai](../.gitbook/assets/0%20%289%29.png)
+![Output from VirusTotal for the reverse shell encoded with Shikata Ga Nai](../.gitbook/assets/0%20%2810%29.png)
 
 
 

@@ -84,7 +84,7 @@ The box is a domain controller with the domain MEGACORP.LOCAL. It ias IIS runnin
 
 ![Graphical user interface, application
 
-Description automatically generated](../.gitbook/assets/1%20%288%29.png)
+Description automatically generated](../.gitbook/assets/1%20%289%29.png)
 
 Home page of Multimaster machine on port 80
 
@@ -94,7 +94,7 @@ Going to the Colleague Finder menu option we find a page that allows for searche
 
 ![Graphical user interface, application
 
-Description automatically generated](../.gitbook/assets/2%20%2810%29.png)
+Description automatically generated](../.gitbook/assets/2%20%2811%29.png)
 
 Colleague Finder page with search input box
 
@@ -104,7 +104,7 @@ Using Burp Suite and sending a search request caught by the proxy interceptor to
 
 ![Graphical user interface, text, application
 
-Description automatically generated](../.gitbook/assets/3%20%289%29.png)
+Description automatically generated](../.gitbook/assets/3%20%2810%29.png)
 
 
 
@@ -120,7 +120,7 @@ Sending this in Burp, we do indeed get all of the results back \(Figure 9-5\).
 
 ![Graphical user interface, text, application, email
 
-Description automatically generated](../.gitbook/assets/4%20%288%29.png)
+Description automatically generated](../.gitbook/assets/4%20%289%29.png)
 
 
 

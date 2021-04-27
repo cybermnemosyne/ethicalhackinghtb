@@ -99,3 +99,8 @@
 * [Exercise: Bypassing a WAF on Multimaster](chapter-10-defense-evasion/exercise-bypassing-a-waf-on-multimaster.md)
 * [Process Injection](chapter-10-defense-evasion/process-injection.md)
 
+## Chapter 11 Command & Control and Persistence
+
+* [Command & Control](chapter-11-command-and-control-and-persistence/command-and-control.md)
+* [Persistence](chapter-11-command-and-control-and-persistence/persistence.md)
+
