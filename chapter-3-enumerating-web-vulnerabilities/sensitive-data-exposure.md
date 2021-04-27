@@ -6,5 +6,3 @@ From an attacker’s perspective, these vulnerabilities are part of the gatherin
 
 There are numerous examples of exposed sensitive data both in the real world and on Hack The Box. The password list rockyou.txt as mentioned above, was obtained from a data breach of the company RockYou. More recently in 2019, security researchers found 100 Terabytes of data on Amazon Web Service’s S3 storage site. The data belonged to a company called Attunity that contained data from their customers, including passwords and sensitive employee information. This type of vulnerability has been common because Amazon did not prevent public access by default in its settings of S3. This type of vulnerability also appears in the category of security misconfiguration which will be covered below.
 
-## 
-

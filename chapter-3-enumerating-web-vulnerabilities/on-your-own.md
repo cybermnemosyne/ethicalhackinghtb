@@ -1,8 +1,6 @@
 # On Your Own
 
-
-
- The top 10 OWASP vulnerabilities cover a large topic area and so you could pick almost any Hack The Box machine that features a web server and find an example of one of these vulnerabilities. The box Magic is a good example of using SQL injection to bypass authentication. Start with an nmap scan and the enumerate the website you find by running Gobuster on the site. You will find a /images directory and so run Gobuster on that directory as well.
+The top 10 OWASP vulnerabilities cover a large topic area and so you could pick almost any Hack The Box machine that features a web server and find an example of one of these vulnerabilities. The box Magic is a good example of using SQL injection to bypass authentication. Start with an nmap scan and the enumerate the website you find by running Gobuster on the site. You will find a /images directory and so run Gobuster on that directory as well.
 
 Try running sqlmap on the login page. To do this, intercept the login request in Burp and send the request to the Repeater tab. In the Repeater tab, right click on the request text and select "Copy to file". Call the file login.req.
 

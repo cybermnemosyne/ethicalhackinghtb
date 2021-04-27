@@ -22,9 +22,9 @@ TCP/IP actually consists of two main communication protocols; TCP \(Transmission
 
 When a client wants to use TCP/IP to talk to another process, like a server on a different machine, it needs to know where to send messages \(Figure 2-2\).
 
-![A picture containing graphical user interface
+!\[A picture containing graphical user interface
 
-Description automatically generated](../.gitbook/assets/1%20%286%29.png)
+Description automatically generated\]\(../.gitbook/assets/1%20%286%29.png\)
 
 Figure 2-2 A client and server application on two machines in the same network communicating with each other
 
@@ -71,8 +71,6 @@ for i in {1..254}; do
    fi
 done
 ```
-
-
 
 In this code, we enter a loop, incrementing the variable i during each iteration, from 1 to 254 v. We use this number to create a new IP address using a network portion "10.0.1" and adding the variable i as the host portion \(note that you could pass this portion in as an argument to the script\). The code then calls the host\_is\_up function w with the newly created IP address as an argument. The host\_is\_up function sends a ping \(-c 1\) and waits one second for a reply \(-w 1\) u. This function will return a status code indicating whether the ping was successful, so we check for this code. If successful, we print IP address of the discovered host.
 

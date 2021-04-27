@@ -1,7 +1,5 @@
 # Using Components with Known Vulnerabilities
 
-
-
 It may be surprising that this category of vulnerabilities is not at the top of the list when it comes to OWASP's top 10. The other categories you have already dealt with are still vulnerabilities affecting components and so in a way, this category is just all of the vulnerabilities that can affect a web application that are not of the specific types like XSS, injection etc. This category is also really comes about because administrators have not kept software up-to-date, have misconfigured them or simply were not aware they had them on their systems.
 
 Hunting for these vulnerabilities involves enumerating all of the applications, libraries, databases, operating systems and other processes and knowing the specific versions of each of these components. This information can then be used to look up databases of known vulnerabilities for specific version of software. you have already detailed the concept of vulnerabilities and CVE identifiers above. Whether these vulnerabilities can be exploited or not depends on a range of factors such as whether there is a practical way of exploiting the vulnerability, whether this can be done remotely or locally, whether it needs authentication or not, and what the actual outcome of the exploitation is.

@@ -1,7 +1,5 @@
 # Exercise: Case Study Multimaster
 
-
-
 This machine illustrates that even on Hack The Box, there are sometimes security misconfigurations and unintended vulnerable components. The machine is a domain controller in which the initial vulnerability is through a SQL injection. However, it turned out that the machine was released a few weeks before CVE-2020-1472 was disclosed and so it was actually vulnerable to the Zerologon attack. To test this, you can use the proof of concept of this attack:
 
 ```bash
@@ -50,33 +48,5 @@ megacorp\administrator
 ```
 
 Of course, this attack will have impacted the domain controller significantly by resetting the machine account's password to an empty string. If this was a machine with other Hack The Box users accessing it, you would want to avoid doing something that would significantly impact their experience. As a real attacker, this would send alerts flying and so that would be a consideration as well. Nevertheless, this is an exploit that is being used in the wild as I am writing this.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 1. 

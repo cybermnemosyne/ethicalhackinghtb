@@ -32,15 +32,13 @@ Searching for Virtual Hosts
 
 Now let’s get some information about how ForwardSlash is using virtual host names for its site. In Burp, intercept the initial request sent to the server. Enable the Burp proxy in FoxyProxy on Firefox and send the request to the Repeater using CTL-R. Then sending the request to the server \(Figure 2-6\).
 
+!\[Graphical user interface, text, application
 
+Description automatically generated\]\(../.gitbook/assets/7%20%282%29.png\)
 
-![Graphical user interface, text, application
+The request for the URL [http://10.129.1.91](http://10.129.1.91) and its response
 
-Description automatically generated](../.gitbook/assets/7%20%282%29.png)
-
-The request for the URL http://10.129.1.91 and its response
-
-Notice that when you enter ForwardSlash’s IP address, the browser page gets redirected to forwardslash.htb: after sending the request, you should receive a response status code of 302 Found. This 302 status code tells the browser to redirect to http://forwardslash.htb.
+Notice that when you enter ForwardSlash’s IP address, the browser page gets redirected to forwardslash.htb: after sending the request, you should receive a response status code of 302 Found. This 302 status code tells the browser to redirect to [http://forwardslash.htb](http://forwardslash.htb).
 
 We could choose to follow the redirect in Burp Suite, but instead, try changing the original request by replacing 10.10.10.183 with forwardslash.htb which illustrates that it is this value that determines the virtual host :
 
@@ -64,7 +62,7 @@ Upgrade-Insecure-Requests: 1
 
 We replace the HOST field value with the virtual host u before sending the request. This time, the response status code is 200 OK, which means a page has been returned.
 
-Add the hostname forwardslash.htb into the /etc/hosts file, along with the host’s IP address, and then return to http://forwardslash.htb in the browser. You should see a seemingly defaced home page saying that the site has been "pwned" by the Backslash Gang.
+Add the hostname forwardslash.htb into the /etc/hosts file, along with the host’s IP address, and then return to [http://forwardslash.htb](http://forwardslash.htb) in the browser. You should see a seemingly defaced home page saying that the site has been "pwned" by the Backslash Gang.
 
 ![Defaced home page of http://forwardslash.htb](../.gitbook/assets/8%20%285%29.png)
 
@@ -100,7 +98,6 @@ This returns a file, note.txt which we can view with the curl command:
 ```bash
 ┌─[rin@parrot]─[~/boxes/ForwardSlash]
 └──╼ $curl http://forwardslash.htb/note.txt
-
 ```
 
 > Pain, we were hacked by some skids that call themselves the "Backslash Gang"... I know... That name... Anyway I am just leaving this note here to say that we still have that backup site so we should be fine.
@@ -111,7 +108,7 @@ This note suggests that there is a backup site, which means that it’s likely t
 
 ![Request with changed Host: field to backup.forwardslash.htb](../.gitbook/assets/9.png)
 
- Note that we could have also used gobuster to discover this virtual host using the vhost argument:
+Note that we could have also used gobuster to discover this virtual host using the vhost argument:
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/ForwardSlash]
@@ -129,6 +126,4 @@ You’ve successfully fuzzed a website to discover its directory structure and f
 ## On Your Own
 
 Although we haven't covered enough yet to do an entire box on Hack The Box, you can try out what you have learned in this chapter on the Hack The Box machine OpenKeyS. Start by doing and nmap scan of the machine and record what ports and services you discovered. Note that this machine is not running Linux, but OpenBSD, which is very similar. You will find a web server running which you can explore. Run gobuster on this site and find the hidden directory /includes. When you go to this directory you can see that there is a misconfiguration which allows you to see the contents of the directory.
-
-
 

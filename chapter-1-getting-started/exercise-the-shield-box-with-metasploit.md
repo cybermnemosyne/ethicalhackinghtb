@@ -1,6 +1,6 @@
 # Exercise: The Shield Box with Metasploit
 
-On logging in to Hack The Box, you will be presented with lots of things you can do via the dashboard \(Figure 1-6\). In this book, we are going to focus on the Machines that are part of the Labs environment of the site. In particular we are going to stick to Retired Machines because writeups and videos discussing approaches to these challenges are public. Remember that to get access to all of the retired machines, you will need a VIP account. A machine is an actual virtual machine that is hosted on a server located in a region that is accessible via VPN connection. You should choose a region that is close to where you live in order to get the best response times from the machines. Hack The Box has a tutorial on how to get VPN access \(https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\). Each machine will have a unique IP address and if the machine is not started already by someone else, you can start the machine and it will run for a minimum of 24 hours. If you haven't finished in that time, you can extend the length of time the machine runs by a further period. When you are ready, you can tackle the Active Machines which are ones for which there are no public writeups or videos available and you are on your own to try and solve the challenge.
+On logging in to Hack The Box, you will be presented with lots of things you can do via the dashboard \(Figure 1-6\). In this book, we are going to focus on the Machines that are part of the Labs environment of the site. In particular we are going to stick to Retired Machines because writeups and videos discussing approaches to these challenges are public. Remember that to get access to all of the retired machines, you will need a VIP account. A machine is an actual virtual machine that is hosted on a server located in a region that is accessible via VPN connection. You should choose a region that is close to where you live in order to get the best response times from the machines. Hack The Box has a tutorial on how to get VPN access \([https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\](https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\)\). Each machine will have a unique IP address and if the machine is not started already by someone else, you can start the machine and it will run for a minimum of 24 hours. If you haven't finished in that time, you can extend the length of time the machine runs by a further period. When you are ready, you can tackle the Active Machines which are ones for which there are no public writeups or videos available and you are on your own to try and solve the challenge.
 
 All Hack The Box machines present the same goals, getting a user flag which is a 32 character unique hexadecimal string. Once this is obtained, you then need to get the root flag which means getting administrator privileges on the box. In our case studies, I won't explicitly talk about getting these flags although everything we do will allow you to get and submit them.
 
@@ -10,7 +10,7 @@ To get started, we are going to look at a machine called Shield in the Starting 
 
 There will be things that you do here that haven’t been covered yet and so I ask that you bear with me and concentrate on the use of Metasploit and meterpreter shells. The other aspects will be dealt with in more detail later. I could have skipped over the initial parts but if you are still uncomfortable, go ahead and read the enumeration section and then come back.
 
-### Setup
+## Setup
 
 To connect to the Starting Point machines, you need to run a VPN with the Starting Point access pack. Download the openvpn configuration file and run that using:
 
@@ -26,11 +26,11 @@ and then add
 
 Create a directory called Shield that you can use as the working directory for this challenge. Create a sub-directory called nmap to store the nmap results.
 
-### Finding Open Ports and Services
+## Finding Open Ports and Services
 
 In starting any box on Hack The Box, the first step is to perform enumeration of the network services that the box provides. We are given the IP address of the box and so what we need to know is what ports are open and what services are running on the machines listening on those ports. We will go into networking in the next chapter and describe how services can listen on specific ports for connections from client software. Web servers for example, usually listen on ports 80 and 443. For the time being, however, just follow along without worrying too much about the detail. To scan for open ports on the box, we will use a command line tool nmap.
 
-### Performing an Nmap Scan
+## Performing an Nmap Scan
 
 To start, add a hostname for the box and associate it with its IP address.
 
@@ -54,21 +54,19 @@ PORT STATE SERVICE VERSION
 Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
+The output from nmap tells us that Shield is a windows box running Microsoft IIS web server on port 80. Opening the URL [http://shield.htb](http://shield.htb) gives the default IIS web page \(Figure 1-7\).
 
+!\[Graphical user interface, chart, treemap chart
 
-The output from nmap tells us that Shield is a windows box running Microsoft IIS web server on port 80. Opening the URL http://shield.htb gives the default IIS web page \(Figure 1-7\).
+Description automatically generated\]\(../.gitbook/assets/7%20%285%29.png\)
 
-![Graphical user interface, chart, treemap chart
-
-Description automatically generated](../.gitbook/assets/7%20%285%29.png)
-
-### Check for Subdirectories
+## Check for Subdirectories
 
 Continuing the enumeration, we want to discover more about the website and in particular, its directory structure and potential files in those directories. Web servers are normally configured to serve HTML and other types of files from a root directory, like /var/www/html/ for example. The root directory may have subdirectories to organize files that the website uses like stylesheets and JavaScript. Subdirectories may also be used for files that belong to other websites.
 
 To explore the subdirectories and files that a website has access to, we can use a tool called gobuster. Gobuster uses dictionaries of common words associated with directories and files and will just repeatedly try URL paths replacing the final part of the path with words from the dictionary. This process is called fuzzing and it is used in hacking to explore the effect of inputs on the outputs of a program.
 
-Running gobuster using the directory dictionary /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt, we discover a sub-directory of the website called wordpress indicated by the status code 301. This status code indicates to the requester that the URL has been moved permanently to another location, in this case to the URL http://shield.htb/wordpress/.
+Running gobuster using the directory dictionary /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt, we discover a sub-directory of the website called wordpress indicated by the status code 301. This status code indicates to the requester that the URL has been moved permanently to another location, in this case to the URL [http://shield.htb/wordpress/](http://shield.htb/wordpress/).
 
 ```text
  ──[rin@parrot]─[~/boxes/StartingPoint/Shield]
@@ -89,9 +87,9 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
 /wordpress (Status: 301)
 ```
 
-The url **http://shield.htb/wordpress** reveals a wordpress website called SHIELDSUP that features blog posts by a user admin. Wordpress sites by default have administration pages at the url **http://shield.htb/wordpress/wp-admin**. you already know a user admin and from a previous machine in the StartingPoint series, you would have discovered the password P@s5w0rd!. Trying this with the user admin gets us in.
+The url [http://shield.htb/wordpress](http://shield.htb/wordpress) reveals a wordpress website called SHIELDSUP that features blog posts by a user admin. Wordpress sites by default have administration pages at the url [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin). you already know a user admin and from a previous machine in the StartingPoint series, you would have discovered the password P@s5w0rd!. Trying this with the user admin gets us in.
 
-### Launching a Meterpreter Reverse Shell
+## Launching a Meterpreter Reverse Shell
 
 The objective of the challenge is to gain access to the box to explore and hopefully discover more vulnerabilities that can be exploited to gain further privilege and access. This means getting control of user accounts that give progressively more access until we get to be the administrator of the box. Initial access usually refers to gaining a shell as one of these users. A shell is a program that allows a user the ability to type commands and display results.
 
@@ -159,7 +157,7 @@ msf6 exploit(unix/webapp/wp_admin_shell_upload) > run
 meterpreter >
 ```
 
-### Upgrading the Meterpreter Reverse Shell
+## Upgrading the Meterpreter Reverse Shell
 
 That gives us a meterpreter shell that is a little unstable and also, because it is written in PHP, somewhat limited in its abilities. We are going to generate a better meterpreter shell using a program called msfvenom. To start with we can use msfvenom to generate a Windows executable program that will run the meterpreter reverse shell. To do this, we can type
 
@@ -232,15 +230,7 @@ meterpreter >
 
 We are now in a new, more powerful meterpreter session and typing help will show more commands than were available with the php meterpreter shell \(not all shells are equal\). You can verify this by typing help at the meterpreter command and seeing the range of commands available.
 
-## 
-
-## 
-
-
-
-
-
-### Discovery and Privilege Escalation
+## Discovery and Privilege Escalation
 
 Now that we have achieved initial access, the process of further enumeration or discovery takes place. We are looking for ways of elevating our user account to administrator and gain total ownership of the box. This process is called privilege escalation or priv esc for short.
 
@@ -295,7 +285,7 @@ meterpreter > getuid
 Server username: NT AUTHORITY\SYSTEM
 ```
 
-### Finding User Credentials
+## Finding User Credentials
 
 Now that we have administrator privileges, we can do some more discovery to look for any other useful information on the box, in particular, other user accounts and their passwords.
 
@@ -307,7 +297,6 @@ We will come back to this later in the book and deal with it in more details but
 To run kiwi, you type “load kiwi” and then “creds\_all”. From this, you can see the user “sandra” has the password “Password1234!” which has been extracted from Kerberos running on the machine.
 
 ```text
-
 meterpreter > creds_all
 [+] Running as SYSTEM
 [*] Retrieving all credentials
@@ -337,23 +326,21 @@ shield$ MEGACORP.LOCAL cw)_#JH _gA:]UqNu4XiN`yA'9Z'OuYCxXl]30fY1PaK,AL#ndtjq?]h_
 
 If you follow the tutorial on Hack The Box for this machine, some things are different. A different approach is taken to using netcat for reverse shells and running mimikatz.exe directly. The end result is the same however.
 
-### Doing the initial access to Shield manually
+## Doing the initial access to Shield manually
 
 You have seen how Metasploit can make discovery and exploitation a simple process of choosing a command, setting options and then typing run. The problem with this is that you don't get to see what is actually happening in each of these steps and so it is difficult to understand what it is you are actually exploiting. In this section, we will do the initial access using our own crafted exploit.
 
-### Getting a reverse shell by uploading a WordPress plugin
+## Getting a reverse shell by uploading a WordPress plugin
 
-Visiting the Shield WordPress site at http://shield.htb/wordpress, you will find a website called Shields Up which is for a company supplying electric trucks \(Figure 1-8\).
+Visiting the Shield WordPress site at [http://shield.htb/wordpress](http://shield.htb/wordpress), you will find a website called Shields Up which is for a company supplying electric trucks \(Figure 1-8\).
 
+!\[Graphical user interface, application, website
 
+Description automatically generated\]\(../.gitbook/assets/8%20%283%29.png\)
 
-![Graphical user interface, application, website
+Home page for [http://shield.htb/wordpress](http://shield.htb/wordpress)
 
-Description automatically generated](../.gitbook/assets/8%20%283%29.png)
-
-Home page for http://shield.htb/wordpress
-
-Navigating to the WorPress administration site at http://shield.htb/wordpress/wp-admin, you can enter the username and password admin and P@s5w0rd! to get in and get the Dashboard page \(Figure 1-9\).
+Navigating to the WorPress administration site at [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin), you can enter the username and password admin and P@s5w0rd! to get in and get the Dashboard page \(Figure 1-9\).
 
 ![Successful plugin installed on Shield WordPress site](../.gitbook/assets/10%20%284%29.png)
 

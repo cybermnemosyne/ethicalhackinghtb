@@ -14,23 +14,19 @@ Exploring and Configuring Burp
 
 You can start Burp Suite by selecting it from the Applications menu in Parrot OS under Pentesting &gt; Most Used Tools &gt; burpsuite. By default, Burp starts a proxy listener on port 8080, as you can see noted in the Event log on the dashboard \(Figure 2-2\).
 
-
-
 ![Dashboard of Burp Suite](../.gitbook/assets/4.png)
 
 HTTP usually communicates on port 80, while the encrypted version of the protocol, HTTPS, usually communicates on port 443. \(An Nmap run with scripts and versions \(-sC and -sV\), will report web servers running on different ports if it finds them.\) Because Burp is a proxy and intercepts requests, it listens on port 8080.
 
 Burp has a range of capabilities, including capturing HTTP traffic, editing requests before sending them to a server, and even fuzzing the URLs and data in requests. URL fuzzing is the process of substituting different parts of the URL with words from a dictionary in order to discover the structure of the website. We can do this because, typically, a website uses a URL structure that map directly onto a directory structure under the root directory from which the website is run. The main thing we’ll use it for, however, is its interception and forwarding capabilities.
 
-Although Burp has a built-in browser, you’ll have more flexibility if you use Firefox. You could directly configure Firefox to use the proxy, but constantly changing the configuration between proxied and non-proxied access would be tedious. Instead, you can use a browser add-on, such as FoxyProxy. To install FoxyProxy, add it to Firefox from its installation page \(https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/\).
+Although Burp has a built-in browser, you’ll have more flexibility if you use Firefox. You could directly configure Firefox to use the proxy, but constantly changing the configuration between proxied and non-proxied access would be tedious. Instead, you can use a browser add-on, such as FoxyProxy. To install FoxyProxy, add it to Firefox from its installation page \([https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/\](https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/\)\).
 
 Once FoxyProxy is installed, you can configure a proxy setting for Burp in the Options tab, as shown in Figure 2-4.
 
+!\[Graphical user interface, text, application
 
-
-![Graphical user interface, text, application
-
-Description automatically generated](../.gitbook/assets/5%20%284%29.png)
+Description automatically generated\]\(../.gitbook/assets/5%20%284%29.png\)
 
 Configuring the Burp proxy in FoxyProxy
 
@@ -44,21 +40,19 @@ Let’s create our own web server so we can browse to it, then view the traffic 
 
 └──╼ $python3 -m http.server 8000
 
-Serving HTTP on 0.0.0.0 port 8000 \(http://0.0.0.0:8000/\) ...
+Serving HTTP on 0.0.0.0 port 8000 \([http://0.0.0.0:8000/\](http://0.0.0.0:8000/\)\) ...
 
 The http.server module will listen for HTTP GET requests on port 8000 and then serve the files requested from the directory it is running in.
 
 Capturing Traffic
 
-In Burp, select the Proxy tab and make sure that the Intercept is On button is selected. Switch on the Burp proxy in FoxyProxy, then access http://127.0.0.1:8000/index.html in the browser. The request should hang in the browser as it is intercepted in Burp. Its contents should be displayed in the Raw window \(Figure 2-4\).
+In Burp, select the Proxy tab and make sure that the Intercept is On button is selected. Switch on the Burp proxy in FoxyProxy, then access [http://127.0.0.1:8000/index.html](http://127.0.0.1:8000/index.html) in the browser. The request should hang in the browser as it is intercepted in Burp. Its contents should be displayed in the Raw window \(Figure 2-4\).
 
+!\[Graphical user interface, text, application, email
 
+Description automatically generated\]\(../.gitbook/assets/6%20%281%29.png\)
 
-![Graphical user interface, text, application, email
-
-Description automatically generated](../.gitbook/assets/6%20%281%29.png)
-
-Send this request to the Repeater tab in Burp using CTL-R, or right-clicking the window and selecting Send to Repeater. The Repeater in Burp allows requests to be viewed, edited, and then sent to the destination. It’s called the Repeater because this action can be repeated. We can now either drop the request or forward it to the server. You can see the history of all requests going through the proxy in the HTTP history tab \(the second tab in the Proxy section\). If you notice a number of requests from Firefox for the URL http://detectportal.firefox.com/ you can disable this by typing about:config in the URL search bar of Firefox, searching for “portal,” and switching network.captive-portal-service.enabled to false.
+Send this request to the Repeater tab in Burp using CTL-R, or right-clicking the window and selecting Send to Repeater. The Repeater in Burp allows requests to be viewed, edited, and then sent to the destination. It’s called the Repeater because this action can be repeated. We can now either drop the request or forward it to the server. You can see the history of all requests going through the proxy in the HTTP history tab \(the second tab in the Proxy section\). If you notice a number of requests from Firefox for the URL [http://detectportal.firefox.com/](http://detectportal.firefox.com/) you can disable this by typing about:config in the URL search bar of Firefox, searching for “portal,” and switching network.captive-portal-service.enabled to false.
 
 In the Repeater tab, you should see the request displayed in an editable window \(Figure 2-5\). If you click Send, this request will be sent to the server, and the reply will be displayed in the Response window. Let’s take a closer look at this HTTP request so you can understand its components.
 
@@ -108,7 +102,7 @@ Directory Fuzzing
 
 When learning about a website, you’ll probably want to know its layout and, if possible, information about files that comprise it. These files may be HTML files, or files that contain code written in languages such as PHP, ASP, ASPX, and Java. Although we might not be able to get access to the contents of the files we find, their names might give clues as to what functionality the website provides. A file called upload.php, for example, strongly suggests that the website supports file uploads of some sort.
 
-One way to discover this information is to fuzz the URLs used in HTTP requests, starting with the root of the URL, which is equivalent to the site’s IP address. For instance, if we were to fuzz a URL http://127.0.0.1:8000/, we could simply add well-known directory names from a wordlist after the last slash, such as “uploads,” “backups,” or “admin.” To look for files, we could do the same, appending file extensions like .html, .php, .java, and so on.
+One way to discover this information is to fuzz the URLs used in HTTP requests, starting with the root of the URL, which is equivalent to the site’s IP address. For instance, if we were to fuzz a URL [http://127.0.0.1:8000/](http://127.0.0.1:8000/), we could simply add well-known directory names from a wordlist after the last slash, such as “uploads,” “backups,” or “admin.” To look for files, we could do the same, appending file extensions like .html, .php, .java, and so on.
 
 You can use Gobuster \(and other applications such as dirb, dirbuster, wfuzz\) to fuzz a website and discover its directory structure and pages. There are a range of things you are trying to look out for when fuzzing a website. Some of those are:
 
@@ -153,7 +147,7 @@ Start the Python web server you created on port 8000 and run Gobuster:
 
 ┌─\[rin@parrot\]─\[~/boxes/book/www\]
 
-└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x .php,.html -u http://127.0.0.1:8000
+└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x .php,.html -u [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ===============================================================
 
@@ -163,7 +157,7 @@ by OJ Reeves \(@TheColonial\) & Christian Mehlmauer \(@\_FireFart\_\)
 
 ===============================================================
 
-\[+\] Url: http://127.0.0.1:8000
+\[+\] Url: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 \[+\] Threads: 10
 
@@ -211,7 +205,7 @@ Technically, virtual hosts work by putting the virtual host name in a HOST heade
 
 ┌─\[rin@parrot\]─\[~\]
 
-└──╼ $**gobuster vhost -w /usr/share/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -u http://company.com**
+└──╼ $**gobuster vhost -w /usr/share/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -u** [http://company.com](http://company.com)
 
 Here we’re using a different wordlist from SecLists \(/usr/share/SecLists/Discovery/DNS/subdomains-top1million-110000.txt\). SecLists is a series of files containing commonly used words used for fuzzing of passwords, directories, virtual hosts, and so on. It is pre-installed on Parrot OS.
 
@@ -245,13 +239,13 @@ The argument -type=ns tells nslookup that we’re looking for nameservers for th
 
 To initiate a zone transfer, use either host or dig:
 
-host -l &lt;zone&gt; &lt;dns server&gt; 
+host -l &lt;zone&gt; &lt;dns server&gt;
 
 Here the -l &lt;zone&gt; argument tells the host tool to list the zone specified. XXXX
 
 Here is the equivalent command for dig:
 
-dig -t axfr @&lt;dns server&gt; &lt;zone&gt; 
+dig -t axfr @&lt;dns server&gt; &lt;zone&gt;
 
 The argument -t axfr tells dig to request a zone transfer from the nameserver &lt;dns server&gt; for the zone &lt;zone&gt;.
 
@@ -260,12 +254,4 @@ Keep in mind that administrators will often limit zone transfers to specific IP 
 Exercise: Fuzzing Virtual Hosts on ForwardSlash
 
 Navigate to the ForwardSlash machine in Hack the Box. Let’s practice using Burp and gobuster to enumerate the website’s directory structure and search for virtual hosts.
-
-
-
-
-
-
-
-
 

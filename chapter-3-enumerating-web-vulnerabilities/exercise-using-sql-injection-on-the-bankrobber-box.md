@@ -2,8 +2,6 @@
 
 In order to try out SQL injection, we will go back to the Hack The Box machine, Bankrobber. The XSS exploitation will gae us credentials for the admin user and with those, we can access the administration functionality of the site where you discover a user's search function that is SQL injectable \(Figure 3-1\).
 
-
-
 ![Search functionality available after logging in as admin on Bankrobber](../.gitbook/assets/2%20%286%29.png)
 
 You know that it is SQL injectable through the following process: Simple numbers like 1 and 2 in the search query return users with those numbers as ids. Putting a single quote after the number results in an error that is returned saying that “There is a problem with your SQL syntax”. Adding the MySQL comment text 1'-- - into the search field then returns the user again.
@@ -58,7 +56,7 @@ FROM users WHERE user_id = 1
 
 Will test if the first character in the password is ‘2’ \(assuming the password is in clear text\).
 
- Whilst sqlmap can save time in obtaining information from SQL injection, it is always useful to know how to get the information manually. For example, in Bankrobber, you can list the databases in MariaDB with the command:
+Whilst sqlmap can save time in obtaining information from SQL injection, it is always useful to know how to get the information manually. For example, in Bankrobber, you can list the databases in MariaDB with the command:
 
 ```sql
 term=1'+union+select+'Field1',(SELECT group_concat(schema_name) 

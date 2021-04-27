@@ -1,7 +1,5 @@
 # Security Misconfiguration and Insecure Deserialisation
 
-
-
 Security misconfiguration is a category of a range of different vulnerabilities. Vulnerability scanners may find some of these types of vulnerabilities. The vulnerabilities covered here include:
 
 * Leaving default settings of applications that do not implement security features

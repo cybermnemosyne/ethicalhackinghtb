@@ -10,7 +10,7 @@ Passwords are normally not stored in clear text but as a cryptographic hash that
 
 This algorithm makes cracking these types of hashes relatively easy. The hashes can be first compared against large tables, called “Rainbow Tables” of pre-calculated hashes of common passwords and dictionary words. This won’t work if the password was hashed with a salt. The alternative is to use a dictionary of common passwords and a tool like John The Ripper or hashcat. It is important to know that cracking hashes requires a great deal of computational resources and so doing it on a VM is always going to be slow. For Hack The Box challenges, this isn’t usually a problem because any password that is meant to be crackable will crack within 10 minutes or so. In the real world of course, things aren’t that simple and so having a dedicated machine for password cracking that has access to high powered CPUs or GPUs \(Graphical Processing Units\) is essential.
 
-John has a number of utility programs that will convert password files from applications into a suitable “John” format for cracking. As an example, john can extract the password hash from a zip file that has been password protected using the application zip2john. Key files for ssh that are password protected can be converted to a john hash using ssh2john \(in the “jumbo” version of John The Ripper[\[5\]]()\).
+John has a number of utility programs that will convert password files from applications into a suitable “John” format for cracking. As an example, john can extract the password hash from a zip file that has been password protected using the application zip2john. Key files for ssh that are password protected can be converted to a john hash using ssh2john \(in the “jumbo” version of John The Ripper[\[5\]](cracking-hashes.md)\).
 
 If a hash is obtained, John the Ripper will try and identify it but it is worth determining the hash type explicitly. There are hash identifying services online that can be used to help with this.
 
@@ -19,6 +19,4 @@ As with the choice of word lists for other fuzzing tasks, choosing a word list f
 Another tool that can be used for cracking passwords, especially on computers with GPUs is hashcat. It can be used in CPU only mode, but it has then little advantage over John The Ripper.
 
 Hack The Box has numerous examples of cracking hashes that can be done with John The Ripper or hashcat and we will highlight the use of these tools in future exercises.
-
-## 
 
