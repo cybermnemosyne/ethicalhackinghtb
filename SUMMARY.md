@@ -79,3 +79,10 @@
 * [Exercise: Enumeration and privilege escalation on  Traceback](chapter-7-enumeration-and-privilege-escalation-on-linux/exercise-enumeration-and-privilege-escalation-on-traceback.md)
 * [Exercise: Enumeration and privilege escalation on  Traverxec](chapter-7-enumeration-and-privilege-escalation-on-linux/exercise-enumeration-and-privilege-escalation-on-traverxec.md)
 
+## Chapter 8 Enumeration and Privilege Escalation on Windows
+
+* [Enumeration and privilege escalation on Windows](chapter-8-enumeration-and-privilege-escalation-on-windows/enumeration-and-privilege-escalation-on-windows.md)
+* [Exercise: Enumeration and privilege escalation on Remote](chapter-8-enumeration-and-privilege-escalation-on-windows/exercise-enumeration-and-privilege-escalation-on-remote.md)
+* [Exercise: Enumeration and privilege escalation on Resolute](chapter-8-enumeration-and-privilege-escalation-on-windows/exercise-enumeration-and-privilege-escalation-on-resolute.md)
+* [Final thoughts on enumeration and discovery](chapter-8-enumeration-and-privilege-escalation-on-windows/final-thoughts-on-enumeration-and-discovery.md)
+
