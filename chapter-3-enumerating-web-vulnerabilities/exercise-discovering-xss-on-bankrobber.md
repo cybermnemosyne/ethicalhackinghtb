@@ -36,7 +36,7 @@ Service Info: Host: BANKROBBER; OS: Windows; CPE: cpe:/o:microsoft:windows
 
 MariaDB is very similar to MySQL and uses the same SQL syntax. After navigating to the URL [http://bankrobber.htb](http://bankrobber.htb) we find a Bitcoin trading platform called E-coin.
 
-![Home page of Bankrobber](../.gitbook/assets/0.png)
+![Home page of Bankrobber](../.gitbook/assets/0%20%281%29%20%282%29.png)
 
 There is a login function and below that a place to register new accounts. If we register an account with username 'john' and password 'password' and then login, we are taken to a page that allows us to transfer E-coin to \(presumably\) another user using the ID of the user.
 

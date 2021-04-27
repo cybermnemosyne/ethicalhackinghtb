@@ -74,7 +74,7 @@ Trying this on the login page doesn't work but looking at the format of the pass
 
 Once in, you can see that the version of PRTG is 18.1.37.13946, which is the same information that nmap gave us in the output above. Looking around the app, you can see the release notes for the application with a warning about the current version
 
-![Release notes for version 18.4.47.1972 in PRTG application](../.gitbook/assets/15%20%281%29.png)
+![Release notes for version 18.4.47.1972 in PRTG application](../.gitbook/assets/15%20%282%29.png)
 
 .This particular vulnerability doesn't really help us \(although it may have been a reason for the plain text password in the backup configuration file?\). So you need to look for other vulnerabilities. Searching for vulnerabilities for PRTG, you find a highly critical vulnerability CVE-2018-9276[\[6\]](exercise-enumerating-vulnerabilities-caused-by-default-applications-in-the-box-netmon.md) that allows remote code execution. The vulnerability is related to a demo script that is included with the product that is vulnerable to command injection. When creating a notification in the system, one action that can be selected is to run an executable and of the two options provided one is a PowerShell script OutFile.ps1. This takes a parameter of a file name but if you add a "\|" after the file name, you can add any other PowerShell commands. you can then create a new user and add them to the administrator group using the parameter:
 
@@ -92,7 +92,7 @@ To create a Notification, you go into the menu Setup &gt; Account Settings &gt; 
 
 Select the Demo.exe notification outfile.ps1 and enter our crafted command as the Parameter. In the Notifications list, click the menu button on the right and then the bell icon from the popup menu
 
-![Notifications list after creating notification](../.gitbook/assets/18%20%281%29.png)
+![Notifications list after creating notification](../.gitbook/assets/18%20%281%29%20%281%29.png)
 
 Once you have done this, you can login using Impacket's psexec.py
 

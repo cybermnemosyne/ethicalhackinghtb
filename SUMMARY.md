@@ -1,9 +1,7 @@
 # Table of contents
 
-
-* [ethicalhackinghtb](README.md)
-=======
-* [Introduction](README.md)
+* [Ethical Hacking With Hack The Box](README.md)
+* [Introduction](introduction.md)
 * [About the Author](about-the-author.md)
 * [Copyright Notice](copyright-notice.md)
 
@@ -14,7 +12,7 @@
 * [Exercise: The Shield Box with Metasploit](chapter-1-getting-started/exercise-the-shield-box-with-metasploit.md)
 * [Reflections](chapter-1-getting-started/reflections.md)
 
-## Chapter 2 Enumeration Part 1: Networks, SMB, DNS, and Websites
+## Chapter 2 Discovery: Networks, SMB, DNS and Websites <a id="chapter-2-enumeration-part-1-networks-smb-dns-and-websites"></a>
 
 * [What is Enumeration?](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/what-is-enumeration.md)
 * [Finding and Exploiting Vulnerabilities](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/finding-and-exploiting-vulnerabilities.md)
@@ -23,7 +21,7 @@
 * [Website Enumeration](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/website-enumeration.md)
 * [Exercise: ForwardSlash](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/exercise-forwardslash.md)
 
-## Chapter 3 Enumerating Web Vulnerabilities
+## Chapter 3 Discovery: Web Vulnerabilities <a id="chapter-3-enumerating-web-vulnerabilities"></a>
 
 * [Websites Vulnerabilities](chapter-3-enumerating-web-vulnerabilities/websites-and-applications.md)
 * [Cross-Site Scripting \(XSS\)](chapter-3-enumerating-web-vulnerabilities/cross-site-scripting-xss.md)
@@ -49,7 +47,7 @@
 * [Exercise: Enumerating vulnerabilities caused by default applications in the box Netmon](chapter-3-enumerating-web-vulnerabilities/exercise-enumerating-vulnerabilities-caused-by-default-applications-in-the-box-netmon.md)
 * [On Your Own](chapter-3-enumerating-web-vulnerabilities/on-your-own.md)
 
-## Chapter 4 Initial Access
+## Initial Access: Shells and Remote Services <a id="chapter-4-initial-access"></a>
 
 * [Initial Access](chapter-4-initial-access/initial-access.md)
 * [Shells](chapter-4-initial-access/shells.md)
@@ -65,32 +63,32 @@
 * [Exercise: Brute forcing usernames and passwords for remote access on Hack The Box machine Fuse](chapter-4-initial-access/exercise-brute-forcing-usernames-and-passwords-for-remote-access-on-hack-the-box-machine-fuse.md)
 * [On Your Own](chapter-4-initial-access/on-your-own.md)
 
-## Chapter 5 Initial Access via Custom Exploits
+## Chapter 5 Initial Access: Custom Exploits <a id="chapter-5-initial-access-via-custom-exploits"></a>
 
 * [Buffer overflows](chapter-5-initial-access-via-custom-exploits/buffer-overflows.md)
 * [Exercise: Exploiting a Buffer Overflow on Ellingson](chapter-5-initial-access-via-custom-exploits/exercise-exploiting-a-buffer-overflow-on-ellingson.md)
 * [Exercise: Exploiting a Windows Buffer Overflow on Buff](chapter-5-initial-access-via-custom-exploits/exercise-exploiting-a-windows-buffer-overflow-on-buff.md)
 * [On Your Own](chapter-5-initial-access-via-custom-exploits/on-your-own.md)
 
-## Chapter 6 Initial Access Via Social Engineering
+## Chapter 6 Initial Access: Social Engineering <a id="chapter-6-initial-access-via-social-engineering"></a>
 
 * [Social Engineering](chapter-6-initial-access-via-social-engineering/social-engineering.md)
 * [Exercise: Phishing on SneakyMailer](chapter-6-initial-access-via-social-engineering/exercise-phishing-on-sneakymailer.md)
 
-## Chapter 7 Enumeration and Privilege Escalation on Linux
+## Chapter 7 Linux Enumeration and Privilege Escalation <a id="chapter-7-enumeration-and-privilege-escalation-on-linux"></a>
 
 * [Enumeration and privilege escalation on Linux](chapter-7-enumeration-and-privilege-escalation-on-linux/enumeration-and-privilege-escalation-on-linux.md)
 * [Exercise: Enumeration and privilege escalation on  Traceback](chapter-7-enumeration-and-privilege-escalation-on-linux/exercise-enumeration-and-privilege-escalation-on-traceback.md)
 * [Exercise: Enumeration and privilege escalation on  Traverxec](chapter-7-enumeration-and-privilege-escalation-on-linux/exercise-enumeration-and-privilege-escalation-on-traverxec.md)
 
-## Chapter 8 Enumeration and Privilege Escalation on Windows
+## Chapter 8 Windows Enumeration and Privilege Escalation <a id="chapter-8-enumeration-and-privilege-escalation-on-windows"></a>
 
 * [Enumeration and privilege escalation on Windows](chapter-8-enumeration-and-privilege-escalation-on-windows/enumeration-and-privilege-escalation-on-windows.md)
 * [Exercise: Enumeration and privilege escalation on Remote](chapter-8-enumeration-and-privilege-escalation-on-windows/exercise-enumeration-and-privilege-escalation-on-remote.md)
 * [Exercise: Enumeration and privilege escalation on Resolute](chapter-8-enumeration-and-privilege-escalation-on-windows/exercise-enumeration-and-privilege-escalation-on-resolute.md)
 * [Final thoughts on enumeration and discovery](chapter-8-enumeration-and-privilege-escalation-on-windows/final-thoughts-on-enumeration-and-discovery.md)
 
-## Chapter 9 Enumeration and Exploitation of Windows Active Directory
+## Chapter 9 Windows Active Directory Enumeration and Privilege Escalation <a id="chapter-9-enumeration-and-exploitation-of-windows-active-directory"></a>
 
 * [Enumeration and exploitation of Windows active Directory](chapter-9-enumeration-and-exploitation-of-windows-active-directory/enumeration-and-exploitation-of-windows-active-directory.md)
 * [Exercise: Enumerating and exploiting AD on Forest](chapter-9-enumeration-and-exploitation-of-windows-active-directory/exercise-enumerating-and-exploiting-ad-on-forest.md)
@@ -107,5 +105,4 @@
 
 * [Command & Control](chapter-11-command-and-control-and-persistence/command-and-control.md)
 * [Persistence](chapter-11-command-and-control-and-persistence/persistence.md)
-
 

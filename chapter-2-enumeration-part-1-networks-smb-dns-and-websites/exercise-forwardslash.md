@@ -64,7 +64,7 @@ We replace the HOST field value with the virtual host u before sending the reque
 
 Add the hostname forwardslash.htb into the /etc/hosts file, along with the host’s IP address, and then return to [http://forwardslash.htb](http://forwardslash.htb) in the browser. You should see a seemingly defaced home page saying that the site has been "pwned" by the Backslash Gang.
 
-![Defaced home page of http://forwardslash.htb](../.gitbook/assets/8%20%285%29.png)
+![Defaced home page of http://forwardslash.htb](../.gitbook/assets/8%20%285%29%20%281%29.png)
 
 ## Discovering the Site Structure
 
