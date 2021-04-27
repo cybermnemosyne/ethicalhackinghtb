@@ -1,6 +1,7 @@
 # Table of contents
 
 * [Introduction](README.md)
+* [About the Author](about-the-author.md)
 * [Copyright Notice](copyright-notice.md)
 
 ## Chapter 1 Getting Started
