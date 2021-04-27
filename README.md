@@ -1,5 +1,8 @@
-# Introduction
+# ethicalhackinghtb
 
+
+Book Ethical Hacking With Hack The Box
+=======
 If you have come here to learn about ethical hacking, then you may already be familiar with what an ethical hacker actually is. For thoes that don't, the key is the ethical part of the name which simply means that when you explore a technology, computer, machine, or network, you are doing so with the owner's permission. Without permission, you are simply a hacker and very likely doing something illegal. The hacker part of the name means that you are exploring technologies, computers, machines and networks with the view of finding weaknesses in them and exploiting those weaknesses for unintended purposes.
 
 Professionally, ethical hackers can work as penetration testers where they will try and find vulnerabilities in a customer's computer network or their software and then inform the customer so that they can fix the vulnerabilities before they are exploited by malicious hackers. Another type of ethical hacker is one that works in a Red Team, which is a group of ethical hackers that take the exploration and exploitation of a network one step further by emulating how real hackers would approach the task, sometimes going as far as establishing a longer lasting presence on the network. Red teams are sometimes asked to do this whilst another group of ethical hackers, known as a Blue Team, try and stop them.
@@ -17,4 +20,5 @@ However, for other people who maybe don't have even the basics of a technical ba
 The exercises in this book require VIP access to Hack The Box. Whilst I would have preferred not to impose a financial obligation on readers, I think the cost of VIP access is affordable for anyone wanting to learn ethical hacking. It is a fraction of the cost of professional certification courses and priced over a year, the cost is less than a few cups of coffee \(or cans of soda\) a week. Irrespective of what you use this book for, the investment in VIP access is well worth it. If you are not sure, you can also just pay monthly.
 
 There are other services on Hack The Box that I do not cover in this book. Hack The Box itself has its own Academy for training purposes and from what I have seen, it is a great addition to the site. I obviously think that there is value in the approach taken in this book and I hope that you agree.
+
 
