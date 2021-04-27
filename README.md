@@ -1,3 +1,7 @@
+---
+description: A book for getting started in Ethical Hacking
+---
+
 # Ethical Hacking With Hack The Box
 
 This is a book for anyone wanting to get started with ethical hacking or to solidify their knowledge of the fundamentals. It is based on real hacking scenarios that are provided by [Hack The Box](https://www.hackthebox.eu), a site that makes developing ethical hacking skills a fun and enjoyable experience. 
