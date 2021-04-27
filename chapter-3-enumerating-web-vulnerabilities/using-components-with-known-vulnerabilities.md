@@ -1,0 +1,12 @@
+# Using Components with Known Vulnerabilities
+
+
+
+It may be surprising that this category of vulnerabilities is not at the top of the list when it comes to OWASP's top 10. The other categories you have already dealt with are still vulnerabilities affecting components and so in a way, this category is just all of the vulnerabilities that can affect a web application that are not of the specific types like XSS, injection etc. This category is also really comes about because administrators have not kept software up-to-date, have misconfigured them or simply were not aware they had them on their systems.
+
+Hunting for these vulnerabilities involves enumerating all of the applications, libraries, databases, operating systems and other processes and knowing the specific versions of each of these components. This information can then be used to look up databases of known vulnerabilities for specific version of software. you have already detailed the concept of vulnerabilities and CVE identifiers above. Whether these vulnerabilities can be exploited or not depends on a range of factors such as whether there is a practical way of exploiting the vulnerability, whether this can be done remotely or locally, whether it needs authentication or not, and what the actual outcome of the exploitation is.
+
+Finding CVEs is a skill, albeit one that can be assisted with vulnerability scanners which may pick up the more obvious ones. Malicious actors often take a different approach which is to concentrate on a specific CVE, especially one that has just been discovered, and then search for any application on the Internet that has that particular vulnerability. There are numerous examples of this such as CVE-2017-5638 which was a vulnerability in web applications that used the Apache Struts framework.
+
+A more recent example is CVE-2020-1472 of Zerologon exploit. This vulnerability exposed a critical flaw that allows an attacker to gain administrative control of a Windows Active Directory Domain Controller machine. Domain controllers provide authentication and configuration to machines and users that are part of that domain and so gaining control of a domain is as serious as it gets in terms of attacks.
+
