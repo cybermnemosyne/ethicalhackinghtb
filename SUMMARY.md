@@ -86,3 +86,9 @@
 * [Exercise: Enumeration and privilege escalation on Resolute](chapter-8-enumeration-and-privilege-escalation-on-windows/exercise-enumeration-and-privilege-escalation-on-resolute.md)
 * [Final thoughts on enumeration and discovery](chapter-8-enumeration-and-privilege-escalation-on-windows/final-thoughts-on-enumeration-and-discovery.md)
 
+## Chapter 9 Enumeration and Exploitation of Windows Active Directory
+
+* [Enumeration and exploitation of Windows active Directory](chapter-9-enumeration-and-exploitation-of-windows-active-directory/enumeration-and-exploitation-of-windows-active-directory.md)
+* [Exercise: Enumerating and exploiting AD on Forest](chapter-9-enumeration-and-exploitation-of-windows-active-directory/exercise-enumerating-and-exploiting-ad-on-forest.md)
+* [Exercise: Enumerating and exploiting AD on Active](chapter-9-enumeration-and-exploitation-of-windows-active-directory/exercise-enumerating-and-exploiting-ad-on-active.md)
+

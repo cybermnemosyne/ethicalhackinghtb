@@ -255,7 +255,7 @@ Logging into the Umbraco site with user admin@local.htb and password baconandche
 
 ![Graphical user interface, application, website
 
-Description automatically generated](../.gitbook/assets/2%20%287%29.png)
+Description automatically generated](../.gitbook/assets/2%20%288%29.png)
 
 Admin page for remote.htb umbraco site
 
