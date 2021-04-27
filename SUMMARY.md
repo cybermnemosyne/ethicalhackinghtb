@@ -93,3 +93,9 @@
 * [Exercise: Enumerating and exploiting AD on Active](chapter-9-enumeration-and-exploitation-of-windows-active-directory/exercise-enumerating-and-exploiting-ad-on-active.md)
 * [Final Thoughts](chapter-9-enumeration-and-exploitation-of-windows-active-directory/final-thoughts.md)
 
+## Chapter 10 Defense Evasion
+
+* [Defense Evasion](chapter-10-defense-evasion/defense-evasion.md)
+* [Exercise: Bypassing a WAF on Multimaster](chapter-10-defense-evasion/exercise-bypassing-a-waf-on-multimaster.md)
+* [Process Injection](chapter-10-defense-evasion/process-injection.md)
+
