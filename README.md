@@ -10,9 +10,9 @@ I am Dr David Glance and I teach cybersecurity at the University of Western Aust
 
 ## Outline of the Book
 
-1.  Getting Started
-2. Discovery: Networks, SMB, DNS and Websites
-3. Discovery: Web Vulnerabilities
+1. Getting Started
+2. Enumeration: Networks, SMB, DNS and Websites
+3. Enumeration: Web Vulnerabilities
 4. Initial Access: Shells and Remote Services
 5. Initial Access: Custom Exploits
 6. Initial Access: Social Engineering

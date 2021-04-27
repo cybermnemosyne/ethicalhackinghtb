@@ -10,9 +10,9 @@
 * [Getting Started with Ethical Hacking](chapter-1-getting-started/getting-started-with-ethical-hacking.md)
 * [Setting up the VM](chapter-1-getting-started/setting-up-the-vm.md)
 * [Exercise: The Shield Box with Metasploit](chapter-1-getting-started/exercise-the-shield-box-with-metasploit.md)
-* [Reflections](chapter-1-getting-started/reflections.md)
+* [Final Thoughts](chapter-1-getting-started/reflections.md)
 
-## Chapter 2 Discovery: Networks, SMB, DNS and Websites <a id="chapter-2-enumeration-part-1-networks-smb-dns-and-websites"></a>
+## Chapter 2 Enumeration: Networks, SMB, DNS and Websites <a id="chapter-2-enumeration-part-1-networks-smb-dns-and-websites"></a>
 
 * [What is Enumeration?](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/what-is-enumeration.md)
 * [Finding and Exploiting Vulnerabilities](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/finding-and-exploiting-vulnerabilities.md)
@@ -21,7 +21,7 @@
 * [Website Enumeration](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/website-enumeration.md)
 * [Exercise: ForwardSlash](chapter-2-enumeration-part-1-networks-smb-dns-and-websites/exercise-forwardslash.md)
 
-## Chapter 3 Discovery: Web Vulnerabilities <a id="chapter-3-enumerating-web-vulnerabilities"></a>
+## Chapter 3 Enumeration: Web Vulnerabilities <a id="chapter-3-enumerating-web-vulnerabilities"></a>
 
 * [Websites Vulnerabilities](chapter-3-enumerating-web-vulnerabilities/websites-and-applications.md)
 * [Cross-Site Scripting \(XSS\)](chapter-3-enumerating-web-vulnerabilities/cross-site-scripting-xss.md)
@@ -45,7 +45,6 @@
 * [Using Components with Known Vulnerabilities](chapter-3-enumerating-web-vulnerabilities/using-components-with-known-vulnerabilities.md)
 * [Exercise: Case Study Multimaster](chapter-3-enumerating-web-vulnerabilities/exercise-case-study-multimaster.md)
 * [Exercise: Enumerating vulnerabilities caused by default applications in the box Netmon](chapter-3-enumerating-web-vulnerabilities/exercise-enumerating-vulnerabilities-caused-by-default-applications-in-the-box-netmon.md)
-* [On Your Own](chapter-3-enumerating-web-vulnerabilities/on-your-own.md)
 
 ## Initial Access: Shells and Remote Services <a id="chapter-4-initial-access"></a>
 
@@ -61,14 +60,12 @@
 * [Exercise: Enumerating and exploiting FTP and Telnet on Hack The Box case machine Access](chapter-4-initial-access/exercise-enumerating-and-exploiting-ftp-and-telnet-on-hack-the-box-case-machine-access.md)
 * [Brute forcing remote service passwords](chapter-4-initial-access/brute-forcing-remote-service-passwords.md)
 * [Exercise: Brute forcing usernames and passwords for remote access on Hack The Box machine Fuse](chapter-4-initial-access/exercise-brute-forcing-usernames-and-passwords-for-remote-access-on-hack-the-box-machine-fuse.md)
-* [On Your Own](chapter-4-initial-access/on-your-own.md)
 
 ## Chapter 5 Initial Access: Custom Exploits <a id="chapter-5-initial-access-via-custom-exploits"></a>
 
 * [Buffer overflows](chapter-5-initial-access-via-custom-exploits/buffer-overflows.md)
 * [Exercise: Exploiting a Buffer Overflow on Ellingson](chapter-5-initial-access-via-custom-exploits/exercise-exploiting-a-buffer-overflow-on-ellingson.md)
 * [Exercise: Exploiting a Windows Buffer Overflow on Buff](chapter-5-initial-access-via-custom-exploits/exercise-exploiting-a-windows-buffer-overflow-on-buff.md)
-* [On Your Own](chapter-5-initial-access-via-custom-exploits/on-your-own.md)
 
 ## Chapter 6 Initial Access: Social Engineering <a id="chapter-6-initial-access-via-social-engineering"></a>
 

@@ -1,4 +1,4 @@
-# Reflections
+# Final Thoughts
 
 Hopefully you have got a sense of the process we went through in tackling the machine Shield. The steps we took of enumeration, initial access, discovery and enumeration and privilege escalation are tactics that are used by adversarial hackers, penetration testers and red teams when tackling targets. Each of these tactics consist of a variety of techniques, some of which we used in getting ownership of the machine Shield. We will be covering these tactics and techniques in more detail as we progress through the book.
 
