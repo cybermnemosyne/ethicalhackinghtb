@@ -1,0 +1,6 @@
+# Reflections
+
+Hopefully you have got a sense of the process we went through in tackling the machine Shield. The steps we took of enumeration, initial access, discovery and enumeration and privilege escalation are tactics that are used by adversarial hackers, penetration testers and red teams when tackling targets. Each of these tactics consist of a variety of techniques, some of which we used in getting ownership of the machine Shield. We will be covering these tactics and techniques in more detail as we progress through the book.
+
+Another principle that came out of doing the machine is that there are a variety of different tools and procedures that can be used to carry out any given technique. We explored using Metasploit for example and then did the same process by interfacing directly with WordPress. The key however was that whatever approach you take to any given technique, understanding what is going on is important. Understanding what you are doing, as opposed to simply running a script, means you are going to understand the side-effects like being noisy and attracting attention, or leaving traces behind of what you have done, or worse, killing important processes or even the machine itself.
+
