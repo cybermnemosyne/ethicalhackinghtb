@@ -63,19 +63,15 @@ Host script results:
 
 The OS discovery suggests that the box is a Windows Server 2016. The variety of ports like DNS, LDAP and Kerberos suggest that it is an Active Directory domain controller with the domain fabricorp.local. We can add this hostname to the /etc/hosts file. An interesting note at this point is whether add the fabricorp.local DNS to the list of nameservers to query so that any other subdomains would be accessible automatically. You can normally do this by adding the entry nameserver &lt;IP address&gt; to the file /etc/resolv.conf. However, in this case, the DNS returned the incorrect IP address for fabricorp.local and so this is not an option.
 
-Going to the website, we get redirected to the URL http://fuse.fabricorp.local/papercut/logs/html/index.htm and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown in Figure 4-8.
+Going to the website, we get redirected to the URL [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm) and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown in Figure 4-8.
 
+!\[Graphical user interface
 
-
-![Graphical user interface
-
-Description automatically generated](../.gitbook/assets/6.png)
+Description automatically generated\]\(../.gitbook/assets/6.png\)
 
 fuse.fabricorp.local home page. A PaperCut printing administration page.
 
 The page is an instance of the PaperCut printing software printer logs. On the page, we can see print logs for 3 specific days. Going into each entry, we find records of print jobs for a variety of users as in the entry for the 29th May 2020 shown in Figure 4-9.
-
-
 
 ![Print log for 29th May 2020](../.gitbook/assets/7.png)
 
@@ -89,7 +85,7 @@ bhult
 administrator
 ```
 
-We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain. To get kerbrute, you can download a release from https://github.com/ropnop/kerbrute. Running this with the users listed above, we get:
+We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain. To get kerbrute, you can download a release from [https://github.com/ropnop/kerbrute](https://github.com/ropnop/kerbrute). Running this with the users listed above, we get:
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/Fuse]
@@ -234,7 +230,7 @@ We can collect all of the users and create a new users file with these users in 
 cat rpc_users.txt | awk -F '\\[|]' '{print $2}' > rpc_users2.txt
 ```
 
-The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket \(\[\]\) characters. The '\\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
+The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket \(\[\]\) characters. The '\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
 
 Back on rpcclient, we can look at printers that might be shared by using the enumprinters command. This gives output which contains a password:
 

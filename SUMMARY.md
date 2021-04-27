@@ -76,4 +76,6 @@
 ## Chapter 7 Enumeration and Privilege Escalation on Linux
 
 * [Enumeration and privilege escalation on Linux](chapter-7-enumeration-and-privilege-escalation-on-linux/enumeration-and-privilege-escalation-on-linux.md)
+* [Exercise: Enumeration and privilege escalation on  Traceback](chapter-7-enumeration-and-privilege-escalation-on-linux/exercise-enumeration-and-privilege-escalation-on-traceback.md)
+* [Exercise: Enumeration and privilege escalation on  Traverxec](chapter-7-enumeration-and-privilege-escalation-on-linux/exercise-enumeration-and-privilege-escalation-on-traverxec.md)
 

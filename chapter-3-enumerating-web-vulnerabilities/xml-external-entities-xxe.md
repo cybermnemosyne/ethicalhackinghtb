@@ -7,7 +7,7 @@ Extensible Markup Language \(XML\) developed alongside HTML as a more formal mar
 <email>  
    <to>Jane Doe</to>  
    <body>&msg;</body>  
-</email> 
+</email>
 ```
 
 The entity definition of “msg” is refered to as “&msg;”.

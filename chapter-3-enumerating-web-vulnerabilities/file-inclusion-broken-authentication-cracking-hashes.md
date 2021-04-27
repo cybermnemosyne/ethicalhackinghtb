@@ -14,7 +14,5 @@ File inclusion vulnerabilities are a related set of vulnerabilities to injection
 
 This code is then vulnerable to both local and remote file inclusion. If this code was hosted as a page lfi.php on a Linux system for example, the code could be exploited with URLs such as:
 
- `https://www.vulnerablesite.com/lfi.php?category=../../../../../etc/passwd`
-
-## 
+`https://www.vulnerablesite.com/lfi.php?category=../../../../../etc/passwd`
 

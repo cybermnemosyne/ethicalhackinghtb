@@ -1,7 +1,5 @@
 # Exercise: Tampering with parameters on Oopsie
 
-
-
 Another of the Starting Point machines is Oopsie, a Linux box. An nmap scan reveals SSH running on port 22 and Apache running on port 80.
 
 PORT STATE SERVICE VERSION
@@ -30,31 +28,25 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux\_kernel
 
 Navigating to the home page of the website, we see a site for MegaCorp Automotive which is a static page with no clickable links \(Figure 3-8\).
 
+!\[Graphical user interface, website
 
-
-![Graphical user interface, website
-
-Description automatically generated](../.gitbook/assets/10%20%283%29.png)
+Description automatically generated\]\(../.gitbook/assets/10%20%283%29.png\)
 
 Oopsie home page
 
 Viewing the source of the page, there is a reference to a login script at the URL /cdn-cgi/login/script.js. This script is empty, but if we navigate to the directory /cdn-cgi/login, we are presented with a login page.\(Figure 3-9\).
 
+!\[Graphical user interface
 
+Description automatically generated\]\(../.gitbook/assets/11.png\)
 
-![Graphical user interface
-
-Description automatically generated](../.gitbook/assets/11.png)
-
-Oopsie login page at http://oopsie.htb/cdn-cgi/login
+Oopsie login page at [http://oopsie.htb/cdn-cgi/login](http://oopsie.htb/cdn-cgi/login)
 
 We can try the user admin and the password that was recovered from the previous machine Archetype \(MEGACORP\_4dm1n!!\) with a guessed user “admin”, you gain access to the home page of the Repair Management System \(Figure 3-10\).
 
+!\[A car parked in a garage
 
-
-![A car parked in a garage
-
-Description automatically generated with medium confidence](../.gitbook/assets/12.png)
+Description automatically generated with medium confidence\]\(../.gitbook/assets/12.png\)
 
 Home page after login on Oopsie
 
@@ -64,11 +56,9 @@ Enumerating this site, you find the Accounts page that lists details of the user
 
 This is an IDOR vulnerability because we can change the id and get access to other accounts. The Accounts page \(Figure 3-11\) provides information about the Access ID which is probably the id of the User in the database of the system.
 
+!\[Table
 
-
-![Table
-
-Description automatically generated](../.gitbook/assets/13.png)
+Description automatically generated\]\(../.gitbook/assets/13.png\)
 
 Account details for user admin
 
@@ -84,7 +74,7 @@ We can supply this to wfuzz and run the command:
 
 ┌──\[rin@parrot\]─\[~/boxes/StartingPoint/Oopsie\]
 
-└──╼ $wfuzz -b "user=34322; role=admin" -z range,1-100 "http://oopsie.htb/cdn-cgi/login/admin.php?content=acc
+└──╼ $wfuzz -b "user=34322; role=admin" -z range,1-100 "[http://oopsie.htb/cdn-cgi/login/admin.php?content=acc](http://oopsie.htb/cdn-cgi/login/admin.php?content=acc)
 
 ounts&id=FUZZ"
 
@@ -143,6 +133,4 @@ In the browser, you can go back to the Storage tab and edit the cookie to replac
 Looking at the uploads page, it suggests that what it is expecting to be uploaded are images. However, it accepts a php file without modification. We could use gobuster to find out if there is an uploads directory, but simply trying /uploads gives us a forbidden status code which means that there is a directory called that and it is the likely place the files will be uploaded to.
 
 We will come back to finishing this machine off once we have covered exploitation and getting reverse shells. It is pretty straightforward however and once on the box, it is a simple matter of finding credentials for another user, "robert" \(password: M3g4C0rpUs3r!\) who can SSH onto the box.
-
-
 

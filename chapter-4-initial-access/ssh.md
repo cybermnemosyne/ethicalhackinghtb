@@ -12,7 +12,7 @@ scp -I remote.key localfile.txt user@remote.com:/tmp/remotefile.txt
 
 To copy the remote file to a local file, you just reverse the order of the file paths.
 
-###  SSH Tunnels
+### SSH Tunnels
 
 SSH can be used to create an encrypted tunnel that supports port forwarding. There are two types of port forwarding, local and remote. This can be confusing because local forwarding forwards packets from a local port to a port on a remote machine. Remote port forwarding is the opposite, taking packets for a port on a remote machine and forwarding them to a port on the local machine. As an example, let us imagine that you have ssh'd onto a remote machine that is behind a firewall that doesn't allow any traffic out. You would like to access a web server on our local machine to be able to access file from the remote box. To do this, you could use an SSH tunnel as:
 
@@ -20,7 +20,7 @@ SSH can be used to create an encrypted tunnel that supports port forwarding. The
 ssh -R 8000:127.0.0.1:8000 user@remoteserver.htb
 ```
 
-From the remote machine, you can now access the web server on the local machine by using the URL http://127.0.0.1:8000. Of course, you would need to make sure that nothing was running on port 8000 already on the remote machine.
+From the remote machine, you can now access the web server on the local machine by using the URL [http://127.0.0.1:8000](http://127.0.0.1:8000). Of course, you would need to make sure that nothing was running on port 8000 already on the remote machine.
 
 The converse of this is where you would like to access a port on a remote machine that is only available from that machine. In this case, you use SSH in the same was as before but using the -L flag instead of -R.
 
@@ -28,7 +28,7 @@ The converse of this is where you would like to access a port on a remote machin
 ssh -L 8000:127.0.0.1:8000 user@remoteserver.htb
 ```
 
-From the local machine, you can access the remote server by once again using the URL http://127.0.0.1:8000.
+From the local machine, you can access the remote server by once again using the URL [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 A tunnel can be created without actually logging into the machine \(i.e. not running a shell\) by specifying the -N flag.
 
@@ -40,7 +40,7 @@ Specifying individual ports to forward works well when you are interested in a s
 ssh -D 1080 user@remoteserver.htb
 ```
 
- Once this is running, a SOCKS proxy can be configured in settings of the browser, or you can use the application proxychains which allows any application that uses the network to send its commands over the SOCKS proxy you have established. For example, to curl a web server running on the remote host on port 8000, you would use proxychains as:
+Once this is running, a SOCKS proxy can be configured in settings of the browser, or you can use the application proxychains which allows any application that uses the network to send its commands over the SOCKS proxy you have established. For example, to curl a web server running on the remote host on port 8000, you would use proxychains as:
 
 ```bash
 proxychains curl http://remoteserver.htb:8000

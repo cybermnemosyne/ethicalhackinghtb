@@ -14,5 +14,3 @@ Default usernames and passwords for applications is becoming less common but is 
 
 From an ethical hacking perspective, it is always worth trying default usernames and passwords when encountering a login page. When collecting usernames and possible passwords, it is also a good idea to test these username password combinations with different services. Many tools that allow enumeration of services will take a file of usernames and passwords and automated the login process with these candidate credentials.
 
-##  
-

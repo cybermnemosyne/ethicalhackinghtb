@@ -27,7 +27,7 @@ We are going to look at phishing in more detail by exploring the use of a social
 
 Phishing provides the largest and potentially most effective way of getting malware onto a computer or convincing a target to reveal their user credentials, personal or financial information and even take other actions on the attacker's behalf. Phishing's most common channel is email and there are a number of tools that simplify the ability to create phishing emails, send them to targets and monitor the responses.
 
-Although there are a couple of tools on Parrot OS, they are dated, and their source code is not maintained. The tool we will use is called Gophish \(which can be installed from https://github.com/gophish/gophish\) which is written in the programming language Go and handles phishing campaigns and monitor the results. Although it can be used for attacking, it can also be used for training staff in cybersecurity awareness by auditing how many would respond to a particular phishing attack.
+Although there are a couple of tools on Parrot OS, they are dated, and their source code is not maintained. The tool we will use is called Gophish \(which can be installed from [https://github.com/gophish/gophish\](https://github.com/gophish/gophish\)\) which is written in the programming language Go and handles phishing campaigns and monitor the results. Although it can be used for attacking, it can also be used for training staff in cybersecurity awareness by auditing how many would respond to a particular phishing attack.
 
 Phishing attacks are generally never one-off events but are instead part of a campaign which is a series of attacks carried out over a period of time to achieve a set of goals.
 
@@ -45,7 +45,7 @@ Normally, an attacker would make the site more convincing by using SSL and havin
 
 ## Creating a phishing campaign in Gophish
 
-To install Gophish, you can download a release, unzip and use it directly \(https://github.com/gophish/gophish/releases/\). When run as root, Gophish will start two web servers, one on port 80 that will host the phishing landing pages and the other on port 3333 which is the administration site. Opening the admin site in a browser, you can log in with the user admin and the password that was printed out on the console when you ran it. You will be prompted to change the admin password. You will see the Dashboard shown in Figure 6-1.
+To install Gophish, you can download a release, unzip and use it directly \([https://github.com/gophish/gophish/releases/\](https://github.com/gophish/gophish/releases/\)\). When run as root, Gophish will start two web servers, one on port 80 that will host the phishing landing pages and the other on port 3333 which is the administration site. Opening the admin site in a browser, you can log in with the user admin and the password that was printed out on the console when you ran it. You will be prompted to change the admin password. You will see the Dashboard shown in Figure 6-1.
 
 ![Gophish Dashboard page](../.gitbook/assets/0%20%283%29.png)
 
@@ -53,7 +53,7 @@ To start, we will create a sending profile. For this, I am going to use a Gmail 
 
 ![Creating a new sending profile in Gophish](../.gitbook/assets/1%20%281%29.png)
 
-Next, we are going to create an email template that will be based on the invitations that GitHub sends to users to collaborate on a repository. I have copied the HTML from a real email but if you don't have one, you can just type an email in the editor. Email templates will substitute values in the template that are in double braces {{}}. The ones we are using here are the target's email address {{.Email}}, and the phishing URL {{.URL}} which is used as a link in the text.
+Next, we are going to create an email template that will be based on the invitations that GitHub sends to users to collaborate on a repository. I have copied the HTML from a real email but if you don't have one, you can just type an email in the editor. Email templates will substitute values in the template that are in double braces . The ones we are using here are the target's email address , and the phishing URL  which is used as a link in the text.
 
 ![Creating an email template in Gophish](../.gitbook/assets/2%20%283%29.png)
 
@@ -67,8 +67,6 @@ Finally, we can create a campaign and send the phishing email. In Campaign, clic
 
 ![Creating a new campaign in Gophish](../.gitbook/assets/4%20%281%29.png)
 
-
-
 Once the Launch Campaign button is pressed, the email should be sent and you should receive an email based on the template you used \(Figure 6-6\).
 
 ![Phishing email sent from Gophish](../.gitbook/assets/gophish1.png)
@@ -76,8 +74,6 @@ Once the Launch Campaign button is pressed, the email should be sent and you sho
 Clicking on the accept or decline link will take you to the phishing landing page shown in Figure 6-7.
 
 ![Spoofed Github login page](../.gitbook/assets/gophish2.png)
-
-
 
 Entering a username and password and clicking Sign in should then redirect you to the GitHub login page with no feedback. Note that if you actually have a GitHub account and are already authenticated by the browser, when the phishing landing page redirects, it will take you straight to your default GitHub page and so it will look like the login was successful.
 
@@ -96,20 +92,4 @@ You can click the Submitted Data button to view the details of the interaction w
 ![Details of the data entered in the landing page](../.gitbook/assets/9%20%282%29.png)
 
 .
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

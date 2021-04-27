@@ -34,17 +34,13 @@ PORT STATE SERVICE VERSION
 Service Info: Host: BANKROBBER; OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
- MariaDB is very similar to MySQL and uses the same SQL syntax. After navigating to the URL http://bankrobber.htb we find a Bitcoin trading platform called E-coin.
+MariaDB is very similar to MySQL and uses the same SQL syntax. After navigating to the URL [http://bankrobber.htb](http://bankrobber.htb) we find a Bitcoin trading platform called E-coin.
 
 ![Home page of Bankrobber](../.gitbook/assets/0.png)
-
-
 
 There is a login function and below that a place to register new accounts. If we register an account with username 'john' and password 'password' and then login, we are taken to a page that allows us to transfer E-coin to \(presumably\) another user using the ID of the user.
 
 ![Transfer E-coin function of Bankrobber](../.gitbook/assets/1%20%283%29.png)
-
-
 
 If we right click on the page and select Inspect Element to go into the developer tools of the browser, we can navigate to the Storage tab and look at the Cookies that have been set. The cookies are:
 
@@ -133,19 +129,19 @@ Once the script is fetched from the server, you should see tcpdump reporting the
 <SNIP>
 ```
 
-We haven't dealt with exploitation and how to get access to an interactive session on a remote box, however we will quickly get a "reverse shell" on the Bankrobber box using Netcat. Netcat for windows can be downloaded from https://eternallybored.org/misc/netcat/. Take a copy of the nc64.exe and rename as nc.exe in your working directory.
+We haven't dealt with exploitation and how to get access to an interactive session on a remote box, however we will quickly get a "reverse shell" on the Bankrobber box using Netcat. Netcat for windows can be downloaded from [https://eternallybored.org/misc/netcat/](https://eternallybored.org/misc/netcat/). Take a copy of the nc64.exe and rename as nc.exe in your working directory.
 
-As you are targeting a Windows box, you can provide access to netcat via SMB using a tool smbserver.py which is part of the Impacket tools. 
+As you are targeting a Windows box, you can provide access to netcat via SMB using a tool smbserver.py which is part of the Impacket tools.
 
 {% hint style="info" %}
 To install Impacket in the /opt directory, you can use:
 
- `git clone https://github.com/SecureAuthCorp/impacket.git`
+`git clone https://github.com/SecureAuthCorp/impacket.git`
 {% endhint %}
 
 You can then run smbserver.py directly from /opt/impacket/examples/smbserver.py
 
- \(https://github.com/SecureAuthCorp/impacket\). To share a directory using smbserver you use the syntax:
+\([https://github.com/SecureAuthCorp/impacket\](https://github.com/SecureAuthCorp/impacket\)\). To share a directory using smbserver you use the syntax:
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/Bankrobber]
@@ -179,16 +175,4 @@ bankrobber\cortin
 ```
 
 This is not the end of the box, we have a reverse shell as the user cortin but the next part is privilege escalation which involves a buffer overflow, something we will deal with in Chapter 6.
-
-
-
-
-
-
-
-
-
-
-
-
 
