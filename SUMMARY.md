@@ -23,7 +23,7 @@
 
 ## Chapter 3 Enumeration: Web Vulnerabilities <a id="chapter-3-enumerating-web-vulnerabilities"></a>
 
-* [Websites Vulnerabilities](chapter-3-enumerating-web-vulnerabilities/websites-and-applications.md)
+* [Website Vulnerabilities](chapter-3-enumerating-web-vulnerabilities/websites-and-applications.md)
 * [Cross-Site Scripting \(XSS\)](chapter-3-enumerating-web-vulnerabilities/cross-site-scripting-xss.md)
 * [Exercise: Discovering XSS on Bankrobber](chapter-3-enumerating-web-vulnerabilities/exercise-discovering-xss-on-bankrobber.md)
 * [SQL Injection](chapter-3-enumerating-web-vulnerabilities/injection.md)
