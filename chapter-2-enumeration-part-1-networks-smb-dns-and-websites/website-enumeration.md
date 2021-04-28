@@ -181,7 +181,13 @@ http://company.com
 
 ```
 
-Here we’re using a different wordlist from SecLists \(/usr/share/SecLists/Discovery/DNS/subdomains-top1million-110000.txt\). SecLists is a series of files containing commonly used words used for fuzzing of passwords, directories, virtual hosts, and so on. It is pre-installed on Parrot OS.
+Here we’re using a different wordlist from SecLists \(/usr/share/SecLists/Discovery/DNS/subdomains-top1million-110000.txt\). SecLists is a series of files containing commonly used words used for fuzzing of passwords, directories, virtual hosts, and so on. 
+
+{% hint style="info" %}
+To install SecLists you can use:
+
+`sudo apt install seclists`
+{% endhint %}
 
 ## Obtaining Hostnames from DNS Zone Transfers
 

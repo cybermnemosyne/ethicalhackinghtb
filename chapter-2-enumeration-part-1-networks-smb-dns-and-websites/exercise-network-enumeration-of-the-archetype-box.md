@@ -115,7 +115,7 @@ The key vulnerability you’ll find in SMB are misconfigurations that grant over
 Let’s try to enumerate file shares on the system so we can see any of them are accessible. We can use a number of tools to do this. The first is Nmap itself, using the script smb-enum-shares.nse:
 
 ```bash
-$ nmap -sV --script=/usr/share/Nmap/scripts/smb-enum-shares.nse -p 445 -Pn archetype.htb
+$ nmap -sV --script=/usr/share/nmap/scripts/smb-enum-shares.nse -p 445 -Pn archetype.htb
 Starting Nmap 7.80 ( https://Nmap.org ) at 2020-10-08 21:21 AWST
 Nmap scan report for 10.10.10.27
 Host is up (0.40s latency).
@@ -191,9 +191,9 @@ SMB 10.10.10.27 445 ARCHETYPE IPC$ Remote IPC
 ```
 
 {% hint style="info" %}
-Crackmapexec can be installed using the apt command:
+Installation instructions for Crackmapexec are located:
 
-`sudo apt install crackmapexec`
+\`\`[`https://github.com/byt3bl33d3r/CrackMapExec/wiki/Installation`](https://github.com/byt3bl33d3r/CrackMapExec/wiki/Installation)\`\`
 {% endhint %}
 
 Of these approaches, smbclient does not reveal permissions information, which makes the other tools more informative in this case. For smbmap and crackmapexec, you have to specify a username explicitly. In this case, it doesn’t matter what username you choose; it just can’t be an empty string.
@@ -206,6 +206,12 @@ From all of the tools you ran, you can see that the “guest” user has unauthe
 sudo mkdir /mnt/cifs
 sudo mount -t cifs -o username=guest //archetype.htb/backups /mnt/cifs
 ```
+
+{% hint style="info" %}
+You will need to install cifs-utils:
+
+`sudo apt-get install cifs-utils`
+{% endhint %}
 
 If you mount the share, you can unmount it with the command:
 
