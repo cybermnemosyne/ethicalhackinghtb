@@ -6,7 +6,8 @@ As we did in the previous exercise, let’s start with an Nmap scan to identify 
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/ForwardSlash]
-└──╼ $sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- forwardslash.htb -oN Nmap/tcp-full
+└──╼ $sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- forwardslash.htb \
+    -oN Nmap/tcp-full
 <SNIP>
 PORT STATE SERVICE VERSION
 22/tcp open ssh OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
@@ -66,7 +67,8 @@ This output doesn't reveal anything particularly interesting, other than the fac
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/ForwardSlash]
-└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirb/common.txt -u http://forwardslash.htb -x php,txt,html
+└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirb/common.txt \
+    -u http://forwardslash.htb -x php,txt,html
 <SNIP>
 /index.php (Status: 200)
 /index.php (Status: 200)
@@ -93,7 +95,8 @@ Note that we could have also used gobuster to discover this virtual host using t
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/ForwardSlash]
-└──╼ $gobuster vhost -w /usr/share/SecLists/Discovery/DNS/subdomains-top1million-20000.txt -u http://forwardslash.htb
+└──╼ $gobuster vhost -w /usr/share/SecLists/Discovery/DNS/\
+    subdomains-top1million-20000.txt -u http://forwardslash.htb
 <SNIP>
 Found: backup.forwardslash.htb (Status: 302) [Size: 33]
 ```

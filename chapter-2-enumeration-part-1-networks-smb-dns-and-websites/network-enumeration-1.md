@@ -22,11 +22,7 @@ TCP/IP actually consists of two main communication protocols; TCP \(Transmission
 
 When a client wants to use TCP/IP to talk to another process, like a server on a different machine, it needs to know where to send messages.
 
-!\[A picture containing graphical user interface
-
-Description automatically generated\]\(../.gitbook/assets/1%20%286%29.png\)
-
-Figure 2-2 A client and server application on two machines in the same network communicating with each other
+![A client and server application on two machines in the same network communicating with each other](../.gitbook/assets/network1.png)
 
 First of all, it needs an IP address for the machine that is running the server. IP addresses are either in IPv4 \(IP version 4\) or IPv6 \(IP version 6\) format. We’ll be using with IPv4 because it’s still the most popular addressing scheme. An IPv4 address is a 32-bit number, divided into four eight-bit numbers separated by periods. For example, consider the IP address 192.168.0.1. In binary, that number would be comprised of 32 bits, as follows:
 

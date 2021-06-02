@@ -10,7 +10,7 @@ You can examine these HTTP requests and responses using an application called Bu
 
 ### Exploring and Configuring Burp
 
-You can start Burp Suite by selecting it from the Applications menu in Parrot OS under Pentesting &gt; Most Used Tools &gt; burpsuite. By default, Burp starts a proxy listener on port 8080, as you can see noted in the Event log on the dashboard \(Figure 2-2\).
+You can start Burp Suite by selecting it from the Applications menu in Parrot OS under Pentesting &gt; Most Used Tools &gt; burpsuite. By default, Burp starts a proxy listener on port 8080, as you can see noted in the Event log on the dashboard.
 
 ![Dashboard of Burp Suite](../.gitbook/assets/4.png)
 
@@ -33,9 +33,7 @@ Let’s create our own web server so we can browse to it, then view the traffic 
 ```bash
 ┌─[rin@parrot]─[~/boxes/book]
 └──╼ $python3 -m http.server 8000
-Serving HTTP on 0.0.0.0 port 8000 (
-http://0.0.0.0:8000/\
-) ...
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 ```
 
 The http.server module will listen for HTTP GET requests on port 8000 and then serve the files requested from the directory it is running in.
@@ -135,8 +133,8 @@ Start the Python web server you created on port 8000 and run Gobuster:
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/book/www]
-└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x .php,.html -u 
-http://127.0.0.1:8000
+└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/\
+    directory-list-2.3-medium.txt -x .php,.html -u http://127.0.0.1:8000
 
 ===============================================================
 Gobuster v3.0.1
@@ -176,8 +174,8 @@ Technically, virtual hosts work by putting the virtual host name in a HOST heade
 
 ```bash
 ┌─[rin@parrot]─[~]
-└──╼ $gobuster vhost -w /usr/share/SecLists/Discovery/DNS/subdomains-top1million-110000.txt -u 
-http://company.com
+└──╼ $gobuster vhost -w /usr/share/SecLists/Discovery/DNS/\
+    subdomains-top1million-110000.txt -u http://company.com
 
 ```
 

@@ -29,7 +29,8 @@ When you run this command on Archetype, you should receive output like the follo
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/StartingPoint/Archetype]
-└──╼ $ sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- archetype.htb -oN nmap/tcp-full
+└──╼ $ sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- archetype.htb \
+                 -oN nmap/tcp-full
 <SNIP>
 PORT STATE SERVICE VERSION
 135/tcp open msrpc Microsoft Windows RPC
@@ -65,7 +66,8 @@ w 1433/tcp open ms-sql-s Microsoft SQL Server 2017 14.00.1000.00; RTM
 49667/tcp open msrpc Microsoft Windows RPC
 49668/tcp open msrpc Microsoft Windows RPC
 49669/tcp open msrpc Microsoft Windows RPC
-Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: 
+                 cpe:/o:microsoft:windows
 x Host script results:
 |_clock-skew: mean: 2h56m12s, deviation: 3h34m42s, median: 1h20m10s
 | ms-sql-info:
@@ -115,12 +117,14 @@ The key vulnerability you’ll find in SMB are misconfigurations that grant over
 Let’s try to enumerate file shares on the system so we can see any of them are accessible. We can use a number of tools to do this. The first is Nmap itself, using the script smb-enum-shares.nse:
 
 ```bash
-$ nmap -sV --script=/usr/share/nmap/scripts/smb-enum-shares.nse -p 445 -Pn archetype.htb
+$ nmap -sV --script=/usr/share/nmap/scripts/smb-enum-shares.nse -p 445 \
+    -Pn archetype.htb
 Starting Nmap 7.80 ( https://Nmap.org ) at 2020-10-08 21:21 AWST
 Nmap scan report for 10.10.10.27
 Host is up (0.40s latency).
 PORT STATE SERVICE VERSION
-445/tcp open microsoft-ds Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
+445/tcp open microsoft-ds Microsoft Windows Server 2008 R2 - 2012 
+    microsoft-ds
 Service Info: OS: Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
 Host script results:
 | smb-enum-shares:
@@ -179,7 +183,8 @@ Finally, there’s crackmapexec, which gives the following output:
 
 ```bash
 $ crackmapexec smb archetype.htb --shares -u 'guest' -p ''
-SMB 10.10.10.27 445 ARCHETYPE [*] Windows Server 2019 Standard 17763 (name:ARCHETYPE) (domain:Archetype) (signing:False) (SMBv1:True)
+SMB 10.10.10.27 445 ARCHETYPE [*] Windows Server 2019 Standard 17763 
+    (name:ARCHETYPE) (domain:Archetype) (signing:False) (SMBv1:True)
 SMB 10.10.10.27 445 ARCHETYPE [+] Archetype\guest:
 SMB 10.10.10.27 445 ARCHETYPE [+] Enumerated shares
 SMB 10.10.10.27 445 ARCHETYPE Share   Permissions   Remark
@@ -242,10 +247,17 @@ On the Archetype machine, in the backups folder, notice that there is an MS SQL 
 ```markup
 <DTSConfiguration>
 <DTSConfigurationHeading>
-<DTSConfigurationFileInfo GeneratedBy="..." GeneratedFromPackageName="..." GeneratedFromPackageID="..." GeneratedDate="20.1.2019 10:01:34"/>
+<DTSConfigurationFileInfo GeneratedBy="..." GeneratedFromPackageName="..." 
+    GeneratedFromPackageID="..." GeneratedDate="20.1.2019 10:01:34"/>
 </DTSConfigurationHeading>
-<Configuration ConfiguredType="Property" Path="\Package.Connections[Destination].Properties[ConnectionString]" ValueType="String">
-<ConfiguredValue>Data Source=.;Password=M3g4c0rp123;User ID=ARCHETYPE\sql_svc;Initial Catalog=Catalog;Provider=SQLNCLI10.1;Persist Security Info=True;Auto Translate=False;</ConfiguredValue>
+<Configuration ConfiguredType="Property" 
+    Path="\Package.Connections[Destination].Properties[ConnectionString]" 
+    ValueType="String">
+    <ConfiguredValue>Data Source=.;Password=M3g4c0rp123;
+        User ID=ARCHETYPE\sql_svc;Initial Catalog=Catalog;
+        Provider=SQLNCLI10.1;Persist Security Info=True;
+        Auto Translate=False;
+    </ConfiguredValue>
 </Configuration>
 </DTSConfiguration>
 ```
