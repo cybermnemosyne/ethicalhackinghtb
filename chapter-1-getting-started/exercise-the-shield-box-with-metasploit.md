@@ -387,11 +387,11 @@ You have seen how Metasploit can make discovery and exploitation a simple proces
 
 ## Getting a reverse shell by uploading a WordPress plugin
 
-Visiting the Shield WordPress site at [http://shield.htb/wordpress](http://shield.htb/wordpress), you will find a website called Shields Up which is for a company supplying electric trucks \(Figure 1-8\).
+Visiting the Shield WordPress site at [http://shield.htb/wordpress](http://shield.htb/wordpress), you will find a website called Shields Up which is for a company supplying electric trucks.
 
 ![Home page for http://shield.htb/wordpress](../.gitbook/assets/chapter16.png)
 
-Navigating to the WorPress administration site at [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin), you can enter the username and password admin and P@s5w0rd! to get in and get the Dashboard page \(Figure 1-9\).
+Navigating to the WorPress administration site at [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin), you can enter the username and password admin and P@s5w0rd! to get in and get the Dashboard page.
 
 ![Successful plugin installed on Shield WordPress site](../.gitbook/assets/10%20%284%29.png)
 

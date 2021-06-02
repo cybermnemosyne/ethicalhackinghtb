@@ -45,7 +45,7 @@ Normally, an attacker would make the site more convincing by using SSL and havin
 
 ## Creating a phishing campaign in Gophish
 
-To install Gophish, you can download a release, unzip and use it directly \([https://github.com/gophish/gophish/releases/\](https://github.com/gophish/gophish/releases/\)\). When run as root, Gophish will start two web servers, one on port 80 that will host the phishing landing pages and the other on port 3333 which is the administration site. Opening the admin site in a browser, you can log in with the user admin and the password that was printed out on the console when you ran it. You will be prompted to change the admin password. You will see the Dashboard shown in Figure 6-1.
+To install Gophish, you can download a release, unzip and use it directly \([https://github.com/gophish/gophish/releases/\](https://github.com/gophish/gophish/releases/\)\). When run as root, Gophish will start two web servers, one on port 80 that will host the phishing landing pages and the other on port 3333 which is the administration site. Opening the admin site in a browser, you can log in with the user admin and the password that was printed out on the console when you ran it. You will be prompted to change the admin password. You will see the Dashboard.
 
 ![Gophish Dashboard page](../.gitbook/assets/0%20%283%29.png)
 
@@ -67,23 +67,23 @@ Finally, we can create a campaign and send the phishing email. In Campaign, clic
 
 ![Creating a new campaign in Gophish](../.gitbook/assets/4%20%281%29.png)
 
-Once the Launch Campaign button is pressed, the email should be sent and you should receive an email based on the template you used \(Figure 6-6\).
+Once the Launch Campaign button is pressed, the email should be sent and you should receive an email based on the template you used.
 
 ![Phishing email sent from Gophish](../.gitbook/assets/gophish1.png)
 
-Clicking on the accept or decline link will take you to the phishing landing page shown in Figure 6-7.
+Clicking on the accept or decline link will take you to the phishing landing page.
 
 ![Spoofed Github login page](../.gitbook/assets/gophish2.png)
 
 Entering a username and password and clicking Sign in should then redirect you to the GitHub login page with no feedback. Note that if you actually have a GitHub account and are already authenticated by the browser, when the phishing landing page redirects, it will take you straight to your default GitHub page and so it will look like the login was successful.
 
-The Dashboard page on Gophish will update to say that the email was clicked and that you visited the landing page \(Figure 6-8\).
+The Dashboard page on Gophish will update to say that the email was clicked and that you visited the landing page.
 
 ![](../.gitbook/assets/gophish3.png)
 
 Creating a new campaign in Gophish
 
-You can click the Submitted Data button to view the details of the interaction with the target page \(Figure 6-9\) and see the data entered in the login page \(Figure 6-10\).
+You can click the Submitted Data button to view the details of the interaction with the target page  and see the data entered in the login page.
 
 ![Details of the interactions of the target with the email and landing page](../.gitbook/assets/8%20%281%29.png)
 

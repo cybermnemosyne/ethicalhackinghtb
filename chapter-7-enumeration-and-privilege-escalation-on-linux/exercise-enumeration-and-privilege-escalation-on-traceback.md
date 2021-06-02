@@ -38,7 +38,7 @@ http://traceback.htb
 /smevk.php (Status: 200)
 ```
 
-This gives us a file smevk.php which is indeed one of the web shells from the GitHub site. When we go to that file on the site, we get a login asking for a username and password as shown in Figure 6-3.
+This gives us a file smevk.php which is indeed one of the web shells from the GitHub site. When we go to that file on the site, we get a login asking for a username and password as shown here.
 
 ![smevk.php login page](../.gitbook/assets/traceback1.png)
 
@@ -81,7 +81,7 @@ eval("?>".(base64_decode($smevk)));
 
 ![smevk.php home page after logging in](../.gitbook/assets/2%20%284%29.png)
 
-After logging in, we are presented with information that the shell has gathered that includes the username and group that we are executing as, the name of the machine and its operating system information, and a listing of the directory of /var/www/html which is the root web directory. Unfortunately, the poor choice of colors makes the page difficult to read and so we should try and get a reverse shell to be able to explore more efficiently. We can do that by executing a bash reverse shell in the Execute section of the web shell as shown in Figure 6-5.
+After logging in, we are presented with information that the shell has gathered that includes the username and group that we are executing as, the name of the machine and its operating system information, and a listing of the directory of /var/www/html which is the root web directory. Unfortunately, the poor choice of colors makes the page difficult to read and so we should try and get a reverse shell to be able to explore more efficiently. We can do that by executing a bash reverse shell in the Execute section of the web shell.
 
 ![](../.gitbook/assets/traceback2.png)
 

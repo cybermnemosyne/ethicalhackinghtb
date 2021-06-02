@@ -6,23 +6,15 @@ a machine that simulates responding to a phishing attack to capture a user's cre
 
 Running an nmap scan, we find a number of ports open: FTP \(21\), SSH \(22\), SMTP \(25\), HTTP \(80\), IMAP \(143\), IMAP TLS \(993\), HTTP \(8080\)
 
-It seems the machine is running two websites and an email server supporting SMTP and IMAP. The FTP server does not support anonymous logon and so we can look at the main web server on port 80. Going to [http://sneakymailer.htb](http://sneakymailer.htb), it redirects to the URL [http://sneakycorp.htb](http://sneakycorp.htb) and so we can add that name to the hosts file. Visiting that URL takes us to a landing page for SNEAKY CORP which is a Dashboard showing information about 2 projects, PyPi and POP3/SMTP \(Figure 3-29\).
+It seems the machine is running two websites and an email server supporting SMTP and IMAP. The FTP server does not support anonymous logon and so we can look at the main web server on port 80. Going to [http://sneakymailer.htb](http://sneakymailer.htb), it redirects to the URL [http://sneakycorp.htb](http://sneakycorp.htb) and so we can add that name to the hosts file. Visiting that URL takes us to a landing page for SNEAKY CORP which is a Dashboard showing information about 2 projects, PyPi and POP3/SMTP.
 
-!\[Graphical user interface, application, Teams
+![Sneaky Corp Dashboard](../.gitbook/assets/sneaky1.png)
 
-Description automatically generated\]\(../.gitbook/assets/10.png\)
+.The Team page gives a list of team members with email addresses.
 
-Sneaky Corp Dashboard.
+![Sneaky Corp Team page](../.gitbook/assets/sneaky2.png)
 
-The Team page gives a list of team members with email addresses \(Figure 3-30\)
-
-!\[Graphical user interface, text, application, email
-
-Description automatically generated\]\(../.gitbook/assets/11%20%281%29.png\)
-
-Sneaky Corp Team page.
-
-We can grab all of the email addresses by using the command
+.We can grab all of the email addresses by using the command
 
 ```bash
 curl http://sneakycorp.htb/team.php | grep @ | cut -d '>' -f 2 | cut -d '<' -f 1 > emails.txt
@@ -200,7 +192,7 @@ You may get an error regarding an error regarding a certificate but you can igno
 
 ![Password reset request in Sent Items](../.gitbook/assets/14.png)
 
-The second email is about module testing \(Figure 3-34\)
+The second email is about module testing.
 
 ![Email regarding module testing](../.gitbook/assets/15.png)
 

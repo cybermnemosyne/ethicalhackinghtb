@@ -176,39 +176,39 @@ The file layout of a Linux \(or \*nix\) machine is usually of the format
 
 In more detail:
 
-/ is the root directory and only the user root has access to write in this directory. The user root's home directory is /root.
+**/** is the root directory and only the user root has access to write in this directory. The user root's home directory is /root.
 
-/bin contains user binary executables like ps, ls, ping, grep etc. it is a symbolic link to /usr/bin
+**/bin** contains user binary executables like ps, ls, ping, grep etc. it is a symbolic link to **/usr/bin**
 
-/sbin contains system binaries like iptables, reboot, fdisk, ifconfig, etc.
+**/sbin** contains system binaries like iptables, reboot, fdisk, ifconfig, etc.
 
-/etc contains configuration files and scripts for services running on the system. Configuration files for the Apache 2 web server are in /etc/apache2 for example. Also contains the passwd and shadow files that contain user and password information.
+**/etc** contains configuration files and scripts for services running on the system. Configuration files for the Apache 2 web server are in /etc/apache2 for example. Also contains the passwd and shadow files that contain user and password information.
 
-/dev contains device files that are the interface with physical devices on, or attached to, the system such as tty devices /dev/tty1. /dev/shm is a directory that is commonly used as a way of passing information between applications through shared memory. This is a virtual directory and anything written to it is stored in memory and not actually written to disk. Consequently, even though /tmp and /dev/shm get wiped on reboot of the machine, files in /tmp could potentially be restored forensically even after being wiped.
+**/dev** contains device files that are the interface with physical devices on, or attached to, the system such as tty devices /dev/tty1. /dev/shm is a directory that is commonly used as a way of passing information between applications through shared memory. This is a virtual directory and anything written to it is stored in memory and not actually written to disk. Consequently, even though /tmp and /dev/shm get wiped on reboot of the machine, files in /tmp could potentially be restored forensically even after being wiped.
 
-/proc contains files that store information about system processes like uptime for example.
+**/proc** contains files that store information about system processes like uptime for example.
 
-/var contains files like logs \(/var/logs\), backups \(/var/backups\), mail \(/var/mail\) and spool \(printing; /var/spool\). There is also a /var/tmp directory that can be used to run programs out of. This directory does survive reboots however. The directory /var/www/html is often used as the root directory of the web server.
+**/var** contains files like logs \(/var/logs\), backups \(/var/backups\), mail \(/var/mail\) and spool \(printing; /var/spool\). There is also a /var/tmp directory that can be used to run programs out of. This directory does survive reboots however. The directory /var/www/html is often used as the root directory of the web server.
 
-/tmp contains temporary files as mentioned previously. Files get deleted on reboot.
+**/tmp** contains temporary files as mentioned previously. Files get deleted on reboot.
 
-/usr contains user binaries, libraries, documentation and source code
+**/usr** contains user binaries, libraries, documentation and source code
 
-/usr/local contains users programs that you install from source.
+**/usr/local** contains users programs that you install from source.
 
-/home contains user home directories
+**/home** contains user home directories
 
-/boot contains boot loader files
+**/boot** contains boot loader files
 
-/lib contains system libraries
+**/lib** contains system libraries
 
-/opt contains optional add-on applications
+**/opt** contains optional add-on applications
 
-/mnt is a location for mounting temporary filesystems
+**/mnt** is a location for mounting temporary filesystems
 
-/media is a location for mounting removable media devices like CDs
+**/media** is a location for mounting removable media devices like CDs
 
-/srv contains specific service related data
+**/srv** contains specific service related data
 
 ## Enumerating the file system
 

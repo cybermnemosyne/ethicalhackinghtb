@@ -2,7 +2,7 @@
 
 Hack The Box doesn't have any good examples of RDP exploitation and so to illustrate at least one vulnerability, you will demonstrate how easy it is to get a person's password using Seth.
 
-For this demonstration, you have a Windows 10 box that is configured to accept remote desktop connections as the target. You can use your Windows 10 Commando box if you have set that up. The victim is a remote desktop connection client from any other machine on the network, including the computer you are using to run the VMs on. The attacker machine is our ParrotSec VM. The network is shown in Figure 3-6 below.
+For this demonstration, you have a Windows 10 box that is configured to accept remote desktop connections as the target. You can use your Windows 10 Commando box if you have set that up. The victim is a remote desktop connection client from any other machine on the network, including the computer you are using to run the VMs on. The attacker machine is our ParrotSec VM. The network is shown below.
 
 ![Network diagram of RDP man-in-the-middle attack](../.gitbook/assets/sethdiagram.png)
 

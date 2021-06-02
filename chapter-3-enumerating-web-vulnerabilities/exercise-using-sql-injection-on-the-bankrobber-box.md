@@ -1,6 +1,6 @@
 # Exercise: Using SQL injection on the Bankrobber box
 
-In order to try out SQL injection, we will go back to the Hack The Box machine, Bankrobber. The XSS exploitation will gae us credentials for the admin user and with those, we can access the administration functionality of the site where you discover a user's search function that is SQL injectable \(Figure 3-1\).
+In order to try out SQL injection, we will go back to the Hack The Box machine, Bankrobber. The XSS exploitation will gae us credentials for the admin user and with those, we can access the administration functionality of the site where you discover a user's search function that is SQL injectable.
 
 ![Search functionality available after logging in as admin on Bankrobber](../.gitbook/assets/2%20%289%29.png)
 

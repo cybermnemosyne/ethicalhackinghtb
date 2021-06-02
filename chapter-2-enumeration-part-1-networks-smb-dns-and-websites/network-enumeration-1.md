@@ -10,7 +10,7 @@ In order to understand network enumeration, you’ll find it useful to understan
 
 When accessing a target machine, you’ll usually make a network connection via TCP/IP. TCP/IP is the network protocol that underpins the internet, allowing applications to communicate with each other. Although you’ll find it useful to know how all layers of TCP/IP model operate, for now it’s enough to understand its essential components: how TCP/IP communication is initiated, how IP addresses identify the source and destination machines of these communication channels, and then how TCP/IP ports identify the actual programs that are either sending or receiving the messages on the machines. If you’re familiar with TCP/IP, feel free to skip ahead.
 
-In order to send data, an application packages it and passes it through a series of conceptual layers. Each layer is responsible for handling a specific aspect of the communication protocol functionality. When an application wants to send data via TCP/IP, the data gets handled by the four different software layers \(Figure 2-1\) to package the data up in a way that the network knows where to send the information to and how to handle the packets while they’re in transit.
+In order to send data, an application packages it and passes it through a series of conceptual layers. Each layer is responsible for handling a specific aspect of the communication protocol functionality. When an application wants to send data via TCP/IP, the data gets handled by the four different software layers to package the data up in a way that the network knows where to send the information to and how to handle the packets while they’re in transit.
 
 ![Layers of TCP/IP Internet Model for two hosts communicating](../.gitbook/assets/tcpmodel.png)
 
@@ -20,7 +20,7 @@ TCP/IP actually consists of two main communication protocols; TCP \(Transmission
 
 ## The Structure of an IP Address
 
-When a client wants to use TCP/IP to talk to another process, like a server on a different machine, it needs to know where to send messages \(Figure 2-2\).
+When a client wants to use TCP/IP to talk to another process, like a server on a different machine, it needs to know where to send messages.
 
 !\[A picture containing graphical user interface
 
@@ -80,7 +80,7 @@ Through this script alone, you’ve essentially built a network discovery tool. 
 
 One of the first network enumeration tasks you’ll do once you’ve found an available host is discover open ports on this target. This is because we are interested in what services are running on the machine that we can potentially communicate with and therefore, exploit.
 
-Certain well-known ports are associated with specific protocols and services. These ports, designated the Internet Assigned Numbers Authority \(IANA\), are ports 0 – 1,023 and these are reserved for well-known services such as FTP, SSH, HTTP, and DNS Ports numbered between 1,024 and 49,151 are called registered ports and are usually product and company specific. Dynamic ports, those between 49,152 and 65,535, are used for temporary connections or for private use. You should memorize certain well-known ports, as it makes reading Nmap scans and understanding services that use them, that much easier. After enough scanning, you’ll come to recognize them. They are shown in Table 2-1.
+Certain well-known ports are associated with specific protocols and services. These ports, designated the Internet Assigned Numbers Authority \(IANA\), are ports 0 – 1,023 and these are reserved for well-known services such as FTP, SSH, HTTP, and DNS Ports numbered between 1,024 and 49,151 are called registered ports and are usually product and company specific. Dynamic ports, those between 49,152 and 65,535, are used for temporary connections or for private use. You should memorize certain well-known ports, as it makes reading Nmap scans and understanding services that use them, that much easier. After enough scanning, you’ll come to recognize them. They are shown here:
 
 List of well-known TCP and UDP ports
 
