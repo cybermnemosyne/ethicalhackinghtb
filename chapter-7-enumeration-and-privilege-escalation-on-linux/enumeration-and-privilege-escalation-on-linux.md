@@ -132,7 +132,10 @@ We have seen an example of the use of suid files in the Hack The Box machine Ell
 # whoami
 root
 # id
-uid=1000(rin) gid=1000(rin) euid=0(root) egid=0(root) groups=0(root),20(dialout),24(cdrom),25(floppy),27(sudo),29(audio),30(dip),44(video),46(plugdev),109(netdev),118(debian-tor),124(bluetooth),140(scanner),1000(rin)
+uid=1000(rin) gid=1000(rin) euid=0(root) egid=0(root) 
+groups=0(root),20(dialout),24(cdrom),25(floppy),27(sudo),
+29(audio),30(dip),44(video),46(plugdev),109(netdev),
+118(debian-tor),124(bluetooth),140(scanner),1000(rin)
 #
 ```
 
@@ -274,15 +277,24 @@ echo "$(ps aux)"
 Which will produce output of the type
 
 ```bash
-root 738 0.7 4.7 868380 285788 tty7 Ssl+ 2020 20:09 /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tc
-p vt7 -novtswitch
-root 739 0.0 0.0 2672 1616 tty1 Ss+ 2020 0:00 /sbin/agetty -o -p -- \u --noclear tty1 linux
-redis 744 0.5 0.8 199724 50820 ? Ssl 2020 14:21 /usr/bin/redis-server 127.0.0.1:0
-postgres 769 0.0 0.4 212832 24896 ? Ss 2020 0:24 /usr/lib/postgresql/13/bin/postgres -D /var/lib/postgresql/13/main -c config_
+root 738 0.7 4.7 868380 285788 tty7 Ssl+ 2020 20:09 
+    /usr/lib/xorg/Xorg :0 -seat seat0 
+    -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 
+    -novtswitch
+root 739 0.0 0.0 2672 1616 tty1 Ss+ 2020 0:00 
+    /sbin/agetty -o -p -- \u --noclear tty1 linux
+redis 744 0.5 0.8 199724 50820 ? Ssl 2020 14:21 
+    /usr/bin/redis-server 127.0.0.1:0
+postgres 769 0.0 0.4 212832 24896 ? Ss 2020 0:24 
+    /usr/lib/postgresql/13/bin/postgres 
+    -D /var/lib/postgresql/13/main -c config_
 file=/etc/postgresql/13/main/postgresql.conf
-postgres 770 0.0 0.4 211568 25044 ? Ss 2020 0:09 /usr/lib/postgresql/12/bin/postgres -D /var/lib/postgresql/12/main -c config_
-file=/etc/postgresql/12/main/postgresql.conf
-postgres 793 0.0 0.1 212936 6120 ? Ss 2020 0:00 postgres: 13/main: checkpointer
+postgres 770 0.0 0.4 211568 25044 ? Ss 2020 0:09 
+    /usr/lib/postgresql/12/bin/postgres 
+    -D /var/lib/postgresql/12/main 
+    -c config_file=/etc/postgresql/12/main/postgresql.conf
+postgres 793 0.0 0.1 212936 6120 ? Ss 2020 0:00 
+postgres: 13/main: checkpointer
 ```
 
 We are looking for any unusual programs running and who they are being run by. This gives us a static view of the processes however and doesn't necessarily show processes that are run periodically and then terminate after a short period. To look at this sort of behaviour, we can use a program called pspy64 \([https://github.com/DominicBreuker/pspy\](https://github.com/DominicBreuker/pspy\)\) which will monitor processes and highlight when new processes run.
@@ -299,8 +311,9 @@ For each individual service, you can get additional information using the system
 ┌─[✗]─[rin@parrot]─[~]
 └──╼ $systemctl status ufw
 ufw.service - Uncomplicated firewall
-Loaded: loaded (/lib/systemd/system/ufw.service; enabled; vendor preset: enabled)
-Active: active (exited) since Tue 2020-12-15 10:27:41 AWST; 2 weeks 3 days ago
+Loaded: loaded (/lib/systemd/system/ufw.service; enabled; 
+    vendor preset: enabled)
+Active: active (exited) since 2 weeks 3 days ago
 Docs: man:ufw(8)
 Main PID: 370 (code=exited, status=0/SUCCESS)
 Tasks: 0 (limit: 7009)

