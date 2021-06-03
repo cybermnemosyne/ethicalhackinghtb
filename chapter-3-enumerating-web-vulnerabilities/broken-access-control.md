@@ -1,7 +1,5 @@
 # Broken Access Control
 
-l
-
 Users should only be allowed to access functions and information that they have been given the right to access. This means that one user should not be able to see another user’s data and that ordinary users should not be able to access administrative functionality. Unfortunately, controlling user access is sometimes complicated and the range of vulnerabilities that arise because of misconfigurations and program errors is quite wide. The type of vulnerabilities that occur are:
 
 * No access control applied to resources such as file shares, directory listings
