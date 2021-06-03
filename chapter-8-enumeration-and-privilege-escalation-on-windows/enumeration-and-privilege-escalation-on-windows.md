@@ -62,7 +62,8 @@ IsVirtualMachine: True
 Current Time: 1/4/2021 11:55:39 AM
 HighIntegrity: True
 PartOfDomain: False
-Hotfixes: KB2693643, KB4519564, KB4134661, KB4295110, KB4462930, KB4486153, KB4489219, KB4516115, KB4523202, KB4525241,
+Hotfixes: KB2693643, KB4519564, KB4134661, KB4295110, KB4462930, KB4486153, 
+KB4489219, KB4516115, KB4523202, KB4525241,
 ```
 
 ### Vulnerabilities based on version
@@ -100,7 +101,8 @@ Although this will be the subject of its own chapter, Windows has a range of sof
 PowerShell version information can be obtained by using the variable $PSVersionTable and you can also check any logged history stored in the file:
 
 ```bash
-c:\Users\rin\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+c:\Users\rin\AppData\Roaming\Microsoft\Windows\PowerShell\
+PSReadLine\ConsoleHost_history.txt
 ```
 
 Another important policy that will determine what you can and can't do with PowerShell is its execution mode. PowerShell has the following execution modes:
@@ -196,36 +198,4 @@ reg query "HKLM\SYSTEM\CurrentControlSet\Services\SNMP" /s
 reg query "HKCU\Software\TightVNC\Server"
 reg query "HKCU\Software\OpenSSH\Agent\Key"
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
