@@ -22,3 +22,5 @@ I am Dr David Glance and I teach cybersecurity at the University of Western Aust
 10. Defense Evasion
 11. Command & Control and Persistence
 
+{% file src=".gitbook/assets/ethicalhackinghtbdgv1.pdf" caption="PDF Version of the Book  v1.0" %}
+
