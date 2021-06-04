@@ -21,11 +21,13 @@ Process injection is also one of the techniques used to achieve persistence.
 
 Although we have concentrated on Windows, the process injection is possible on Linux using the same sort of mechanism as outlined in PE Injection above. On Linux, the technique uses ptrace\(\), a system call that allows control of another running process for the purposes of inspection and debugging. For this reason, the ability of ptrace to call a process it didn't create is limited on Linux systems and it may be necessary to change this using the command:
 
-echo 0 \| sudo tee /proc/sys/kernel/yama/ptrace\_scope
+```bash
+echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+```
 
 The technique varies in where the malicious code is written with the easiest place to replace the main\(\) function. This is destructive in that the malicious code can't return to the host function and so is not absolutely ideal.
 
-Other techniques
+## Other techniques
 
 There are a range of techniques that can be used to avoid detection and to remove activity traces. These include:
 

