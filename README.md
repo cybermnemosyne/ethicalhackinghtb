@@ -24,3 +24,13 @@ I am Dr David Glance and I teach cybersecurity at the University of Western Aust
 
 {% file src=".gitbook/assets/ethicalhackinghtbdgv1.pdf" caption="PDF Version of the Book  v1.0" %}
 
+## Citation
+
+Ethical Hacking With Hack The Box
+
+DG Glance
+
+Online: 2021
+
+ISBN: 978-0-6452051-0-7
+
