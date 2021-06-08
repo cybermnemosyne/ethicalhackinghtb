@@ -1,6 +1,7 @@
 # Table of contents
 
 * [Ethical Hacking With Hack The Box](README.md)
+* [About the Book](about-the-book.md)
 * [Introduction](introduction.md)
 * [About the Author](about-the-author.md)
 * [Copyright Notice](copyright-notice.md)
