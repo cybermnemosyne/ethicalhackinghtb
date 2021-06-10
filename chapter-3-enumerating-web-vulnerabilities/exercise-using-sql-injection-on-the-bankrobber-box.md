@@ -1,6 +1,6 @@
 # Exercise: Using SQL injection on the Bankrobber box
 
-In order to try out SQL injection, we will go back to the Hack The Box machine, Bankrobber. The XSS exploitation will gae us credentials for the admin user and with those, we can access the administration functionality of the site where you discover a user's search function that is SQL injectable.
+In order to try out SQL injection, we will go back to the Hack The Box machine, Bankrobber. The XSS exploitation will give us credentials for the admin user and with those, we can access the administration functionality of the site where you discover a user's search function that is SQL injectable.
 
 ![Search functionality available after logging in as admin on Bankrobber](../.gitbook/assets/2%20%289%29.png)
 
@@ -67,7 +67,7 @@ The response will include the databases
 
 `bankrobber,information_schema,mysql,performance_schema,phpmyadmin,test`
 
-The site, PayloadsAllTheThings has a SQL Injection Cheat Sheet that lists other commands for exploring databases.
+The site, _**PayloadsAllTheThings**_ has a SQL Injection Cheat Sheet that lists other commands for exploring databases.
 
 We can list the tables in the database bankrobber with the following query:
 
@@ -148,7 +148,7 @@ The file of particular interest is notes.txt which when we look at says:
 
 The key bit of information is that the Xampp folder is in the default location. XAMPP is a product that packages up Apache, MariaDB, PHP and Perl to run web applications. MariaDB is compatible with MySQL and so is largely indistinguishable for our purposes.
 
-Going back to the home page, there was another function called a We also know that the function called a Backdoorchecker that said it would allow the dir command but when you try it, you get an error message:
+Going back to the home page, there was another function called  _**Backdoorchecker**_ that said it would allow the dir command but when you try it, you get an error message:
 
 It's only allowed to access this function from localhost \(::1\).
 
@@ -199,7 +199,7 @@ if(isset($_POST['cmd'])){
 ?>
 ```
 
-The key things about this code are that it checks that cookie has username with a value of "admin" and password with a value of "Hopelessromantic" \(11\). It then checks that the command does not include '&' which would allow us to run a second command after the 'dir' command v. It checks that the command starts with 'dir' so that we can't substitute other commands instead w. It checks if the request came from the local machine x. Finally, it executes the command y. The flaw here is is that although it is checking for bad characters that could manipulate the command and run other arbitrary commands, it still allows us to use the '\|' character which works in the same way as the '&' after a command.
+The key things about this code are that it checks that cookie has username with a value of "admin" and password with a value of "Hopelessromantic" \(11\). It then checks that the command does not include '&' which would allow us to run a second command after the 'dir' command \(14\). It checks that the command starts with 'dir' so that we can't substitute other commands instead \(9\). It checks if the request came from the local machine \(23\). Finally, it executes the command y. The flaw here is is that although it is checking for bad characters that could manipulate the command and run other arbitrary commands, it still allows us to use the '\|' character which works in the same way as the '&' after a command.
 
 We can now run a command but we still need to do this using server-side request forgery using the XSS vulnerability as we did earlier in the chapter.
 

