@@ -61,13 +61,13 @@ Host script results:
 |_ start_date: 2020-12-21T03:35:26
 ```
 
-The OS discovery suggests that the box is a Windows Server 2016. The variety of ports like DNS, LDAP and Kerberos suggest that it is an Active Directory domain controller with the domain fabricorp.local. We can add this hostname to the /etc/hosts file. An interesting note at this point is whether add the fabricorp.local DNS to the list of nameservers to query so that any other subdomains would be accessible automatically. You can normally do this by adding the entry nameserver &lt;IP address&gt; to the file /etc/resolv.conf. However, in this case, the DNS returned the incorrect IP address for fabricorp.local and so this is not an option.
+The OS discovery suggests that the box is a Windows Server 2016. The variety of ports like DNS, LDAP and Kerberos suggest that it is an Active Directory domain controller with the domain fabricorp.local. We can add this hostname to the /etc/hosts file. An interesting note at this point is whether add the fabricorp.local DNS to the list of nameservers to query so that any other subdomains would be accessible automatically. You can normally do this by adding the entry nameserver \<IP address> to the file /etc/resolv.conf. However, in this case, the DNS returned the incorrect IP address for fabricorp.local and so this is not an option.
 
 Going to the website, we get redirected to the URL [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm) and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown in Figure 4-8.
 
 !\[Graphical user interface
 
-Description automatically generated\]\(../.gitbook/assets/6.png\)
+Description automatically generated]\(../.gitbook/assets/6.png)
 
 fuse.fabricorp.local home page. A PaperCut printing administration page.
 
@@ -77,7 +77,7 @@ The page is an instance of the PaperCut printing software printer logs. On the p
 
 Enumerating the website it is apparent that the site is static HTML and so even if there was a CVE related to this version of PaperCut, there would be nothing to exploit. Instead, we can focus on the users that are listed with the print jobs:
 
-```text
+```
 pmerton
 tlavel
 sthompson
@@ -114,7 +114,7 @@ Now that we have valid usernames, we need password candidates and a place to try
 CeWL 5.4.8 (Inclusion) Robin Wood (robin@digi.ninja) (https://digi.ninja/)
 ```
 
-We have specified a depth of 3 \(-d 3\) for the program to crawl, a minimum password length of 8 \(-m 8\), we want words that contain numbers \(--with-numbers\) and an output file fabricorp\_wordlist.txt and the URL of the home page we want to crawl. This generates a wordlist of the type:
+We have specified a depth of 3 (-d 3) for the program to crawl, a minimum password length of 8 (-m 8), we want words that contain numbers (--with-numbers) and an output file fabricorp\_wordlist.txt and the URL of the home page we want to crawl. This generates a wordlist of the type:
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Fuse]
@@ -152,7 +152,7 @@ SMB 10.129.2.5 445 FUSE [-] fabricorp.local\tlavel:mountain STATUS_LOGON_FAILURE
 SMB 10.129.2.5 445 FUSE [-] fabricorp.local\tlavel:Fabricorp01 STATUS_PASSWORD_MUST_CHANGE
 ```
 
-An alternative to crackmapexec is medusa which can be used with the the user file \(-U users.txt\), the password file \(-P fabricorp\_wordlist.txt\) and the SMB NT module \(-M smbnt\). This gives the following output:
+An alternative to crackmapexec is medusa which can be used with the the user file (-U users.txt), the password file (-P fabricorp\_wordlist.txt) and the SMB NT module (-M smbnt). This gives the following output:
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Fuse]
@@ -230,7 +230,7 @@ We can collect all of the users and create a new users file with these users in 
 cat rpc_users.txt | awk -F '\\[|]' '{print $2}' > rpc_users2.txt
 ```
 
-The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket \(\[\]\) characters. The '\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
+The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket (\[]) characters. The '\\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
 
 Back on rpcclient, we can look at printers that might be shared by using the enumprinters command. This gives output which contains a password:
 
@@ -265,4 +265,3 @@ The user flag is in c:\Users\svc-print\Desktop\users.txt.
 ```
 
 We will leave this here and come back to Fuse in a subsequent chapter where we cover further enumeration for discovery and privilege escalation. Next however we are going to explore custom exploitation as a means of gaining initial access.
-

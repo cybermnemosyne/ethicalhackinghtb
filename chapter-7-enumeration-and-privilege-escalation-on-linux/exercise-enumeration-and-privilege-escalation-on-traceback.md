@@ -19,7 +19,7 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Going to the website at the IP address, we get a page saying that the site has been "owned" by a hacker and that a backdoor has been installed.
 
-![Traceback home page](../.gitbook/assets/0%20%286%29.png)
+![Traceback home page](<../.gitbook/assets/0 (6).png>)
 
 The source code of the page has a comment:
 
@@ -27,7 +27,7 @@ The source code of the page has a comment:
 <!--Some of the best web shells that you might need ;)-->
 ```
 
-If we do an Internet search with this line, we get a Github site of Web-Shells in ASP, JSP and PHP \([https://github.com/TheBinitGhimire/Web-Shells\](https://github.com/TheBinitGhimire/Web-Shells\)\). We know from nmap that the machine is running Ubuntu and so is not going to be running ASP which is a Microsoft technology. We would also assume that if the site was running JSP, we might have picked up Tomcat when doing the nmap but it is running Apache. So we will assume that it is running PHP for the time being. We can run a gobuster directory scan and use a special wordlist from SecLists that has common backdoor shell names in it:
+If we do an Internet search with this line, we get a Github site of Web-Shells in ASP, JSP and PHP ([https://github.com/TheBinitGhimire/Web-Shells\\](https://github.com/TheBinitGhimire/Web-Shells/)). We know from nmap that the machine is running Ubuntu and so is not going to be running ASP which is a Microsoft technology. We would also assume that if the site was running JSP, we might have picked up Tomcat when doing the nmap but it is running Apache. So we will assume that it is running PHP for the time being. We can run a gobuster directory scan and use a special wordlist from SecLists that has common backdoor shell names in it:
 
 ```bash
 ┌─[oztechmuse@parrot]─[~/boxes/Traceback]
@@ -80,7 +80,7 @@ eval("?>".(base64_decode($smevk)));
 
 
 
-![smevk.php home page after logging in](../.gitbook/assets/2%20%284%29.png)
+![smevk.php home page after logging in](<../.gitbook/assets/2 (4).png>)
 
 After logging in, we are presented with information that the shell has gathered that includes the username and group that we are executing as, the name of the machine and its operating system information, and a listing of the directory of /var/www/html which is the root web directory. Unfortunately, the poor choice of colors makes the page difficult to read and so we should try and get a reverse shell to be able to explore more efficiently. We can do that by executing a bash reverse shell in the Execute section of the web shell.
 
@@ -260,7 +260,7 @@ Group sysadmin:
 /home/webadmin/note.txt
 ```
 
-Before we investigate this more, let us use another tool to enumerate processes called pspy64 \([https://github.com/DominicBreuker/pspy\](https://github.com/DominicBreuker/pspy\)\). This will monitor processes and highlight when new processes run. When running it on Traceback, we see that every minute a set of processes run:
+Before we investigate this more, let us use another tool to enumerate processes called pspy64 ([https://github.com/DominicBreuker/pspy\\](https://github.com/DominicBreuker/pspy/)). This will monitor processes and highlight when new processes run. When running it on Traceback, we see that every minute a set of processes run:
 
 ```bash
 2020/12/28 CMD: UID=0 PID=49845 | sleep 30
@@ -285,7 +285,7 @@ Before we investigate this more, let us use another tool to enumerate processes 
     .update-motd.d/91-release-upgrade /etc/update-motd.d/
 ```
 
-Motd is "message of the day" and is a set of text files that are displayed to a user when they log in. Linux uses PAM \(Pluggable Authentication Modules\) to manage the authentication and login process. The module pam\_motd is the one responsible for displaying the messages to users logging in and before they get a shell.
+Motd is "message of the day" and is a set of text files that are displayed to a user when they log in. Linux uses PAM (Pluggable Authentication Modules) to manage the authentication and login process. The module pam\_motd is the one responsible for displaying the messages to users logging in and before they get a shell.
 
 We can see what happens to the pspy output when we SSH in:
 
@@ -351,6 +351,4 @@ root
 In the enumeration process, we went through the steps of looking for information and then looking for vulnerabilities that we could exploit on the system, in this case a misconfiguration left by the "hackers" who had taken over the machine. LinPEAS made that process more efficient, highlighting the vulnerability of the group writeable motd files.
 
 We will look at another example where using LinPEAS highlights potential credentials in a configuration file to get a user with different privileges. Having got this user, we can do some manual enumeration to find a path to escalate privileges to get root.
-
-
 

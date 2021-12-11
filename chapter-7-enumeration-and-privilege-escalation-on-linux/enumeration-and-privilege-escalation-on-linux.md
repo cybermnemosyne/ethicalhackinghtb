@@ -8,11 +8,11 @@ A user on a system is granted privileges to perform actions on that system. On L
 
 ![](../.gitbook/assets/screen-shot-2021-04-27-at-11.26.41-am.png)
 
-This shows the file permissions for a file file.sh. You can get this listing by doing an ls -l at the shell prompt. The permissions are listed to the left and start with the file type. This will be 'd' for a directory and '-' for a file. This is followed by the read \(r\), write \(w\) and execute \(x\) permissions in 3 sets of 3. The first set of permissions apply to the owner of the file, in this case rin, the second group of permissions apply to the group 'web' and the third set of permissions applies to everyone else or 'all'.
+This shows the file permissions for a file file.sh. You can get this listing by doing an ls -l at the shell prompt. The permissions are listed to the left and start with the file type. This will be 'd' for a directory and '-' for a file. This is followed by the read (r), write (w) and execute (x) permissions in 3 sets of 3. The first set of permissions apply to the owner of the file, in this case rin, the second group of permissions apply to the group 'web' and the third set of permissions applies to everyone else or 'all'.
 
 These permissions are set on directories as well. In the case of directories, the execute permission allows a user to enter and list the directory.
 
-There are other permissions that are important as well, the main one being the set user or group id \(SUID or SGID\) permission. The SUID bit means that anyone else who has permission to run the program will run as the effective user id of the owner of the file. We can demonstrate this with the following program:
+There are other permissions that are important as well, the main one being the set user or group id (SUID or SGID) permission. The SUID bit means that anyone else who has permission to run the program will run as the effective user id of the owner of the file. We can demonstrate this with the following program:
 
 ```c
 #include <stdio.h>
@@ -62,7 +62,7 @@ find / -perm -u=s -type f 2>/dev/null
 find / -perm -g=s -type f 2>/dev/null
 ```
 
-The permissions described here are not the only way to control access to files in Linux or other Unix systems. Linux supports Access Control Lists \(ACLs\) on files as well that allow more sophisticated control over who gets access to a file and what they can do with it. We can look at the ACL of a file using getfacl
+The permissions described here are not the only way to control access to files in Linux or other Unix systems. Linux supports Access Control Lists (ACLs) on files as well that allow more sophisticated control over who gets access to a file and what they can do with it. We can look at the ACL of a file using getfacl
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/book]
@@ -121,7 +121,7 @@ mask::r--
 other::---
 ```
 
-We have seen an example of the use of suid files in the Hack The Box machine Ellingson \(REF XXX\) where a buffer overflow of an application, owned by root and with the suid permission set allowed us to run a shell as root. Having a file with suid set and owned by a more privileged user is only part of the equation. We also need to find a way for that running that program will allow us to perform an action such as run a local or reverse shell or read or write to a file. Fortunately, there are a large number of Linux applications that will allow us to do exactly that. A list of them is available on GTFOBins \([https://gtfobins.github.io/\#+suid\](https://gtfobins.github.io/#+suid\)\). As an example, we can take the application find. Here we are going to create a local copy of the find command and set the suid bit on it and then execute to drop to a shell as root.
+We have seen an example of the use of suid files in the Hack The Box machine Ellingson (REF XXX) where a buffer overflow of an application, owned by root and with the suid permission set allowed us to run a shell as root. Having a file with suid set and owned by a more privileged user is only part of the equation. We also need to find a way for that running that program will allow us to perform an action such as run a local or reverse shell or read or write to a file. Fortunately, there are a large number of Linux applications that will allow us to do exactly that. A list of them is available on GTFOBins ([https://gtfobins.github.io/#+suid\\](https://gtfobins.github.io/#+suid\\)). As an example, we can take the application find. Here we are going to create a local copy of the find command and set the suid bit on it and then execute to drop to a shell as root.
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/book/test]
@@ -139,11 +139,11 @@ groups=0(root),20(dialout),24(cdrom),25(floppy),27(sudo),
 #
 ```
 
-This type of exploit is called living of the land \(LoTL\) as we are exploiting tools and applications that are already on the system and not having to install bespoke software that might get picked up by AV software or other software monitoring for unusual activity.
+This type of exploit is called living of the land (LoTL) as we are exploiting tools and applications that are already on the system and not having to install bespoke software that might get picked up by AV software or other software monitoring for unusual activity.
 
 ## Linux Enumeration
 
-One of the easiest things to do to enumerate a system after gaining access is to run a script file like PEAS \(Privilege Escalation Awesome Scripts\) \([https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite\](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite\)\). This checks for an extensive, but not necessarily exhaustive, list of potential vulnerabilities. It produces a great deal of output that is colour coded and references explanations of its findings on the GitHub site HackTricks \([https://book.hacktricks.xyz/linux-unix/privilege-escalation\#path\](https://book.hacktricks.xyz/linux-unix/privilege-escalation#path\)\).
+One of the easiest things to do to enumerate a system after gaining access is to run a script file like PEAS (Privilege Escalation Awesome Scripts) ([https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite\\](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/)). This checks for an extensive, but not necessarily exhaustive, list of potential vulnerabilities. It produces a great deal of output that is colour coded and references explanations of its findings on the GitHub site HackTricks ([https://book.hacktricks.xyz/linux-unix/privilege-escalation#path\\](https://book.hacktricks.xyz/linux-unix/privilege-escalation#path\\)).
 
 Going through each of the specific things that LinPEAS checks will be too extensive and so we will not go through each step but focus on the main general areas that could be done manually as well. The basic principles however is to run through an enumeration process that is looking for vulnerabilities, including misconfigurations that are exploitable and any information that we can use for both further access and exploitation or simply information that is of value from the target.
 
@@ -153,9 +153,9 @@ At the same time, we are searching for information that might be accessible and 
 
 Looking for information
 
-The file layout of a Linux \(or \*nix\) machine is usually of the format
+The file layout of a Linux (or \*nix) machine is usually of the format
 
-```text
+```
 /bin -> usr/bin
 /boot
 /dev
@@ -191,7 +191,7 @@ In more detail:
 
 **/proc** contains files that store information about system processes like uptime for example.
 
-**/var** contains files like logs \(/var/logs\), backups \(/var/backups\), mail \(/var/mail\) and spool \(printing; /var/spool\). There is also a /var/tmp directory that can be used to run programs out of. This directory does survive reboots however. The directory /var/www/html is often used as the root directory of the web server.
+**/var** contains files like logs (/var/logs), backups (/var/backups), mail (/var/mail) and spool (printing; /var/spool). There is also a /var/tmp directory that can be used to run programs out of. This directory does survive reboots however. The directory /var/www/html is often used as the root directory of the web server.
 
 **/tmp** contains temporary files as mentioned previously. Files get deleted on reboot.
 
@@ -217,7 +217,7 @@ In more detail:
 
 When enumerating the file system, the /home directory is a good place to start, especially if you have access to any of the users on the system.
 
-Home directories on Linux usually contain a number of files and directories that are hidden because they start with a ".". To list them, you need to use the ls -la flag. Some of these files are resource script files like .bashrc \(if you are running bash\) that configure the bash environment. Things like configuring the amount of history that is kept which is normally viewable by typing history or by listing the .bash\_history file. Other programs such as browsers and email clients keep hidden directories and files in the user's home directory and so these are a good place to look for potentially sensitive information.
+Home directories on Linux usually contain a number of files and directories that are hidden because they start with a ".". To list them, you need to use the ls -la flag. Some of these files are resource script files like .bashrc (if you are running bash) that configure the bash environment. Things like configuring the amount of history that is kept which is normally viewable by typing history or by listing the .bash\_history file. Other programs such as browsers and email clients keep hidden directories and files in the user's home directory and so these are a good place to look for potentially sensitive information.
 
 Other locations that can be checked are:
 
@@ -297,7 +297,7 @@ postgres 793 0.0 0.1 212936 6120 ? Ss 2020 0:00
 postgres: 13/main: checkpointer
 ```
 
-We are looking for any unusual programs running and who they are being run by. This gives us a static view of the processes however and doesn't necessarily show processes that are run periodically and then terminate after a short period. To look at this sort of behaviour, we can use a program called pspy64 \([https://github.com/DominicBreuker/pspy\](https://github.com/DominicBreuker/pspy\)\) which will monitor processes and highlight when new processes run.
+We are looking for any unusual programs running and who they are being run by. This gives us a static view of the processes however and doesn't necessarily show processes that are run periodically and then terminate after a short period. To look at this sort of behaviour, we can use a program called pspy64 ([https://github.com/DominicBreuker/pspy\\](https://github.com/DominicBreuker/pspy/)) which will monitor processes and highlight when new processes run.
 
 Services are usually long running processes, often run by specific accounts or root that provide functionality such as communication, transportation, databases, web servers, etc. You can list the services running on.a machine using
 
@@ -323,7 +323,7 @@ CGroup: /system.slice/ufw.service
 
 Cron is a job scheduler that runs a process periodically. It is configured using a client application crontab but you may have access to list cron jobs that are configured in a number of different locations:
 
-```text
+```
 /etc/crontab.hourly
 /etc/crontab.daily
 /etc/crontab.weekly
@@ -337,4 +337,3 @@ crontab -l
 ```
 
 **LinPEAS** will do all of the above and we will cover a few specific examples of enumeration using LinPEAS. It is important to remember however that this doesn't substitute for manual enumeration. LinPEAS, even in its "Stealth" mode will be very noisy because it will likely flag unusual behavior for the user for any anomalous behavior detection software.
-

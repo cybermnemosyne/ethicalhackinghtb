@@ -1,6 +1,6 @@
 # Exercise: Network Enumeration of the Archetype box
 
-To practice using Nmap, let’s scan a machine on Hack The Box. Archetype is one of the site’s introductory tutorial machines, located in the Starting Point section of the site, under Labs in the left-hand menu \(Figure 2-2\). Unlike other machines on HackTheBox, the Starting Point machines are always running and so can be accessed directly using the machine's IP address.
+To practice using Nmap, let’s scan a machine on Hack The Box. Archetype is one of the site’s introductory tutorial machines, located in the Starting Point section of the site, under Labs in the left-hand menu (Figure 2-2). Unlike other machines on HackTheBox, the Starting Point machines are always running and so can be accessed directly using the machine's IP address.
 
 To access any Hack The Box machine you need to connect to the network via a VPN. In the case of Archetype, there is a special VPN configuration file for the Starting Point machines. Download the file by clicking the VPN Connection link in the Dashboard page. To run the VPN, use openvpn:
 
@@ -19,11 +19,11 @@ To run a full TCP port scan, which scans all 65,5535 ports, use the following Nm
 
 sudo nmap -v -sC -sV --min-rate=1000 -T4 -p- archetype.htb -oN nmap/tcp-full
 
-This command attempts to perform a full TCP SYN scan as fast as possible. We need to use sudo to allow Nmap to do a SYN scan. The argument -p- tells Nmap to scan all ports. Because we specified no option for the type of scan to do, Nmap does a SYN scan of TCP ports by default. The argument –min-rate=1000 tells Nmap to send probes at a rate of at least 1,000 per second. The -T4 argument tells Nmap to do an aggressive timing scan \(the default is T3\) which essentially makes the scan faster. The -v makes the output verbose, printing out the discovered ports and their status as the command executes.
+This command attempts to perform a full TCP SYN scan as fast as possible. We need to use sudo to allow Nmap to do a SYN scan. The argument -p- tells Nmap to scan all ports. Because we specified no option for the type of scan to do, Nmap does a SYN scan of TCP ports by default. The argument –min-rate=1000 tells Nmap to send probes at a rate of at least 1,000 per second. The -T4 argument tells Nmap to do an aggressive timing scan (the default is T3) which essentially makes the scan faster. The -v makes the output verbose, printing out the discovered ports and their status as the command executes.
 
-Next, we run some scripts. Nmap can run scripts written in the Lua programming language with its Nmap Scripting Engine \(NSE\). The -sC flag tells Nmap to run all of its default scripts, which will do things like find vulnerabilities, look for default attributes and behaviors in software, and a range of other things. The script http-favicon.nse for example, will retrieve the favorites icon \(favicon\) from a website and compare it against known favicons from specific products, printing the product name if it is a match. This is just another way of finding out what product we are dealing with.
+Next, we run some scripts. Nmap can run scripts written in the Lua programming language with its Nmap Scripting Engine (NSE). The -sC flag tells Nmap to run all of its default scripts, which will do things like find vulnerabilities, look for default attributes and behaviors in software, and a range of other things. The script http-favicon.nse for example, will retrieve the favorites icon (favicon) from a website and compare it against known favicons from specific products, printing the product name if it is a match. This is just another way of finding out what product we are dealing with.
 
-The -sV flag tells Nmap to try to get version information for all software that it finds. Finally, the -o flag is the output and -oN saves all output from Nmap in Nmap format \(normal format\). This format saves information that is normally printed to the terminal but without any warnings and other runtime output.
+The -sV flag tells Nmap to try to get version information for all software that it finds. Finally, the -o flag is the output and -oN saves all output from Nmap in Nmap format (normal format). This format saves information that is normally printed to the terminal but without any warnings and other runtime output.
 
 When you run this command on Archetype, you should receive output like the following:
 
@@ -98,17 +98,17 @@ x Host script results:
 |_ start_date: N/A
 ```
 
-Notice that Nmap has identified the operating system as Windows Server 2019 Standard 17763 y. Also, you can see that file sharing is enabled because ports 139 u and 445 v are open. These ports are used for the Server Message Block \(SMB\), a protocol we'll dive deeper into shortly. These ports are always worth exploring to see if the machine is sharing folders that anonymous and unauthenticated users can accessible. Next, notice that port 1433 is running Microsoft SQL Server 2017 14.00.1000.00 w. When you discover any software like this, you can use information about the service and its version to look for known vulnerabilities in it.
+Notice that Nmap has identified the operating system as Windows Server 2019 Standard 17763 y. Also, you can see that file sharing is enabled because ports 139 u and 445 v are open. These ports are used for the Server Message Block (SMB), a protocol we'll dive deeper into shortly. These ports are always worth exploring to see if the machine is sharing folders that anonymous and unauthenticated users can accessible. Next, notice that port 1433 is running Microsoft SQL Server 2017 14.00.1000.00 w. When you discover any software like this, you can use information about the service and its version to look for known vulnerabilities in it.
 
-You’ve asked Nmap to run all relevant scripts, and the results from those is detailed in the output x. As you can see, these scripts tell us more about the MSSQL and SMB services running on this box. Let’s see what we can do with this information. For MSSQL, you’re told that there have been no patches installed, so this service is considered to be a vanilla RTM \(Release to Manufacturing\) install.
+You’ve asked Nmap to run all relevant scripts, and the results from those is detailed in the output x. As you can see, these scripts tell us more about the MSSQL and SMB services running on this box. Let’s see what we can do with this information. For MSSQL, you’re told that there have been no patches installed, so this service is considered to be a vanilla RTM (Release to Manufacturing) install.
 
 Maybe we’ll be able to find credentials to it in the SMB shares. As you can see, there are details of the security implemented for versions 1 and 2 of SMB, and from this information, it looks like you will be able to use SMB version 1 without any credentials; Nmap shows that the ports involved with SMB are open and that guest access was allowed z.
 
 ### Exploring SMB Shares
 
-Once you’ve discovered open ports on a system, you can explore the services running on those systems to figure out whether they’re vulnerable. One useful service you’ll commonly discover is Server Message Block \(SMB\), a messaging protocol that provides access to shared files, printers, and serial ports.
+Once you’ve discovered open ports on a system, you can explore the services running on those systems to figure out whether they’re vulnerable. One useful service you’ll commonly discover is Server Message Block (SMB), a messaging protocol that provides access to shared files, printers, and serial ports.
 
-The most famous exploit of SMB, EternalBlue \(CVE-2017-0144\), uses specially crafted SMB packets against SMB v1 implementations to allow unauthenticated attackers to execute code on the system remotely. Originally developed by the US National Security Agency, the exploit was leaked to the world by a hacker group called the Shadow Brokers in 2017 and became the main vector for the WannaCry and NotPetya ransomware attacks.
+The most famous exploit of SMB, EternalBlue (CVE-2017-0144), uses specially crafted SMB packets against SMB v1 implementations to allow unauthenticated attackers to execute code on the system remotely. Originally developed by the US National Security Agency, the exploit was leaked to the world by a hacker group called the Shadow Brokers in 2017 and became the main vector for the WannaCry and NotPetya ransomware attacks.
 
 The key vulnerability you’ll find in SMB are misconfigurations that grant overly permissive access, especially unauthenticated access to file shares or printers. And as you learned from the Nmap script, you might be able to access Archetype’s file shares without credentials.
 
@@ -151,7 +151,7 @@ Host script results:
 |_ Current user access: READ
 ```
 
-Here, we use -Pn to tell Nmap not to ping the host, which it would normally do to check if it is online, because we already know that the host is online. We’re only scanning the one port on which SMB is running \(-p 445\), passing the name of the script we want it to run. The script shows the file shares that are available, whether they allow anonymous access, and what the read and write permissions are for an authenticated user and an anonymous user.
+Here, we use -Pn to tell Nmap not to ping the host, which it would normally do to check if it is online, because we already know that the host is online. We’re only scanning the one port on which SMB is running (-p 445), passing the name of the script we want it to run. The script shows the file shares that are available, whether they allow anonymous access, and what the read and write permissions are for an authenticated user and an anonymous user.
 
 Another tool we can use is smbclient which comes pre-installed on Parrot OS. Like Nmap's SMB share enumeration script, it will say whether it has found any shares visible from the machine. However, it doesn't say whether any of those shares are accessible by an anonymous access:
 
@@ -198,7 +198,7 @@ SMB 10.10.10.27 445 ARCHETYPE IPC$ Remote IPC
 {% hint style="info" %}
 Installation instructions for Crackmapexec are located:
 
-\`\`[`https://github.com/byt3bl33d3r/CrackMapExec/wiki/Installation`](https://github.com/byt3bl33d3r/CrackMapExec/wiki/Installation)\`\`
+``[`https://github.com/byt3bl33d3r/CrackMapExec/wiki/Installation`](https://github.com/byt3bl33d3r/CrackMapExec/wiki/Installation)``
 {% endhint %}
 
 Of these approaches, smbclient does not reveal permissions information, which makes the other tools more informative in this case. For smbmap and crackmapexec, you have to specify a username explicitly. In this case, it doesn’t matter what username you choose; it just can’t be an empty string.
@@ -262,5 +262,4 @@ On the Archetype machine, in the backups folder, notice that there is an MS SQL 
 </DTSConfiguration>
 ```
 
-Inside, the file contains a username and password that can be used to access MS SQL server on the machine \(line 6\). This means you could log into the database using an interactive command line tool and, in this case, execute shell commands. We will come back to the exploitation of MS SQL in Chapter 3.
-
+Inside, the file contains a username and password that can be used to access MS SQL server on the machine (line 6). This means you could log into the database using an interactive command line tool and, in this case, execute shell commands. We will come back to the exploitation of MS SQL in Chapter 3.

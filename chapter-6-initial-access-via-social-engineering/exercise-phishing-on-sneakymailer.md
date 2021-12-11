@@ -1,10 +1,10 @@
 # Exercise: Phishing on SneakyMailer
 
-The Hack The Box machine SneakyMailer is running a number of services; FTP \(port 21\), SSH \(port 22\), SMTP \(port 25\), HTTP \(port 80\), IMAP \(port 143\), IMAP TLS \(port 993\), HTTP \(port 8080\). The main website on port 80 has a team member list from which names and email addresses can be harvested to create a candidate user list. Running Gobuster on the site reveals a PHP file register.php
+The Hack The Box machine SneakyMailer is running a number of services; FTP (port 21), SSH (port 22), SMTP (port 25), HTTP (port 80), IMAP (port 143), IMAP TLS (port 993), HTTP (port 8080). The main website on port 80 has a team member list from which names and email addresses can be harvested to create a candidate user list. Running Gobuster on the site reveals a PHP file register.php
 
-a machine that simulates responding to a phishing attack to capture a user's credentials. Although we could use Gophish easily to achieve this, we will use another tool to send emails called SWAKS - Swiss Army Knife for SMTP \([https://github.com/jetmore/swaks\](https://github.com/jetmore/swaks\)\) and we will host the landing page in code that we will write ourselves.
+a machine that simulates responding to a phishing attack to capture a user's credentials. Although we could use Gophish easily to achieve this, we will use another tool to send emails called SWAKS - Swiss Army Knife for SMTP ([https://github.com/jetmore/swaks\\](https://github.com/jetmore/swaks/)) and we will host the landing page in code that we will write ourselves.
 
-Running an nmap scan, we find a number of ports open: FTP \(21\), SSH \(22\), SMTP \(25\), HTTP \(80\), IMAP \(143\), IMAP TLS \(993\), HTTP \(8080\)
+Running an nmap scan, we find a number of ports open: FTP (21), SSH (22), SMTP (25), HTTP (80), IMAP (143), IMAP TLS (993), HTTP (8080)
 
 It seems the machine is running two websites and an email server supporting SMTP and IMAP. The FTP server does not support anonymous logon and so we can look at the main web server on port 80. Going to [http://sneakymailer.htb](http://sneakymailer.htb), it redirects to the URL [http://sneakycorp.htb](http://sneakycorp.htb) and so we can add that name to the hosts file. Visiting that URL takes us to a landing page for SNEAKY CORP which is a Dashboard showing information about 2 projects, PyPi and POP3/SMTP.
 
@@ -20,13 +20,13 @@ It seems the machine is running two websites and an email server supporting SMTP
 curl http://sneakycorp.htb/team.php | grep @ | cut -d '>' -f 2 | cut -d '<' -f 1 > emails.txt
 ```
 
-This command fetches the team.php page using curl and then passes the output to the grep command using the pipe operator '\|'. grep matches any line in the output that features the @ symbol of the email address. This gives us lines of text with some HTML around the email addresses and so we need to further refine the text using the cut command. Since the output from the grep is lines like
+This command fetches the team.php page using curl and then passes the output to the grep command using the pipe operator '|'. grep matches any line in the output that features the @ symbol of the email address. This gives us lines of text with some HTML around the email addresses and so we need to further refine the text using the cut command. Since the output from the grep is lines like
 
 ```markup
 <td>donnasnider@sneakymailer.htb</td>
 ```
 
-We can use cut to delimit \(-d\) based on the character of the '&gt;' and select the second field that results, then get rid of the final HTML with a second cut command. The entire output consisting of just the emails can then be saved to a file emails.txt.
+We can use cut to delimit (-d) based on the character of the '>' and select the second field that results, then get rid of the final HTML with a second cut command. The entire output consisting of just the emails can then be saved to a file emails.txt.
 
 Note that you can also simply copy paste the text from the page into a spreadsheet or editor and manually then copy the emails.
 
@@ -57,7 +57,7 @@ We get a number of directories, the most interesting of which is pypi. We can ru
 
 Going to that page, we get an account registration page
 
-![Sneaky Corp account registration](../.gitbook/assets/12%20%281%29.png)
+![Sneaky Corp account registration](<../.gitbook/assets/12 (1).png>)
 
 Filling out details and clicking register account does not seem to do anything. No account is added to the emails in the team page and there is nowhere to actually login. Likewise, the Logout function on the home page does not do anything either.
 
@@ -97,7 +97,7 @@ def register():
 app.run('0.0.0.0',80)
 ```
 
-This code will start a web server listening on port 80 and any request received with the path /pypi/register.php will be handled by the method register\(\). If the HTTP request is a GET, then it will use the page we cloned; register.html as a template and return that. If it is a POST request, the application will print out the arguments and form data and then redirect to the real registration page.
+This code will start a web server listening on port 80 and any request received with the path /pypi/register.php will be handled by the method register(). If the HTTP request is a GET, then it will use the page we cloned; register.html as a template and return that. If it is a POST request, the application will print out the arguments and form data and then redirect to the real registration page.
 
 To run the application, we just use
 
@@ -186,7 +186,7 @@ ImmutableMultiDict([('firstName', 'Paul'),
  "POST /pypi/register.php HTTP/1.1" 302 -
 ```
 
-The user Paul Byrd with email address **paulbyrd@sneakymailer.htb** and password **^\(\#J@SkFv2\[%KhIxKk\(Ju\`hqcHl&lt;:Ht** responded to the phishing email.
+The user Paul Byrd with email address **paulbyrd@sneakymailer.htb** and password **^(#J@SkFv2\[%KhIxKk(Ju\`hqcHl<:Ht** responded to the phishing email.
 
 These credentials don't work with FTP or SSH but we can use them to connect to the mail server and read emails.
 
@@ -198,7 +198,7 @@ To install Thunderbird use:
 
 Configure the mail settings as shown here:
 
-![Mail settings for Paul Byrd](../.gitbook/assets/13%20%282%29.png)
+![Mail settings for Paul Byrd](<../.gitbook/assets/13 (2).png>)
 
 You may get an error regarding an error regarding a certificate but you can ignore that. In the Sent Items folder, there are two emails. The first is regards to a password reset request
 
@@ -296,4 +296,3 @@ www-data@sneakymailer:/$ ^Z
 nc -lvnp 6001
 www-data@sneakymailer:/$
 ```
-
